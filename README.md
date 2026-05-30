@@ -1,54 +1,19 @@
-# cslb 仓库管理说明
+# 学习工具与管理清单项目
 
-这个仓库用于集中存放多个网页工具项目。当前管理方式是：**根目录作为项目总入口和说明区，具体项目代码全部放进对应文件夹**。
+欢迎访问这个仓库。这里集中展示一些可以直接在网页中使用的学习工具、清单工具和管理辅助页面。
 
-## 根目录管理规则
+目前主要包含两个可访问项目：
 
-根目录只保留：
+1. **CSLB C10 电工学习工具**
+2. **招聘面试必做清单**
 
-- 项目文件夹
-- 本仓库总说明文件 `README.md`
+这些项目都可以通过 GitHub Pages 直接打开，不需要下载安装。
 
-不要把普通项目文件直接放在根目录，例如：
+## 在线访问
 
-```text
-.html
-.jsx
-.js
-.css
-.ps1
-.txt
-临时测试文件
-单个项目专用 README
-```
+### CSLB C10 电工学习工具
 
-如果某个文件只属于一个项目，就必须放进该项目文件夹。
-
-## 当前目录结构
-
-```text
-/
-├── README.md                     仓库总说明，只说明管理方式
-├── cslb-study-tool/              CSLB C10 电工学习工具
-├── manager-hiring-checklist/     招聘面试必做清单网页
-└── move-checkpoint/              迁移记录、测试文件、整理检查点
-```
-
-## 项目文件夹说明
-
-### `cslb-study-tool/`
-
-用于管理 CSLB C10 电工学习工具。
-
-主要文件包括：
-
-```text
-cslb-study-tool/index.html
-cslb-study-tool/C10StudyCardsPreview.jsx
-cslb-study-tool/build-standalone.ps1
-cslb-study-tool/README.md
-cslb-study-tool/PROJECT_README.md
-```
+用于学习 CSLB C10 电工考试相关知识，适合用来查看学习卡、自测和复习重点概念。
 
 访问地址：
 
@@ -56,16 +21,15 @@ cslb-study-tool/PROJECT_README.md
 https://louisong1021-ux.github.io/cslb/cslb-study-tool/
 ```
 
-### `manager-hiring-checklist/`
-
-用于管理招聘面试必做清单网页。
-
-主要文件包括：
+项目文件夹：
 
 ```text
-manager-hiring-checklist/index.html
-manager-hiring-checklist/RealtimeReactPage.jsx
+cslb-study-tool/
 ```
+
+### 招聘面试必做清单
+
+这是给新经理、新管理者使用的招聘面试核对工具，帮助面试前、面试中、录用前逐项检查关键事项，减少漏项和凭感觉判断。
 
 访问地址：
 
@@ -73,65 +37,69 @@ manager-hiring-checklist/RealtimeReactPage.jsx
 https://louisong1021-ux.github.io/cslb/manager-hiring-checklist/
 ```
 
-### `move-checkpoint/`
-
-用于保存整理过程中的检查点、测试文件和迁移记录。
-
-这个文件夹不是正式网页项目，主要用于保留历史记录，方便后续排查或回滚。
-
-## 新增项目规则
-
-新增一个网页或工具时，必须新建独立文件夹，例如：
+项目文件夹：
 
 ```text
-new-project-name/
-├── index.html
-├── README.md
-└── 其他项目文件
-```
-
-不要直接把新项目的 `index.html`、源码文件或临时文件放到根目录。
-
-## 修改项目规则
-
-修改某个项目时，先进入对应文件夹：
-
-```text
-cslb-study-tool/
 manager-hiring-checklist/
 ```
 
-只修改该项目内部文件，不影响其他项目。
-
-如果修改会影响访问路径、部署方式或文件结构，需要同步更新对应项目文件夹里的 `README.md`。
-
-## GitHub Pages 说明
-
-当前仓库使用 GitHub Pages 部署静态网页。由于根目录主要作为管理区，推荐直接访问具体项目路径：
+## 仓库内容
 
 ```text
-/cslb-study-tool/
-/manager-hiring-checklist/
+/
+├── README.md                     当前说明文件
+├── cslb-study-tool/              CSLB C10 电工学习工具
+├── manager-hiring-checklist/     招聘面试必做清单
+└── move-checkpoint/              迁移记录与历史检查点
 ```
 
-根目录不建议作为具体项目页面使用。
+## 使用方式
 
-## 版本与回滚
+普通访客可以直接点击上面的访问地址打开网页工具。
 
-重要整理提交：
+如果你只是使用这些工具，不需要理解代码，也不需要下载仓库。
 
-```text
-074d2d341942a5e66463a7f3606bd436fc417bee
-```
+如果页面打不开，可以稍等一会儿再刷新。GitHub Pages 在更新后有时需要一点时间完成部署。
 
-该提交完成了根目录旧项目文件整理，将原先散落在根目录的 CSLB 文件移入 `cslb-study-tool/`。
+## 项目说明
 
-后续如果要回滚某个项目，优先通过 GitHub commit history 找对应项目文件夹的历史版本，不要手动混合多个项目文件。
+### `cslb-study-tool/`
 
-## 总原则
+这是 CSLB C10 电工学习工具项目。里面包含网页入口和源文件。
 
-```text
-一个文件夹 = 一个项目
-根目录 = 仓库说明 + 项目分类
-项目文件不直接放根目录
-```
+主要用于：
+
+- 学习 CSLB C10 电工考试知识点
+- 查看中英双语学习卡
+- 做自测题
+- 在手机或电脑上快速复习
+
+### `manager-hiring-checklist/`
+
+这是招聘面试清单项目。里面包含一个适合手机查看的网页工具。
+
+主要用于：
+
+- 帮助新经理理解招聘流程
+- 面试前确认岗位标准
+- 面试中追问真实经历
+- 录用前核对风险和证据
+
+### `move-checkpoint/`
+
+这个文件夹主要保存迁移记录、测试文件和整理检查点。普通访客一般不需要查看。
+
+## 适合谁使用
+
+这个仓库适合：
+
+- 正在学习 CSLB C10 电工考试的人
+- 想用网页卡片复习知识点的人
+- 第一次负责招聘或面试的新经理
+- 需要把复杂流程做成清单工具的人
+
+## 说明
+
+这里的网页工具主要用于学习、复习和流程辅助，不替代正式培训、考试资料、法律意见、人事合规审核或专业判断。
+
+如果用于正式工作场景，建议结合公司内部流程、HR 要求和当地法规一起使用。
