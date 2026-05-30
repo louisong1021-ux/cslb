@@ -2,52 +2,80 @@
 
 欢迎访问这个仓库。这里集中展示一些可以直接在网页中使用的学习工具、清单工具和管理辅助页面。
 
-目前主要包含两个可访问项目：
+这个仓库目前包含两个正式网页项目，以及一个迁移记录文件夹。所有可访问地址都在下面列出。
 
-1. **CSLB C10 电工学习工具**
-2. **招聘面试必做清单**
+## 项目访问总览
 
-这些项目都可以通过 GitHub Pages 直接打开，不需要下载安装。
+| 项目 | 用途 | 完整访问地址 |
+|---|---|---|
+| CSLB C10 电工学习工具 | 电工考试学习、学习卡、自测复习 | `https://louisong1021-ux.github.io/cslb/cslb-study-tool/` |
+| 招聘面试必做清单 | 给新经理使用的招聘面试核对工具 | `https://louisong1021-ux.github.io/cslb/manager-hiring-checklist/` |
+| 迁移记录与检查点 | 仓库整理记录，不是正式网页工具 | `https://github.com/louisong1021-ux/cslb/tree/main/move-checkpoint` |
+| 仓库首页 | 查看项目说明和源码结构 | `https://github.com/louisong1021-ux/cslb` |
 
-## 在线访问
+## 正式项目介绍
 
-### CSLB C10 电工学习工具
+### 1. CSLB C10 电工学习工具
 
-用于学习 CSLB C10 电工考试相关知识，适合用来查看学习卡、自测和复习重点概念。
+这是一个用于学习 **CSLB C10 Electrical** 相关知识的网页学习工具，适合用来查看学习卡、自测题和复习重点概念。
 
-访问地址：
+适合人群：
+
+- 正在准备 CSLB C10 电工考试的人
+- 想用学习卡方式复习电工知识点的人
+- 需要在手机或电脑上快速复习的人
+
+完整访问地址：
 
 ```text
 https://louisong1021-ux.github.io/cslb/cslb-study-tool/
 ```
 
-项目文件夹：
+项目源码文件夹：
 
 ```text
-cslb-study-tool/
+https://github.com/louisong1021-ux/cslb/tree/main/cslb-study-tool
 ```
 
-### 招聘面试必做清单
+### 2. 招聘面试必做清单
 
-这是给新经理、新管理者使用的招聘面试核对工具，帮助面试前、面试中、录用前逐项检查关键事项，减少漏项和凭感觉判断。
+这是一个给新经理、新管理者使用的招聘面试核对工具，帮助使用者在面试前、面试中、录用前逐项检查关键事项，减少漏项和凭感觉判断。
 
-访问地址：
+适合人群：
+
+- 第一次负责招聘的新经理
+- 需要面试候选人的管理者
+- 希望把招聘流程做成清单工具的人
+
+完整访问地址：
 
 ```text
 https://louisong1021-ux.github.io/cslb/manager-hiring-checklist/
 ```
 
-项目文件夹：
+项目源码文件夹：
 
 ```text
-manager-hiring-checklist/
+https://github.com/louisong1021-ux/cslb/tree/main/manager-hiring-checklist
+```
+
+## 非正式网页项目
+
+### move-checkpoint
+
+这个文件夹主要保存迁移记录、测试文件和整理检查点。它不是给普通访客使用的网页工具，一般不需要打开。
+
+完整访问地址：
+
+```text
+https://github.com/louisong1021-ux/cslb/tree/main/move-checkpoint
 ```
 
 ## 仓库内容
 
 ```text
 /
-├── README.md                     当前说明文件
+├── README.md                     当前访客说明文件
 ├── cslb-study-tool/              CSLB C10 电工学习工具
 ├── manager-hiring-checklist/     招聘面试必做清单
 └── move-checkpoint/              迁移记录与历史检查点
@@ -55,48 +83,11 @@ manager-hiring-checklist/
 
 ## 使用方式
 
-普通访客可以直接点击上面的访问地址打开网页工具。
+普通访客可以直接打开上方的完整访问地址使用网页工具。
 
 如果你只是使用这些工具，不需要理解代码，也不需要下载仓库。
 
 如果页面打不开，可以稍等一会儿再刷新。GitHub Pages 在更新后有时需要一点时间完成部署。
-
-## 项目说明
-
-### `cslb-study-tool/`
-
-这是 CSLB C10 电工学习工具项目。里面包含网页入口和源文件。
-
-主要用于：
-
-- 学习 CSLB C10 电工考试知识点
-- 查看中英双语学习卡
-- 做自测题
-- 在手机或电脑上快速复习
-
-### `manager-hiring-checklist/`
-
-这是招聘面试清单项目。里面包含一个适合手机查看的网页工具。
-
-主要用于：
-
-- 帮助新经理理解招聘流程
-- 面试前确认岗位标准
-- 面试中追问真实经历
-- 录用前核对风险和证据
-
-### `move-checkpoint/`
-
-这个文件夹主要保存迁移记录、测试文件和整理检查点。普通访客一般不需要查看。
-
-## 适合谁使用
-
-这个仓库适合：
-
-- 正在学习 CSLB C10 电工考试的人
-- 想用网页卡片复习知识点的人
-- 第一次负责招聘或面试的新经理
-- 需要把复杂流程做成清单工具的人
 
 ## 说明
 
