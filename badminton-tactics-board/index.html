@@ -31,11 +31,18 @@
   .seg button{height:38px;border-radius:9px;color:#a9b7c8;background:transparent;cursor:pointer;font-weight:700;font-size:13px}
   .seg button.active{background:var(--panel2);color:white;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
   .formation-panel{padding:12px;border-radius:13px;background:linear-gradient(135deg,rgba(114,242,177,.07),rgba(67,200,255,.06));border:1px solid rgba(114,242,177,.14)}
+  .formation-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:3px;background:#0b1220;border:1px solid rgba(255,255,255,.06);border-radius:10px}
+  .formation-tab{height:31px;border-radius:7px;background:transparent;color:#8194ab;cursor:pointer;font-size:10.5px;font-weight:800;transition:.16s ease}
+  .formation-tab.active{background:#1a2a3e;color:#e9fff4;box-shadow:inset 0 0 0 1px rgba(114,242,177,.15)}
   .preset-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
   .preset{min-height:43px;padding:6px 7px;border-radius:9px;background:#101a2a;color:#bdcad9;border:1px solid rgba(255,255,255,.07);cursor:pointer;font-size:11px;font-weight:750;line-height:1.2;text-align:left;transition:.16s ease}
   .preset:hover{border-color:rgba(114,242,177,.38);color:#e5fff1;background:rgba(114,242,177,.09)}
   .preset.active{border-color:rgba(114,242,177,.52);color:#e5fff1;background:rgba(114,242,177,.13);box-shadow:inset 0 0 0 1px rgba(114,242,177,.08)}
   .preset strong{display:block;font-size:11.5px}.preset span{display:block;margin-top:3px;color:#7790a9;font-size:9.5px;font-weight:650}
+  .formation-controls{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px}
+  .scene-count{font-size:9.5px;color:#70839b;font-weight:700}
+  .mirror-btn{height:30px;padding:0 9px;border-radius:8px;background:#101a2a;color:#a9bbcf;border:1px solid rgba(255,255,255,.08);cursor:pointer;font-size:10px;font-weight:800}
+  .mirror-btn:hover{color:#e8fff3;border-color:rgba(114,242,177,.35)}
   .preset-note{min-height:31px;font-size:10.5px;color:#8fa1b8;line-height:1.48;padding:1px 2px 0}
   .tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .tool{height:46px;border-radius:11px;background:#101a2a;color:#b8c5d6;border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;transition:.16s ease}
@@ -113,8 +120,10 @@
     </div>
 
     <div class="section formation-panel" id="formationPanel">
-      <div class="label" id="formationLabel">双打比赛站位</div>
+      <div class="label" id="formationLabel">双打实战站位</div>
+      <div class="formation-tabs" id="formationTabs"></div>
       <div class="preset-grid" id="formationGrid"></div>
+      <div class="formation-controls"><span class="scene-count" id="sceneCount"></span><button class="mirror-btn" id="mirrorFormation">↕ 左右场区镜像</button></div>
       <div class="preset-note" id="formationNote">根据球路切换站位；预设是回合中的参考起点，不是固定站死。</div>
     </div>
 
@@ -140,7 +149,7 @@
       </div>
     </div>
 
-    <div class="help"><b>使用方法</b><br>“移动”模式可拖动球员和羽毛球。选择“跑位线”或“击球线”后，在球场上按住并拖动即可画箭头。点击“擦除”后再点某条箭头即可删除。</div>
+    <div class="help"><b>使用方法</b><br>先选“发接发、进攻、防守”，再选具体实战情形。“左右场区镜像”可切换另一半场；球员和箭头仍可继续拖动、绘制和修改。</div>
     <div class="sidebar-footer">战术会保存在当前浏览器中</div>
   </aside>
 
@@ -202,40 +211,74 @@
   const toastEl = document.getElementById('toast');
   const boardTitle = document.querySelector('.board-title');
   const formationLabel = document.getElementById('formationLabel');
+  const formationTabs = document.getElementById('formationTabs');
   const formationGrid = document.getElementById('formationGrid');
   const formationNote = document.getElementById('formationNote');
+  const sceneCount = document.getElementById('sceneCount');
   const phaseBadge = document.getElementById('phaseBadge');
   const modeButtons = [...document.querySelectorAll('#matchMode button')];
   const toolButtons = [...document.querySelectorAll('[data-tool]')];
   const markers = [...document.querySelectorAll('.marker,.shuttle')];
   const players = [...document.querySelectorAll('.marker')];
   let mode = 'doubles', tool = 'move', dragTarget = null, drawing = false, draft = null;
-  let lines = [], history = [], activeFormation = 'doublesReady';
+  let lines = [], history = [], activeFormation = 'doublesServe', formationCategory = 'serve', isMirrored = false;
 
   const modeNames={doubles:'双打',mixed:'混双',singles:'单打'};
-  const defaultFormations={doubles:'doublesReady',mixed:'mixedAttack',singles:'singlesBase'};
+  const categoryNames={serve:'发接发',attack:'进攻',defense:'防守'};
+  const categoryDefaults={
+    doubles:{serve:'doublesServe',attack:'doublesRearAttack',defense:'doublesWideDefense'},
+    mixed:{serve:'mixedFemaleServe',attack:'mixedStandardAttack',defense:'mixedMaleStraightDefense'},
+    singles:{serve:'singlesLowServe',attack:'singlesRearStraight',defense:'singlesCenterDefense'}
+  };
+  const defaultFormations={doubles:'doublesServe',mixed:'mixedFemaleServe',singles:'singlesLowServe'};
   const formationCatalog={
     doubles:[
-      {id:'doublesReady',label:'准备站位',short:'中场错位',description:'双方在中前场略微错位，拍头向上；这是攻防转换的准备位置，不是左右并排站死。',positions:{r1:['31%','36%'],r2:['28%','67%'],b1:['69%','64%'],b2:['72%','33%'],shuttle:['50%','50%']},lines:[]},
-      {id:'doublesServe',label:'短发接发',short:'抢前三拍',description:'发球员贴近短发球线和中线，搭档在后方覆盖第三拍；接发员前压，搭档防备偷后场。',positions:{r1:['31.5%','44%'],r2:['19%','64%'],b1:['68.5%','56%'],b2:['82%','36%'],shuttle:['31.7%','44%']},lines:[{type:'shot',x1:317,y1:264,x2:675,y2:328}]},
-      {id:'doublesAttack',label:'前后进攻',short:'后杀前封',description:'后场队员保持下压，前场队员站在发球线前后寻找封网；对方回到平行防守。',positions:{r1:['41.5%','52%'],r2:['16.5%','34%'],b1:['77%','33%'],b2:['77%','68%'],shuttle:['16.5%','34%']},lines:[{type:'shot',x1:170,y1:204,x2:742,y2:205},{type:'run',x1:415,y1:312,x2:430,y2:245}]},
-      {id:'doublesDefense',label:'平行防守',short:'各守半区',description:'面对后场下压时两人平行、略后于中场，各守半区；直线防守者可稍靠前，另一人补中路。',positions:{r1:['22%','32%'],r2:['22%','68%'],b1:['58.5%','50%'],b2:['83%','32%'],shuttle:['83%','32%']},lines:[{type:'shot',x1:830,y1:192,x2:235,y2:205}]},
-      {id:'doublesDrive',label:'平抽挡',short:'中场轮转',description:'平抽挡时保持中场错位和拍头在前，击球者压上、搭档补身后，随球路快速轮转。',positions:{r1:['33%','35%'],r2:['29%','68%'],b1:['67%','65%'],b2:['71%','32%'],shuttle:['52%','50%']},lines:[{type:'shot',x1:500,y1:300,x2:675,y2:390},{type:'run',x1:290,y1:408,x2:350,y2:345}]}
+      {id:'doublesServe',category:'serve',label:'己方短发球',short:'右区发球 · 抢第三拍',description:'发球员靠近T位，搭档退后并错开，覆盖推扑和偷后场；接发员前压，接发搭档站后场。当前显示右区发球，可一键镜像到左区。',positions:{r1:['31.5%','56%'],r2:['18%','34%'],b1:['68.5%','44%'],b2:['82%','66%'],shuttle:['31.7%','56%']},lines:[{type:'shot',x1:317,y1:336,x2:675,y2:264}]},
+      {id:'doublesReceive',category:'serve',label:'接对方短发',short:'接发前压 · 搭档护后场',description:'接发员贴近短发球线，重心向前，优先扑、推、搓；搭档后置并避开接发员视线，准备处理偷后场和第四拍。',positions:{r1:['31.5%','56%'],r2:['18%','34%'],b1:['68.5%','44%'],b2:['82%','66%'],shuttle:['68.3%','44%']},lines:[{type:'shot',x1:683,y1:264,x2:325,y2:336}]},
+      {id:'doublesFlickReceive',category:'serve',label:'接偷后场',short:'接发员后撤 · 搭档守前',description:'接发员被偷后场后转髋后撤击球；搭档不要一起退到底线，应留在中前场封挡并准备下一拍。位置表示接发员已启动后的瞬间。',positions:{r1:['15%','68%'],r2:['34%','34%'],b1:['68.5%','44%'],b2:['82%','66%'],shuttle:['16%','68%']},lines:[{type:'shot',x1:683,y1:264,x2:165,y2:408},{type:'run',x1:315,y1:336,x2:155,y2:400}]},
+      {id:'doublesThirdShot',category:'serve',label:'发球后第三拍',short:'发球员封网 · 搭档下压',description:'短发后对方推挑，发球员跟住网前和中路，后场搭档移动到来球后方下压；两人形成前后但保持错位。',positions:{r1:['42%','58%'],r2:['17%','37%'],b1:['61%','43%'],b2:['79%','66%'],shuttle:['18%','37%']},lines:[{type:'shot',x1:615,y1:258,x2:185,y2:222},{type:'run',x1:315,y1:336,x2:420,y2:348},{type:'run',x1:180,y1:204,x2:170,y2:222}]},
+
+      {id:'doublesRearAttack',category:'attack',label:'后场连续下压',short:'后杀前封 · 同侧偏移',description:'后场队员在来球侧连续杀吊，前场队员站在短发球线后并略偏同侧，优先封直线和中路；防守方随击球点整体偏移。',positions:{r1:['41.5%','60%'],r2:['15.5%','68%'],b1:['76%','64%'],b2:['78%','31%'],shuttle:['15.5%','68%']},lines:[{type:'shot',x1:160,y1:408,x2:745,y2:385},{type:'run',x1:415,y1:360,x2:435,y2:390}]},
+      {id:'doublesMidAttack',category:'attack',label:'中场平抽压制',short:'前后错位 · 拍头在前',description:'击球者在中场向前压，搭档在后侧补空当；两人不要并在一条横线上，保持一前一后的攻击层次。',positions:{r1:['39%','63%'],r2:['29%','35%'],b1:['63%','37%'],b2:['72%','67%'],shuttle:['52%','60%']},lines:[{type:'shot',x1:515,y1:360,x2:665,y2:225},{type:'run',x1:290,y1:210,x2:335,y2:285}]},
+      {id:'doublesNetKill',category:'attack',label:'网前封扑',short:'前场截击 · 后场补身后',description:'前场队员逼近网口完成封扑，搭档不跟到网前，而是收进中后场覆盖挑球；封网者击球后准备向另一侧横移。',positions:{r1:['46%','61%'],r2:['24%','39%'],b1:['60%','60%'],b2:['79%','31%'],shuttle:['47%','61%']},lines:[{type:'shot',x1:470,y1:366,x2:600,y2:360},{type:'run',x1:460,y1:366,x2:435,y2:280}]},
+      {id:'doublesRotation',category:'attack',label:'杀吊后的轮转',short:'后场跟进 · 前场让位',description:'后场队员打出质量好的直线吊球后向前跟进；原前场队员横向让位并回补后场，形成顺畅轮转而不是两人抢同一点。',positions:{r1:['38%','62%'],r2:['23%','67%'],b1:['65%','63%'],b2:['78%','30%'],shuttle:['53%','66%']},lines:[{type:'shot',x1:230,y1:402,x2:535,y2:396},{type:'run',x1:230,y1:402,x2:370,y2:365},{type:'run',x1:380,y1:372,x2:245,y2:215}]},
+
+      {id:'doublesWideDefense',category:'defense',label:'防直线重杀',short:'防守墙随球偏移',description:'对手从边线后场下压时，两名防守者平行偏向来球侧；直线防守者略靠前，另一人收中路防斜线，避免平均分场留下中缝。',positions:{r1:['23%','67%'],r2:['22%','34%'],b1:['59%','61%'],b2:['85%','68%'],shuttle:['85%','68%']},lines:[{type:'shot',x1:850,y1:408,x2:245,y2:400}]},
+      {id:'doublesCenterDefense',category:'defense',label:'防中路下压',short:'平行收窄 · 护身体',description:'对手从中后场进攻时，两人以中线为轴收窄防守墙，站在中后场而不是压到发球线，拍头在身前覆盖身体和两腰。',positions:{r1:['22%','62%'],r2:['22%','38%'],b1:['59%','53%'],b2:['84%','50%'],shuttle:['84%','50%']},lines:[{type:'shot',x1:840,y1:300,x2:240,y2:350}]},
+      {id:'doublesLiftDefense',category:'defense',label:'被迫挑球后',short:'立即退平行防守',description:'前场被迫挑高后，挑球者迅速退到自己半区，搭档同时横向分开，尽早建立防守墙；不要站在原地看球飞行。',positions:{r1:['22%','67%'],r2:['21%','34%'],b1:['59%','62%'],b2:['84%','68%'],shuttle:['82%','68%']},lines:[{type:'shot',x1:430,y1:395,x2:820,y2:408},{type:'run',x1:430,y1:395,x2:225,y2:400},{type:'run',x1:290,y1:220,x2:210,y2:204}]},
+      {id:'doublesBlockCounter',category:'defense',label:'挡网反攻',short:'挡球者跟进 · 搭档补后',description:'直线挡网质量足够时，挡球者向前跟进封网，搭档从平行位回收中后场；这是防守转进攻的关键轮转。',positions:{r1:['38%','66%'],r2:['22%','35%'],b1:['61%','62%'],b2:['84%','68%'],shuttle:['53%','66%']},lines:[{type:'shot',x1:240,y1:400,x2:535,y2:396},{type:'run',x1:240,y1:400,x2:380,y2:396},{type:'run',x1:220,y1:210,x2:190,y2:285}]}
     ],
     mixed:[
-      {id:'mixedServe',label:'女发球',short:'男搭档后压',description:'女队员在T位附近短发，男队员后置准备第三拍；对方女队员前压接发，男队员覆盖后场。',positions:{r1:['31.5%','44%'],r2:['19%','64%'],b1:['68.5%','56%'],b2:['82%','36%'],shuttle:['31.7%','44%']},lines:[{type:'shot',x1:317,y1:264,x2:675,y2:328}]},
-      {id:'mixedMaleServe',label:'男发球',short:'女搭档封网',description:'男队员短发，女搭档压低重心站在前侧准备封网，但必须让接发者清楚看到发球动作和羽毛球。',positions:{r1:['38%','59%'],r2:['31.5%','44%'],b1:['68.5%','56%'],b2:['82%','35%'],shuttle:['31.7%','44%']},lines:[{type:'shot',x1:317,y1:264,x2:675,y2:328},{type:'run',x1:380,y1:354,x2:430,y2:340}]},
-      {id:'mixedReceive',label:'己方接发',short:'女前男后',description:'女队员靠近短发球线抢推、扑、放，男队员在后方覆盖偷后场，并准备接第四拍。',positions:{r1:['31.5%','56%'],r2:['18%','34%'],b1:['68.5%','44%'],b2:['81%','64%'],shuttle:['68.3%','44%']},lines:[{type:'shot',x1:683,y1:264,x2:325,y2:328}]},
-      {id:'mixedAttack',label:'前后进攻',short:'女前男后',description:'常用进攻为女队员控制网前和中前场、男队员覆盖中后场；防守方女队员站在来球斜线，男队员守直线。',positions:{r1:['41.5%','53%'],r2:['16.5%','34%'],b1:['76%','68%'],b2:['76%','32%'],shuttle:['16.5%','34%']},lines:[{type:'shot',x1:170,y1:204,x2:735,y2:200},{type:'run',x1:415,y1:318,x2:438,y2:255}]},
-      {id:'mixedDefense',label:'平行防守',short:'女守斜线',description:'混双防守仍以平行为主：男队员通常守来球直线，女队员守斜线并可略靠前，便于挡网后转入进攻。',positions:{r1:['24.5%','68%'],r2:['22%','32%'],b1:['58.5%','49%'],b2:['84%','32%'],shuttle:['84%','32%']},lines:[{type:'shot',x1:840,y1:192,x2:235,y2:202},{type:'run',x1:245,y1:408,x2:385,y2:345}]},
-      {id:'mixedTransition',label:'挡网轮转',short:'防守转进攻',description:'挡网质量足够时，前压者跟进封网，搭档回中后场补位。实际轮转由击球点决定，不应只按性别固定。',positions:{r1:['40%','59%'],r2:['25%','36%'],b1:['60%','43%'],b2:['82%','67%'],shuttle:['52%','58%']},lines:[{type:'run',x1:400,y1:354,x2:458,y2:342},{type:'run',x1:250,y1:216,x2:285,y2:300},{type:'shot',x1:520,y1:348,x2:610,y2:275}]}
+      {id:'mixedFemaleServe',category:'serve',label:'女队员发球',short:'女发前封 · 男后压',description:'女队员靠近T位短发，男搭档后置准备第三拍；对方女队员接发，男队员保护后场。当前为右区，可镜像到左区。',positions:{r1:['31.5%','56%'],r2:['18%','35%'],b1:['68.5%','44%'],b2:['82%','66%'],shuttle:['31.7%','56%']},lines:[{type:'shot',x1:317,y1:336,x2:675,y2:264}]},
+      {id:'mixedMaleServe',category:'serve',label:'男队员发球',short:'女搭档提前封网',description:'男队员靠近T位发球，女搭档在前侧错开准备封网，但不能遮挡接发者观察发球动作；发后男队员准备中后场第三拍。',positions:{r1:['39%','40%'],r2:['31.5%','56%'],b1:['68.5%','44%'],b2:['82%','66%'],shuttle:['31.7%','56%']},lines:[{type:'shot',x1:317,y1:336,x2:675,y2:264},{type:'run',x1:315,y1:336,x2:250,y2:390}]},
+      {id:'mixedFemaleReceive',category:'serve',label:'女队员接发',short:'女前抢点 · 男护后场',description:'女队员前压接发，男搭档站后场覆盖偷后场与第四拍；接发后优先争取留在前场，但球路决定是否需要轮转。',positions:{r1:['31.5%','56%'],r2:['18%','35%'],b1:['74%','62%'],b2:['68.5%','44%'],shuttle:['68.3%','44%']},lines:[{type:'shot',x1:683,y1:264,x2:325,y2:336}]},
+      {id:'mixedMaleReceive',category:'serve',label:'男队员接发',short:'男接发 · 女抢前场',description:'男队员接发时，女搭档站在中前场错位等待封网；男队员若推压成功可跟进，但要与女搭档分工，避免两人同时拥到网口。',positions:{r1:['39%','39%'],r2:['31.5%','56%'],b1:['68.5%','44%'],b2:['82%','66%'],shuttle:['68.3%','44%']},lines:[{type:'shot',x1:683,y1:264,x2:325,y2:336},{type:'run',x1:315,y1:336,x2:375,y2:360}]},
+
+      {id:'mixedStandardAttack',category:'attack',label:'标准前后进攻',short:'女前男后 · 同侧偏移',description:'常用阵型为女队员控制网前与中前场，男队员从后场下压；前场女队员略偏向来球直线侧，重点封直线和中路。',positions:{r1:['41.5%','60%'],r2:['15.5%','68%'],b1:['76%','31%'],b2:['76%','66%'],shuttle:['15.5%','68%']},lines:[{type:'shot',x1:160,y1:408,x2:742,y2:390},{type:'run',x1:415,y1:360,x2:438,y2:390}]},
+      {id:'mixedFemaleRear',category:'attack',label:'女队员被压后场',short:'女后击球 · 男中前接管',description:'女队员被调到后场时，男队员应收进中前场拦截弱回球，并根据女队员的击球质量准备交换；不要强行瞬间回到女前男后。',positions:{r1:['15%','68%'],r2:['37%','42%'],b1:['76%','32%'],b2:['76%','67%'],shuttle:['15%','68%']},lines:[{type:'shot',x1:150,y1:408,x2:735,y2:390},{type:'run',x1:370,y1:252,x2:405,y2:335}]},
+      {id:'mixedMaleFront',category:'attack',label:'男队员前场截击',short:'男前封 · 女回补中后',description:'男队员在前三拍抢到网前时先完成截击，女队员向中后场补位；等出现合适球路再自然轮转，不因固定分工放弃眼前进攻。',positions:{r1:['25%','36%'],r2:['43%','60%'],b1:['65%','62%'],b2:['79%','31%'],shuttle:['48%','60%']},lines:[{type:'shot',x1:430,y1:360,x2:620,y2:372},{type:'run',x1:250,y1:216,x2:205,y2:300}]},
+      {id:'mixedFlatAttack',category:'attack',label:'平抽挡压制',short:'前后错位 · 动态轮转',description:'平抽挡阶段两人保持错位，离球更近者向前压，搭档补身后和空出的半区；此时站位由击球点决定，不按性别站死。',positions:{r1:['39%','63%'],r2:['29%','35%'],b1:['63%','37%'],b2:['72%','67%'],shuttle:['52%','60%']},lines:[{type:'shot',x1:515,y1:360,x2:665,y2:225},{type:'run',x1:290,y1:210,x2:335,y2:285}]},
+
+      {id:'mixedMaleStraightDefense',category:'defense',label:'男队员守直线',short:'男直线 · 女斜线略前',description:'对手从男队员一侧后场下压时，男队员守直线，女队员守斜线并可略靠前；两人整体向来球侧移动，封住中缝。',positions:{r1:['24%','34%'],r2:['22%','67%'],b1:['59%','61%'],b2:['85%','68%'],shuttle:['85%','68%']},lines:[{type:'shot',x1:850,y1:408,x2:235,y2:400}]},
+      {id:'mixedFemaleStraightDefense',category:'defense',label:'女队员守直线',short:'女直线 · 男收中路',description:'当来球直线对准女队员一侧，女队员必须承担直线防守，男队员收中路和斜线；不能为了女斜线的常用分工在回合中交叉换位。',positions:{r1:['24%','34%'],r2:['22%','68%'],b1:['59%','39%'],b2:['85%','32%'],shuttle:['85%','32%']},lines:[{type:'shot',x1:850,y1:192,x2:245,y2:205}]},
+      {id:'mixedLiftDefense',category:'defense',label:'被迫挑球后',short:'先平行 · 再找反攻',description:'无论谁挑球，两人先迅速退成平行防守；男队员通常略靠直线侧，女队员保留挡网后前压的空间，但不应提前站到网前。',positions:{r1:['23%','35%'],r2:['22%','67%'],b1:['59%','61%'],b2:['84%','68%'],shuttle:['82%','68%']},lines:[{type:'shot',x1:430,y1:390,x2:820,y2:408},{type:'run',x1:430,y1:390,x2:230,y2:210}]},
+      {id:'mixedBlockCounter',category:'defense',label:'女挡网转进攻',short:'女跟进 · 男回补后场',description:'女队员直线挡网后跟进封网，男队员从平行防守位回收中后场，快速恢复常用进攻层次；只有挡网质量足够时才前压。',positions:{r1:['39%','66%'],r2:['21%','36%'],b1:['61%','62%'],b2:['84%','68%'],shuttle:['53%','66%']},lines:[{type:'shot',x1:240,y1:400,x2:535,y2:396},{type:'run',x1:240,y1:400,x2:390,y2:396},{type:'run',x1:220,y1:390,x2:190,y2:285}]}
     ],
     singles:[
-      {id:'singlesBase',label:'基本中心',short:'按回球微调',description:'单打中心不是几何死点，而是根据自己的回球方向、对手击球点和下一拍威胁做小幅前后左右调整。',positions:{r1:['27.5%','50%'],r2:['35%','69%'],b1:['72.5%','50%'],b2:['65%','69%'],shuttle:['50%','50%']},lines:[]},
-      {id:'singlesServe',label:'发接发',short:'靠近T位',description:'发球与接发都靠近T位并站在合法发球区内；发完立即分腿启动，准备封网或回到中心。',positions:{r1:['30.5%','44%'],r2:['35%','69%'],b1:['69.5%','56%'],b2:['65%','69%'],shuttle:['30.7%','44%']},lines:[{type:'shot',x1:307,y1:264,x2:685,y2:328}]},
-      {id:'singlesAttack',label:'后场进攻',short:'击球后回中',description:'从后场进攻后不要停在底线，应沿最短路线恢复到偏向对手可能直线回球的一侧中心。',positions:{r1:['14%','34%'],r2:['35%','69%'],b1:['76%','50%'],b2:['65%','69%'],shuttle:['14%','34%']},lines:[{type:'shot',x1:140,y1:204,x2:905,y2:410},{type:'run',x1:145,y1:215,x2:275,y2:300}]},
-      {id:'singlesDefense',label:'防守中心',short:'向直线侧偏移',description:'对手在后场进攻时，中心向其直线下压一侧略偏并适度后撤，同时保留扑网和斜线救球空间。',positions:{r1:['20%','42%'],r2:['35%','69%'],b1:['86%','34%'],b2:['65%','69%'],shuttle:['86%','34%']},lines:[{type:'shot',x1:860,y1:204,x2:220,y2:250}]},
-      {id:'singlesNet',label:'网前后恢复',short:'先稳再回中',description:'完成网前球后先观察对手是否被迫挑球，再后撤到可覆盖直线推球与后场的中心位置。',positions:{r1:['42%','58%'],r2:['35%','69%'],b1:['72%','46%'],b2:['65%','69%'],shuttle:['46%','58%']},lines:[{type:'run',x1:420,y1:348,x2:275,y2:300}]}
+      {id:'singlesLowServe',category:'serve',label:'低发球',short:'右区靠T · 发后分腿',description:'发球者靠近T位低发，接发者站在对角发球区中前部；发球后立即回到可覆盖推后场和网前的平衡位置。当前为右区，可镜像。',positions:{r1:['30.5%','56%'],r2:['35%','69%'],b1:['69.5%','44%'],b2:['65%','69%'],shuttle:['30.7%','56%']},lines:[{type:'shot',x1:307,y1:336,x2:685,y2:264},{type:'run',x1:305,y1:336,x2:280,y2:315}]},
+      {id:'singlesHighServe',category:'serve',label:'高远发球',short:'发深中路 · 回中心',description:'高远发球落点靠近底线并略向中路，减少对手进攻角度；发球者随即回到中心，准备对手的直线或斜线回球。',positions:{r1:['28%','56%'],r2:['35%','69%'],b1:['87%','44%'],b2:['65%','69%'],shuttle:['82%','44%']},lines:[{type:'shot',x1:280,y1:336,x2:850,y2:264},{type:'run',x1:280,y1:336,x2:275,y2:300}]},
+      {id:'singlesLowReceive',category:'serve',label:'接低发球',short:'前压接发 · 回球后平衡',description:'接发者靠近前发球线，以抢高点推、扑、放；击球后根据回球方向恢复，不要一律退到几何中心。',positions:{r1:['31.5%','56%'],r2:['35%','69%'],b1:['69.5%','44%'],b2:['65%','69%'],shuttle:['69%','44%']},lines:[{type:'shot',x1:690,y1:264,x2:325,y2:336}]},
+      {id:'singlesFlickReceive',category:'serve',label:'接偷后场',short:'转髋后撤 · 击后回中',description:'面对偷后场或平高发球，接发者快速转髋后撤，在身体前上方击球；击球后沿最短路线回到与回球质量相匹配的中心。',positions:{r1:['14%','68%'],r2:['35%','69%'],b1:['69.5%','44%'],b2:['65%','69%'],shuttle:['14%','68%']},lines:[{type:'shot',x1:690,y1:264,x2:145,y2:408},{type:'run',x1:315,y1:336,x2:145,y2:408}]},
+
+      {id:'singlesRearStraight',category:'attack',label:'后场直线进攻',short:'直线杀吊 · 中心偏同侧',description:'从后场边线直线下压后，沿最短路线回到偏向直线回球一侧的中心；直线球飞行短，必须优先保护。',positions:{r1:['14%','68%'],r2:['35%','69%'],b1:['75%','63%'],b2:['65%','69%'],shuttle:['14%','68%']},lines:[{type:'shot',x1:140,y1:408,x2:735,y2:378},{type:'run',x1:145,y1:408,x2:275,y2:345}]},
+      {id:'singlesRearCross',category:'attack',label:'后场斜线进攻',short:'斜线后回位更深',description:'斜线杀吊拉开角度，但会暴露己方直线前场；击球后中心位置要更保守，避免过度跟向斜线。',positions:{r1:['14%','68%'],r2:['35%','69%'],b1:['75%','37%'],b2:['65%','69%'],shuttle:['14%','68%']},lines:[{type:'shot',x1:140,y1:408,x2:735,y2:222},{type:'run',x1:145,y1:408,x2:265,y2:325}]},
+      {id:'singlesNetAttack',category:'attack',label:'网前抢攻',short:'上网击球 · 先看质量',description:'网前抢高点后先判断对手是否只能挑球；高质量搓放可稍留前，普通回球则立即后撤到能兼顾推后场的位置。',positions:{r1:['43%','61%'],r2:['35%','69%'],b1:['68%','42%'],b2:['65%','69%'],shuttle:['46%','61%']},lines:[{type:'shot',x1:430,y1:366,x2:540,y2:252},{type:'run',x1:430,y1:366,x2:285,y2:325}]},
+      {id:'singlesHalfCourt',category:'attack',label:'中场连续压迫',short:'抢半场球 · 保持向前',description:'对手回出半场球时在中前场连续下压，击球后保持重心向前但不贴网，兼顾对手挡网和抽后场。',positions:{r1:['35%','62%'],r2:['35%','69%'],b1:['72%','45%'],b2:['65%','69%'],shuttle:['42%','62%']},lines:[{type:'shot',x1:420,y1:372,x2:700,y2:270},{type:'run',x1:350,y1:372,x2:390,y2:345}]},
+
+      {id:'singlesCenterDefense',category:'defense',label:'防守中心',short:'随对手击球点偏移',description:'单打中心不是几何死点；对手在后场准备击球时，站位向其直线威胁侧偏并适度后撤，同时保留斜线和网前空间。',positions:{r1:['22%','62%'],r2:['35%','69%'],b1:['86%','68%'],b2:['65%','69%'],shuttle:['86%','68%']},lines:[{type:'shot',x1:860,y1:408,x2:230,y2:370}]},
+      {id:'singlesSmashDefense',category:'defense',label:'接杀防守',short:'中后场分腿 · 拍头在前',description:'面对后场重杀，防守中心向来球直线侧移动并略后撤，分腿落地时机对准对手击球，避免站得过前被追身。',positions:{r1:['20%','65%'],r2:['35%','69%'],b1:['87%','68%'],b2:['65%','69%'],shuttle:['87%','68%']},lines:[{type:'shot',x1:870,y1:408,x2:215,y2:390}]},
+      {id:'singlesRearDefense',category:'defense',label:'被动后场回球',short:'击高远后争取回中',description:'被压到后场角落时先确保击球高度和落点，回出高远球就利用飞行时间恢复；若只能过渡，则中心更偏向对手可能的直线进攻。',positions:{r1:['13%','68%'],r2:['35%','69%'],b1:['72%','43%'],b2:['65%','69%'],shuttle:['13%','68%']},lines:[{type:'shot',x1:130,y1:408,x2:865,y2:258},{type:'run',x1:135,y1:408,x2:270,y2:330}]},
+      {id:'singlesNetDefense',category:'defense',label:'被动救网后',short:'先制动 · 再回中心',description:'低点救网后先完成制动并观察回球质量；若对手能抢扑，只回到较前的防守中心，盲目大步后退会被二次放网。',positions:{r1:['43%','64%'],r2:['35%','69%'],b1:['64%','38%'],b2:['65%','69%'],shuttle:['46%','64%']},lines:[{type:'shot',x1:430,y1:384,x2:535,y2:230},{type:'run',x1:430,y1:384,x2:315,y2:345}]}
     ]
   };
 
@@ -253,7 +296,7 @@
     const xMin=isShuttle?4.2:(isRed?5.5:51.5),xMax=isShuttle?95.8:(isRed?48.5:94.5);
     return {px:clamp(p.px,xMin,xMax),py:clamp(p.py,yMin,yMax)};
   }
-  function snapshot(){return {mode,formation:activeFormation,lines:JSON.parse(JSON.stringify(lines)),positions:Object.fromEntries(markers.map(m=>[m.dataset.id,{left:m.style.left,top:m.style.top}]))};}
+  function snapshot(){return {mode,category:formationCategory,formation:activeFormation,mirrored:isMirrored,lines:JSON.parse(JSON.stringify(lines)),positions:Object.fromEntries(markers.map(m=>[m.dataset.id,{left:m.style.left,top:m.style.top}]))};}
   function pushHistory(){history.push(snapshot());if(history.length>40)history.shift();}
   function renderLines(){
     drawSvg.querySelectorAll('.tactic-line').forEach(n=>n.remove());
@@ -278,22 +321,31 @@
   function findFormation(id){return Object.values(formationCatalog).flat().find(item=>item.id===id)}
   function belongsToMode(id){return formationCatalog[mode].some(item=>item.id===id)}
   function setFormationMeta(id){
-    const preset=findFormation(id),title=preset?`${modeNames[mode]} · ${preset.label}`:`${modeNames[mode]} · 自定义`;
+    const preset=findFormation(id),category=categoryNames[formationCategory],mirrorText=isMirrored?' · 左右镜像':'',title=preset?`${modeNames[mode]} · ${category} · ${preset.label}${mirrorText}`:`${modeNames[mode]} · ${category} · 自定义`;
     boardTitle.textContent=title;phaseBadge.textContent=title;
-    formationNote.textContent=preset?preset.description:'已手动调整站位；球员会被限制在本方有效场区内，可继续绘制跑位和击球箭头。';
+    formationNote.textContent=preset?preset.description:'已手动调整此实战情形；球员仍被限制在本方有效场区内，可继续绘制跑位和击球箭头。';
     [...formationGrid.querySelectorAll('[data-preset]')].forEach(b=>b.classList.toggle('active',b.dataset.preset===id));
   }
   function renderFormationButtons(){
-    formationLabel.textContent=modeNames[mode]+'比赛站位';
-    formationGrid.innerHTML=formationCatalog[mode].map(item=>`<button class="preset" data-preset="${item.id}"><strong>${item.label}</strong><span>${item.short}</span></button>`).join('');
+    formationLabel.textContent=modeNames[mode]+'实战站位';
+    formationTabs.innerHTML=Object.entries(categoryNames).map(([id,label])=>`<button class="formation-tab${formationCategory===id?' active':''}" data-category="${id}">${label}</button>`).join('');
+    [...formationTabs.querySelectorAll('[data-category]')].forEach(b=>b.addEventListener('click',()=>{
+      if(b.dataset.category===formationCategory)return;
+      pushHistory();formationCategory=b.dataset.category;applyFormation(categoryDefaults[mode][formationCategory]);announce('已切换到'+categoryNames[formationCategory]+'站位');
+    }));
+    const visible=formationCatalog[mode].filter(item=>item.category===formationCategory);
+    formationGrid.innerHTML=visible.map(item=>`<button class="preset" data-preset="${item.id}"><strong>${item.label}</strong><span>${item.short}</span></button>`).join('');
     [...formationGrid.querySelectorAll('[data-preset]')].forEach(b=>b.addEventListener('click',()=>{
       pushHistory();applyFormation(b.dataset.preset);announce('已应用：'+findFormation(b.dataset.preset).label);
     }));
+    sceneCount.textContent=`本类 ${visible.length} 种 · 镜像覆盖左右场区`;
   }
-  function markCustom(){if(activeFormation==='custom')return;activeFormation='custom';setFormationMeta('custom')}
+  function markCustom(){if(activeFormation==='custom')return;activeFormation='custom';isMirrored=false;setFormationMeta('custom')}
   function updateModeUI(){
     const isSingles=mode==='singles',isMixed=mode==='mixed';
-    if(activeFormation!=='custom'&&!belongsToMode(activeFormation))activeFormation=defaultFormations[mode];
+    if(!categoryNames[formationCategory])formationCategory='serve';
+    if(activeFormation!=='custom'&&!belongsToMode(activeFormation)){activeFormation=categoryDefaults[mode][formationCategory];isMirrored=false;}
+    const preset=findFormation(activeFormation);if(preset)formationCategory=preset.category;
     modeButtons.forEach(b=>{const active=b.dataset.mode===mode;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
     document.querySelector('[data-id="r2"]').classList.toggle('hidden',isSingles);
     document.querySelector('[data-id="b2"]').classList.toggle('hidden',isSingles);
@@ -308,7 +360,7 @@
     renderFormationButtons();setFormationMeta(activeFormation);
   }
   function setMode(next,resetPositions=false){
-    mode=next;activeFormation=defaultFormations[next];updateModeUI();
+    mode=next;formationCategory='serve';activeFormation=defaultFormations[next];isMirrored=false;updateModeUI();
     if(resetPositions)applyFormation(activeFormation);
     announce({singles:'已切换为单打，使用单打有效边线',doubles:'已切换为双打，可选择真实比赛阶段',mixed:'已切换为混双，包含发接发和攻防轮转'}[next]);
   }
@@ -339,21 +391,27 @@
   function applyFormation(name){
     const preset=findFormation(name);if(!preset)return;
     markers.forEach(m=>{const p=preset.positions[m.dataset.id];if(p){m.style.left=p[0];m.style.top=p[1];}});
-    lines=JSON.parse(JSON.stringify(preset.lines||[]));activeFormation=name;renderLines();setFormationMeta(name);
+    lines=JSON.parse(JSON.stringify(preset.lines||[]));activeFormation=name;formationCategory=preset.category;isMirrored=false;renderFormationButtons();renderLines();setFormationMeta(name);
   }
-  function resetDefaultPositions(){applyFormation(defaultFormations[mode])}
+  function mirrorFormation(){
+    pushHistory();markers.forEach(m=>{m.style.top=(100-parseFloat(m.style.top))+'%';});
+    lines=lines.map(l=>({...l,y1:600-l.y1,y2:600-l.y2}));isMirrored=!isMirrored;renderLines();setFormationMeta(activeFormation);announce(isMirrored?'已切换到另一侧场区':'已恢复原侧场区');
+  }
+  document.getElementById('mirrorFormation').addEventListener('click',mirrorFormation);
+  function resetDefaultPositions(){applyFormation(activeFormation!=='custom'&&belongsToMode(activeFormation)?activeFormation:categoryDefaults[mode][formationCategory])}
   document.getElementById('undo').addEventListener('click',()=>{const s=history.pop();if(!s)return announce('没有可撤销的操作');applyState(s);announce('已撤销');});
   document.getElementById('clearLines').addEventListener('click',()=>{if(!lines.length)return;pushHistory();lines=[];markCustom();renderLines();announce('已清除所有箭头');});
   document.getElementById('reset').addEventListener('click',()=>{pushHistory();resetDefaultPositions();announce('已恢复当前模式的真实比赛基准站位');});
 
   function applyState(s){
     mode=['singles','doubles','mixed'].includes(s.mode)?s.mode:'doubles';
-    activeFormation=s.formation&&belongsToSavedMode(s.formation,mode)?s.formation:'custom';updateModeUI();
+    activeFormation=s.formation&&belongsToSavedMode(s.formation,mode)?s.formation:'custom';
+    formationCategory=categoryNames[s.category]?s.category:(findFormation(activeFormation)?.category||'serve');isMirrored=Boolean(s.mirrored);updateModeUI();
     Object.entries(s.positions||{}).forEach(([id,p])=>{const m=document.querySelector(`[data-id="${id}"]`);if(m){m.style.left=p.left;m.style.top=p.top;}});
     lines=Array.isArray(s.lines)?s.lines:[];renderLines();setFormationMeta(activeFormation);
   }
   function belongsToSavedMode(id,savedMode){return formationCatalog[savedMode].some(item=>item.id===id)}
-  function currentPayload(){return {version:3,name:'羽毛球战术',savedAt:new Date().toISOString(),...snapshot()};}
+  function currentPayload(){return {version:4,name:'羽毛球战术',savedAt:new Date().toISOString(),...snapshot()};}
   document.getElementById('save').addEventListener('click',()=>{localStorage.setItem('badminton-tactics-board',JSON.stringify(currentPayload()));announce('已保存到浏览器');});
   document.getElementById('load').addEventListener('click',()=>{const raw=localStorage.getItem('badminton-tactics-board');if(!raw)return announce('暂无已保存战术');try{pushHistory();applyState(JSON.parse(raw));announce('已载入战术');}catch{announce('保存数据无法读取')}});
   document.getElementById('download').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(currentPayload(),null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='badminton-tactic.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);announce('战术文件已导出');});
