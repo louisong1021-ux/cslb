@@ -2,7 +2,7 @@
 
 欢迎访问这个仓库。这里集中展示一些可以直接在网页中使用的学习工具、清单工具和管理辅助页面。
 
-这个仓库目前包含两个正式网页项目，以及一个迁移记录文件夹。所有可访问地址都在下面列出。
+这个仓库目前包含三个正式网页项目，以及一个迁移记录文件夹。所有可访问地址都在下面列出。
 
 ## 项目访问总览
 
@@ -10,6 +10,7 @@
 |---|---|---|
 | CSLB C10 电工学习工具 | 电工考试学习、学习卡、自测复习 | `https://louisong1021-ux.github.io/cslb/cslb-study-tool/` |
 | 招聘面试必做清单 | 给新经理使用的招聘面试核对工具 | `https://louisong1021-ux.github.io/cslb/manager-hiring-checklist/` |
+| 羽毛球战术板 | 单打、双打与混双站位及跑位演示 | `https://louisong1021-ux.github.io/cslb/badminton-tactics-board/` |
 | 迁移记录与检查点 | 仓库整理记录，不是正式网页工具 | `https://github.com/louisong1021-ux/cslb/tree/main/move-checkpoint` |
 | 仓库首页 | 查看项目说明和源码结构 | `https://github.com/louisong1021-ux/cslb` |
 
@@ -59,6 +60,22 @@ https://louisong1021-ux.github.io/cslb/manager-hiring-checklist/
 https://github.com/louisong1021-ux/cslb/tree/main/manager-hiring-checklist
 ```
 
+### 3. 羽毛球战术板
+
+这是一个可在电脑或手机浏览器中使用的羽毛球战术板，支持单打、双打和混双模式，可拖动球员、绘制跑位线与击球线，并保存或导入战术。
+
+完整访问地址：
+
+```text
+https://louisong1021-ux.github.io/cslb/badminton-tactics-board/
+```
+
+项目源码文件夹：
+
+```text
+https://github.com/louisong1021-ux/cslb/tree/main/badminton-tactics-board
+```
+
 ## 非正式网页项目
 
 ### move-checkpoint
@@ -78,6 +95,7 @@ https://github.com/louisong1021-ux/cslb/tree/main/move-checkpoint
 ├── README.md                     当前访客说明文件
 ├── cslb-study-tool/              CSLB C10 电工学习工具
 ├── manager-hiring-checklist/     招聘面试必做清单
+├── badminton-tactics-board/      羽毛球战术板
 └── move-checkpoint/              迁移记录与历史检查点
 ```
 
