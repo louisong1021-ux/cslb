@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>羽毛球战术板</title>
+<style>
+  :root{
+    --bg:#0a0f18; --panel:#111927; --panel2:#162235; --text:#f4f7fb; --muted:#8ea0b7;
+    --line:#2a3950; --accent:#72f2b1; --accent2:#43c8ff; --danger:#ff6b6b;
+    --court:#0f7350; --court2:#0d6848; --court-line:#f8fbf6; --shadow:0 18px 60px rgba(0,0,0,.32);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text)}
+  body{overflow:hidden}
+  button,input,select{font:inherit}
+  button{border:0}
+  .app{height:100%;display:grid;grid-template-columns:300px minmax(0,1fr);background:
+    radial-gradient(circle at 75% 10%, rgba(67,200,255,.08), transparent 30%),
+    radial-gradient(circle at 20% 90%, rgba(114,242,177,.07), transparent 28%),var(--bg)}
+  .sidebar{height:100%;padding:22px 18px;border-right:1px solid rgba(255,255,255,.06);background:rgba(12,18,29,.86);backdrop-filter:blur(18px);display:flex;flex-direction:column;gap:18px;overflow:auto}
+  .brand{display:flex;align-items:center;gap:12px;padding:2px 4px 10px}
+  .brandmark{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;box-shadow:0 8px 24px rgba(67,200,255,.2)}
+  .brandmark svg{width:23px;height:23px;color:#07121a}
+  h1{font-size:18px;line-height:1.2;margin:0;font-weight:760;letter-spacing:.1px}
+  .sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .section{display:flex;flex-direction:column;gap:9px}
+  .label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#7f91aa;font-weight:700;padding:0 4px}
+  .seg{display:grid;grid-template-columns:1fr 1fr;background:#0b1220;border:1px solid rgba(255,255,255,.07);padding:4px;border-radius:12px;gap:4px}
+  .seg.three{grid-template-columns:repeat(3,1fr)}
+  .seg button{height:38px;border-radius:9px;color:#a9b7c8;background:transparent;cursor:pointer;font-weight:700;font-size:13px}
+  .seg button.active{background:var(--panel2);color:white;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+  .mixed-presets{display:none;padding:12px;border-radius:13px;background:linear-gradient(135deg,rgba(114,242,177,.07),rgba(67,200,255,.06));border:1px solid rgba(114,242,177,.14)}
+  .mixed-presets.show{display:flex}
+  .preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .preset{min-height:38px;padding:5px 4px;border-radius:9px;background:#101a2a;color:#bdcad9;border:1px solid rgba(255,255,255,.07);cursor:pointer;font-size:11px;font-weight:750;line-height:1.2}
+  .preset:hover{border-color:rgba(114,242,177,.38);color:#e5fff1;background:rgba(114,242,177,.09)}
+  .preset-note{font-size:10.5px;color:#7f91a8;line-height:1.45;padding:0 2px}
+  .tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tool{height:46px;border-radius:11px;background:#101a2a;color:#b8c5d6;border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;transition:.16s ease}
+  .tool:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.13)}
+  .tool.active{background:rgba(114,242,177,.12);border-color:rgba(114,242,177,.46);color:#caffdf}
+  .tool svg{width:17px;height:17px}
+  .tool.shot.active{background:rgba(67,200,255,.12);border-color:rgba(67,200,255,.44);color:#c4efff}
+  .tool.erase.active{background:rgba(255,107,107,.12);border-color:rgba(255,107,107,.42);color:#ffd0d0}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .action{height:40px;border-radius:10px;background:#111b2a;color:#d6deea;border:1px solid rgba(255,255,255,.06);cursor:pointer;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px}
+  .action:hover{border-color:rgba(255,255,255,.14)}
+  .action.primary{background:linear-gradient(135deg,rgba(114,242,177,.18),rgba(67,200,255,.14));border-color:rgba(114,242,177,.28)}
+  .action.danger{color:#ffb1b1}
+  .action svg{width:15px;height:15px}
+  .help{font-size:12px;line-height:1.65;color:#8ea0b7;padding:12px 13px;background:#0d1522;border:1px solid rgba(255,255,255,.05);border-radius:12px}
+  .help b{color:#cbd5e1}
+  .sidebar-footer{margin-top:auto;font-size:11px;color:#64758d;text-align:center;padding-top:4px}
+  .workspace{min-width:0;height:100%;display:flex;flex-direction:column}
+  .topbar{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid rgba(255,255,255,.055);background:rgba(9,14,23,.52);backdrop-filter:blur(14px)}
+  .titlewrap{display:flex;align-items:center;gap:12px;min-width:0}
+  .board-title{font-size:16px;font-weight:760;white-space:nowrap}
+  .status{font-size:12px;color:#7f91a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .top-actions{display:flex;gap:8px}
+  .topbtn{height:38px;padding:0 13px;border-radius:10px;background:#111b2a;color:#d2dcea;border:1px solid rgba(255,255,255,.06);cursor:pointer;font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:7px}
+  .topbtn svg{width:15px;height:15px}
+  .stage{flex:1;min-height:0;padding:22px;display:grid;place-items:center;overflow:auto}
+  .board-shell{position:relative;width:min(76vw, 850px);aspect-ratio:1.55/1;border-radius:24px;padding:18px;background:linear-gradient(180deg,#142033,#0f1725);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.08)}
+  .board{width:100%;height:100%;position:relative;border-radius:14px;overflow:hidden;background:
+     radial-gradient(circle at 50% 50%,rgba(255,255,255,.025),transparent 35%),
+     repeating-linear-gradient(0deg,rgba(255,255,255,.016) 0 1px,transparent 1px 7px),
+     linear-gradient(135deg,var(--court),var(--court2));cursor:crosshair;touch-action:none;user-select:none}
+  .board.move-mode{cursor:default}
+  .court-svg,.draw-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .draw-svg{z-index:4}
+  .court-svg{z-index:1}
+  .court-svg line,.court-svg rect{vector-effect:non-scaling-stroke}
+  .net-shadow{position:absolute;left:50%;top:0;bottom:0;width:6px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(0,0,0,.16),transparent);z-index:2;pointer-events:none}
+  .center-label{position:absolute;z-index:2;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-90deg);font-size:11px;letter-spacing:.28em;color:rgba(255,255,255,.24);font-weight:900;pointer-events:none}
+  .marker{position:absolute;z-index:8;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;transform:translate(-50%,-50%);cursor:grab;font-weight:900;font-size:14px;border:3px solid rgba(255,255,255,.94);box-shadow:0 8px 18px rgba(0,0,0,.28), inset 0 0 0 2px rgba(0,0,0,.06);touch-action:none}
+  .marker:active{cursor:grabbing}
+  .marker.red{background:#ff5c61;color:white}
+  .marker.blue{background:#3d88ff;color:white}
+  .marker.mixed-role{font-size:19px}
+  .marker.mixed-role::after{content:attr(data-role);position:absolute;left:50%;top:-13px;transform:translateX(-50%);min-width:25px;height:17px;padding:0 5px;border-radius:8px;display:grid;place-items:center;background:rgba(7,13,21,.88);border:1px solid rgba(255,255,255,.18);color:#eef5ff;font-size:9px;font-weight:800;line-height:1;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,.18)}
+  .marker.ghost{opacity:.28}
+  .marker.hidden{display:none}
+  .shuttle{position:absolute;z-index:9;width:35px;height:35px;transform:translate(-50%,-50%);display:grid;place-items:center;cursor:grab;touch-action:none;filter:drop-shadow(0 5px 8px rgba(0,0,0,.3))}
+  .shuttle svg{width:31px;height:31px}
+  .legend{position:absolute;right:28px;bottom:22px;z-index:10;display:flex;gap:13px;align-items:center;background:rgba(7,13,21,.62);padding:7px 10px;border-radius:10px;backdrop-filter:blur(8px);font-size:10px;color:#d1d8e2;pointer-events:none}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .dot{width:7px;height:7px;border-radius:50%}.redDot{background:#ff5c61}.blueDot{background:#3d88ff}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(16px);padding:10px 14px;border-radius:10px;background:#172438;color:#dbe7f5;border:1px solid rgba(255,255,255,.08);box-shadow:0 14px 44px rgba(0,0,0,.35);font-size:12px;font-weight:650;opacity:0;pointer-events:none;transition:.2s ease;z-index:30}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media(max-width:900px){
+    body{overflow:auto}.app{height:auto;min-height:100%;grid-template-columns:1fr}.sidebar{height:auto;border-right:0;border-bottom:1px solid rgba(255,255,255,.06);padding:15px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.brand,#mixedPresets{grid-column:1/-1}.help,.sidebar-footer{display:none}.workspace{height:auto;min-height:70vh}.topbar{height:62px;padding:0 14px}.status{display:none}.stage{padding:12px;min-height:540px}.board-shell{width:min(96vw,820px);padding:10px;border-radius:18px}.top-actions .topbtn span{display:none}.topbtn{width:38px;padding:0;justify-content:center}}
+  @media(max-width:560px){.sidebar{grid-template-columns:1fr}.stage{min-height:0;place-items:start center;padding-top:18px}.marker{width:36px;height:36px;font-size:11px;border-width:2px}.legend{display:none}.board-shell{width:98vw;padding:7px;border-radius:14px}.top-actions .topbtn span{display:inline}.topbtn{width:auto;padding:0 8px;font-size:11px}.topbar{gap:8px}.board-title{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brandmark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5c2.7 1.2 5.1 3.4 6.8 6.2M4 9c3 .7 5.9 2.3 8.2 4.6M10.5 3.5c2.1 1.7 3.8 4 4.9 6.6"/><path d="M13 14.1 20.4 21M12.1 14.9l2.1-2.1a2.2 2.2 0 0 1 3.1 0l.1.1a2.2 2.2 0 0 1 0 3.1l-2.1 2.1-3.2-3.2Z"/></svg>
+      </div>
+      <div><h1>羽毛球战术板</h1><div class="sub">Badminton Tactics Board</div></div>
+    </div>
+
+    <div class="section">
+      <div class="label">比赛模式</div>
+      <div class="seg three" id="matchMode">
+        <button class="active" data-mode="doubles">双打</button><button data-mode="mixed">混双</button><button data-mode="singles">单打</button>
+      </div>
+    </div>
+
+    <div class="section mixed-presets" id="mixedPresets">
+      <div class="label">混双快捷站位</div>
+      <div class="preset-grid">
+        <button class="preset" data-preset="frontBack">女前<br>男后</button>
+        <button class="preset" data-preset="defense">平行<br>防守</button>
+        <button class="preset" data-preset="serve">发接发<br>站位</button>
+      </div>
+      <div class="preset-note">♀ 女队员 · ♂ 男队员；应用后仍可自由拖动和撤销</div>
+    </div>
+
+    <div class="section">
+      <div class="label">绘制工具</div>
+      <div class="tools">
+        <button class="tool active" data-tool="move"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><path d="m8 6 4-4 4 4M18 8l4 4-4 4M16 18l-4 4-4-4M6 16l-4-4 4-4"/></svg>移动</button>
+        <button class="tool" data-tool="run"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18c4-8 8-8 16-12"/><path d="m15 4 5 2-2 5"/></svg>跑位线</button>
+        <button class="tool shot" data-tool="shot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20 20 3"/><path d="M13 3h7v7"/></svg>击球线</button>
+        <button class="tool erase" data-tool="erase"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 15 8-8 6 6-8 8H3v-6Z"/><path d="m14 4 6 6"/></svg>擦除</button>
+      </div>
+    </div>
+
+    <div class="section compact">
+      <div class="label">编辑</div>
+      <div class="row">
+        <button class="action" id="undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7 4 12l5 5"/><path d="M4 12h8a7 7 0 1 1 0 14"/></svg>撤销</button>
+        <button class="action danger" id="clearLines"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>清线</button>
+      </div>
+      <div class="row">
+        <button class="action" id="reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0 2 5"/><path d="M20 4v7h-7"/></svg>重置</button>
+        <button class="action primary" id="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h12l4 4v14H5V3Z"/><path d="M8 3v6h8V3M8 21v-8h8v8"/></svg>保存</button>
+      </div>
+    </div>
+
+    <div class="help"><b>使用方法</b><br>“移动”模式可拖动球员和羽毛球。选择“跑位线”或“击球线”后，在球场上按住并拖动即可画箭头。点击“擦除”后再点某条箭头即可删除。</div>
+    <div class="sidebar-footer">战术会保存在当前浏览器中</div>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar">
+      <div class="titlewrap"><div class="board-title">战术 01</div><div class="status" id="status">移动球员，开始布置站位</div></div>
+      <div class="top-actions">
+        <button class="topbtn" id="load"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg><span>载入</span></button>
+        <button class="topbtn" id="importBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9M7 14l5-5 5 5"/><path d="M5 3h14"/></svg><span>导入</span></button>
+        <button class="topbtn" id="download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg><span>导出</span></button>
+        <input type="file" id="fileInput" accept="application/json" hidden />
+      </div>
+    </header>
+
+    <section class="stage">
+      <div class="board-shell">
+        <div class="board move-mode" id="board">
+          <svg class="court-svg" viewBox="0 0 1340 610" preserveAspectRatio="none" aria-hidden="true">
+            <rect x="55" y="55" width="1230" height="500" rx="3" fill="none" stroke="var(--court-line)" stroke-width="3"/>
+            <line x1="55" y1="103" x2="1285" y2="103" stroke="var(--court-line)" stroke-width="2.4" opacity=".96"/>
+            <line x1="55" y1="507" x2="1285" y2="507" stroke="var(--court-line)" stroke-width="2.4" opacity=".96"/>
+            <line x1="670" y1="55" x2="670" y2="555" stroke="var(--court-line)" stroke-width="4"/>
+            <line x1="452" y1="55" x2="452" y2="555" stroke="var(--court-line)" stroke-width="2.4"/>
+            <line x1="888" y1="55" x2="888" y2="555" stroke="var(--court-line)" stroke-width="2.4"/>
+            <line x1="145" y1="55" x2="145" y2="555" stroke="var(--court-line)" stroke-width="2.1"/>
+            <line x1="1195" y1="55" x2="1195" y2="555" stroke="var(--court-line)" stroke-width="2.1"/>
+            <line x1="55" y1="305" x2="452" y2="305" stroke="var(--court-line)" stroke-width="2.4"/>
+            <line x1="888" y1="305" x2="1285" y2="305" stroke="var(--court-line)" stroke-width="2.4"/>
+            <line id="singleTop" x1="55" y1="103" x2="1285" y2="103" stroke="#72f2b1" stroke-width="6" opacity="0"/>
+            <line id="singleBottom" x1="55" y1="507" x2="1285" y2="507" stroke="#72f2b1" stroke-width="6" opacity="0"/>
+          </svg>
+          <div class="net-shadow"></div><div class="center-label">NET</div>
+          <svg class="draw-svg" id="drawSvg" viewBox="0 0 1000 600" preserveAspectRatio="none">
+            <defs>
+              <marker id="arrowRun" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L12,6 L0,12 z" fill="#72f2b1"/></marker>
+              <marker id="arrowShot" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L12,6 L0,12 z" fill="#43c8ff"/></marker>
+            </defs>
+          </svg>
+          <div class="marker red" data-id="r1" style="left:35%;top:31%">R1</div>
+          <div class="marker red" data-id="r2" style="left:35%;top:69%">R2</div>
+          <div class="marker blue" data-id="b1" style="left:65%;top:31%">B1</div>
+          <div class="marker blue" data-id="b2" style="left:65%;top:69%">B2</div>
+          <div class="shuttle" data-id="shuttle" style="left:50%;top:50%" title="羽毛球">
+            <svg viewBox="0 0 40 40"><g fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M9 4 25 20M16 3l12 14M4 10l17 15M8 4h8l12 13-7 8L4 10l4-6Z"/><path d="m21 25 4 4"/></g><circle cx="28.5" cy="31.5" r="5.5" fill="#f7e85c" stroke="#fff" stroke-width="2"/></svg>
+          </div>
+          <div class="legend"><span><i class="dot redDot"></i>己方</span><span><i class="dot blueDot"></i>对方</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(() => {
+  const board = document.getElementById('board');
+  const drawSvg = document.getElementById('drawSvg');
+  const statusEl = document.getElementById('status');
+  const toastEl = document.getElementById('toast');
+  const boardTitle = document.querySelector('.board-title');
+  const mixedPresets = document.getElementById('mixedPresets');
+  const modeButtons = [...document.querySelectorAll('#matchMode button')];
+  const toolButtons = [...document.querySelectorAll('[data-tool]')];
+  const markers = [...document.querySelectorAll('.marker,.shuttle')];
+  const players = [...document.querySelectorAll('.marker')];
+  let mode = 'doubles', tool = 'move', dragTarget = null, drawing = false, draft = null;
+  let lines = [], history = [];
+
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+  function announce(msg){statusEl.textContent=msg;toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(announce.t);announce.t=setTimeout(()=>toastEl.classList.remove('show'),1500)}
+  function pointFromEvent(e){const r=board.getBoundingClientRect();return {x:clamp((e.clientX-r.left)/r.width*1000,0,1000),y:clamp((e.clientY-r.top)/r.height*600,0,600),px:clamp((e.clientX-r.left)/r.width*100,0,100),py:clamp((e.clientY-r.top)/r.height*100,0,100)};}
+  function snapshot(){return {mode, lines:JSON.parse(JSON.stringify(lines)), positions:Object.fromEntries(markers.map(m=>[m.dataset.id,{left:m.style.left,top:m.style.top}]))};}
+  function pushHistory(){history.push(snapshot());if(history.length>40)history.shift();}
+  function renderLines(){
+    drawSvg.querySelectorAll('.tactic-line').forEach(n=>n.remove());
+    lines.forEach((l,i)=>{
+      const el=document.createElementNS('http://www.w3.org/2000/svg','line');
+      el.classList.add('tactic-line');el.dataset.index=i;
+      el.setAttribute('x1',l.x1);el.setAttribute('y1',l.y1);el.setAttribute('x2',l.x2);el.setAttribute('y2',l.y2);
+      el.setAttribute('stroke',l.type==='run'?'#72f2b1':'#43c8ff');
+      el.setAttribute('stroke-width',l.type==='run'?'6':'5');
+      el.setAttribute('stroke-linecap','round');
+      if(l.type==='run')el.setAttribute('stroke-dasharray','14 10');
+      el.setAttribute('marker-end',l.type==='run'?'url(#arrowRun)':'url(#arrowShot)');
+      el.style.pointerEvents = tool==='erase'?'stroke':'none';
+      el.style.cursor = tool==='erase'?'pointer':'default';
+      el.addEventListener('pointerdown',ev=>{if(tool!=='erase')return;ev.stopPropagation();pushHistory();lines.splice(i,1);renderLines();announce('已删除箭头');});
+      drawSvg.appendChild(el);
+    });
+  }
+  function setTool(next){tool=next;toolButtons.forEach(b=>b.classList.toggle('active',b.dataset.tool===next));board.classList.toggle('move-mode',next==='move');renderLines();statusEl.textContent={move:'拖动球员或羽毛球',run:'按住拖动：绘制跑位箭头',shot:'按住拖动：绘制击球箭头',erase:'点击箭头即可擦除'}[next];}
+  toolButtons.forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
+
+  function updateModeUI(){
+    const isSingles=mode==='singles', isMixed=mode==='mixed';
+    modeButtons.forEach(b=>{const active=b.dataset.mode===mode;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
+    document.querySelector('[data-id="r2"]').classList.toggle('hidden',isSingles);
+    document.querySelector('[data-id="b2"]').classList.toggle('hidden',isSingles);
+    document.getElementById('singleTop').setAttribute('opacity',isSingles?'.32':'0');
+    document.getElementById('singleBottom').setAttribute('opacity',isSingles?'.32':'0');
+    mixedPresets.classList.toggle('show',isMixed);
+    boardTitle.textContent=isMixed?'混双战术 01':isSingles?'单打战术 01':'双打战术 01';
+    const mixedRoles={r1:['♀','女队员'],r2:['♂','男队员'],b1:['♀','女队员'],b2:['♂','男队员']};
+    players.forEach(p=>{
+      p.classList.toggle('mixed-role',isMixed);
+      if(isMixed){p.textContent=mixedRoles[p.dataset.id][0];p.dataset.role=mixedRoles[p.dataset.id][1];p.title=mixedRoles[p.dataset.id][1];}
+      else{p.textContent=p.dataset.id.toUpperCase();p.removeAttribute('data-role');p.title='球员 '+p.dataset.id.toUpperCase();}
+    });
+  }
+  function setMode(next, resetPositions=false){
+    mode=next;updateModeUI();
+    if(resetPositions){resetDefaultPositions(false)}
+    announce({singles:'已切换为单打',doubles:'已切换为双打',mixed:'已切换为混双，可选择快捷站位'}[next]);
+  }
+  modeButtons.forEach(b=>b.addEventListener('click',()=>{if(b.dataset.mode===mode)return;pushHistory();setMode(b.dataset.mode,true)}));
+
+  markers.forEach(m=>{
+    m.addEventListener('pointerdown',e=>{if(tool!=='move')return;e.preventDefault();pushHistory();dragTarget=m;m.setPointerCapture?.(e.pointerId);});
+    m.addEventListener('pointermove',e=>{if(dragTarget!==m)return;const p=pointFromEvent(e);m.style.left=p.px+'%';m.style.top=p.py+'%';});
+    m.addEventListener('pointerup',()=>{if(dragTarget===m){dragTarget=null;statusEl.textContent='站位已更新';}});
+  });
+
+  board.addEventListener('pointerdown',e=>{
+    if(!['run','shot'].includes(tool) || e.target.closest('.marker,.shuttle')) return;
+    e.preventDefault();pushHistory();drawing=true;const p=pointFromEvent(e);
+    draft=document.createElementNS('http://www.w3.org/2000/svg','line');draft.classList.add('tactic-line');
+    draft.setAttribute('x1',p.x);draft.setAttribute('y1',p.y);draft.setAttribute('x2',p.x);draft.setAttribute('y2',p.y);
+    draft.setAttribute('stroke',tool==='run'?'#72f2b1':'#43c8ff');draft.setAttribute('stroke-width',tool==='run'?'6':'5');draft.setAttribute('stroke-linecap','round');
+    if(tool==='run')draft.setAttribute('stroke-dasharray','14 10');
+    draft.setAttribute('marker-end',tool==='run'?'url(#arrowRun)':'url(#arrowShot)');drawSvg.appendChild(draft);board.setPointerCapture?.(e.pointerId);
+  });
+  board.addEventListener('pointermove',e=>{if(!drawing||!draft)return;const p=pointFromEvent(e);draft.setAttribute('x2',p.x);draft.setAttribute('y2',p.y);});
+  board.addEventListener('pointerup',e=>{
+    if(!drawing||!draft)return;const p=pointFromEvent(e);const x1=+draft.getAttribute('x1'),y1=+draft.getAttribute('y1');
+    const len=Math.hypot(p.x-x1,p.y-y1);draft.remove();draft=null;drawing=false;
+    if(len>18){lines.push({type:tool,x1,y1,x2:p.x,y2:p.y});renderLines();statusEl.textContent=tool==='run'?'跑位线已添加':'击球线已添加';} else history.pop();
+  });
+
+  const formations={
+    doubles:{r1:['35%','31%'],r2:['35%','69%'],b1:['65%','31%'],b2:['65%','69%'],shuttle:['50%','50%']},
+    singles:{r1:['35%','50%'],r2:['35%','69%'],b1:['65%','50%'],b2:['65%','69%'],shuttle:['50%','50%']},
+    frontBack:{r1:['43%','50%'],r2:['24%','50%'],b1:['57%','50%'],b2:['76%','50%'],shuttle:['50%','50%']},
+    defense:{r1:['30%','32%'],r2:['30%','68%'],b1:['70%','68%'],b2:['70%','32%'],shuttle:['50%','50%']},
+    serve:{r1:['42%','34%'],r2:['25%','68%'],b1:['58%','66%'],b2:['75%','32%'],shuttle:['48%','36%']}
+  };
+  function applyFormation(name){
+    const positions=formations[name];if(!positions)return;
+    markers.forEach(m=>{const p=positions[m.dataset.id];if(p){m.style.left=p[0];m.style.top=p[1];}});
+  }
+  function resetDefaultPositions(clear=true){
+    applyFormation(mode==='mixed'?'frontBack':mode);
+    if(clear){lines=[];renderLines();}
+  }
+  document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{pushHistory();applyFormation(b.dataset.preset);announce({frontBack:'已应用女前男后站位',defense:'已应用平行防守站位',serve:'已应用发接发站位'}[b.dataset.preset]);}));
+  document.getElementById('undo').addEventListener('click',()=>{const s=history.pop();if(!s)return announce('没有可撤销的操作');applyState(s);announce('已撤销');});
+  document.getElementById('clearLines').addEventListener('click',()=>{if(!lines.length)return;pushHistory();lines=[];renderLines();announce('已清除所有箭头');});
+  document.getElementById('reset').addEventListener('click',()=>{pushHistory();resetDefaultPositions(true);announce('战术板已重置');});
+
+  function applyState(s){
+    mode=['singles','doubles','mixed'].includes(s.mode)?s.mode:'doubles';updateModeUI();
+    Object.entries(s.positions||{}).forEach(([id,p])=>{const m=document.querySelector(`[data-id="${id}"]`);if(m){m.style.left=p.left;m.style.top=p.top;}});
+    lines=Array.isArray(s.lines)?s.lines:[];renderLines();
+  }
+  function currentPayload(){return {version:2,name:'羽毛球战术',savedAt:new Date().toISOString(),...snapshot()};}
+  document.getElementById('save').addEventListener('click',()=>{localStorage.setItem('badminton-tactics-board',JSON.stringify(currentPayload()));announce('已保存到浏览器');});
+  document.getElementById('load').addEventListener('click',()=>{const raw=localStorage.getItem('badminton-tactics-board');if(!raw)return announce('暂无已保存战术');try{pushHistory();applyState(JSON.parse(raw));announce('已载入战术');}catch{announce('保存数据无法读取')}});
+  document.getElementById('download').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(currentPayload(),null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='badminton-tactic.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);announce('战术文件已导出');});
+  const fileInput=document.getElementById('fileInput');
+  document.getElementById('importBtn').addEventListener('click',()=>fileInput.click());
+  fileInput.addEventListener('change',async()=>{const f=fileInput.files[0];if(!f)return;try{const data=JSON.parse(await f.text());pushHistory();applyState(data);announce('战术文件已导入');}catch{announce('文件格式不正确')}finally{fileInput.value='';}});
+
+  // Keyboard shortcuts: V move, R run, S shot, E erase, Ctrl/Cmd+Z undo
+  addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();document.getElementById('undo').click();return;}const map={v:'move',r:'run',s:'shot',e:'erase'};if(map[e.key.toLowerCase()])setTool(map[e.key.toLowerCase()]);});
+  updateModeUI();renderLines();
+})();
+</script>
+</body>
+</html>
