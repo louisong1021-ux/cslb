@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>羽毛球比赛统计分析工具</title>
+  <style>
+    :root{
+      --navy:#0d376c; --navy2:#082a55; --blue:#1268f3; --blue2:#0b56d7;
+      --bg:#f4f7fb; --panel:#fff; --text:#132238; --muted:#64748b; --line:#dfe6ef;
+      --green:#0b9a61; --green-bg:#eefaf4; --orange:#d77a05; --orange-bg:#fff8ec;
+      --purple:#6f42c1; --purple-bg:#f7f3ff; --cyan:#0988b8; --cyan-bg:#edfaff;
+      --red:#e5484d; --red-bg:#fff4f4; --shadow:0 10px 24px rgba(14,42,80,.06);
+      --radius:12px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{min-height:100vh}
+    .topbar{height:68px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;box-shadow:0 2px 10px rgba(7,33,70,.18);position:sticky;top:0;z-index:20}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:22px;letter-spacing:.2px}
+    .brand-mark{width:30px;height:30px;display:grid;place-items:center}
+    .top-actions{display:flex;gap:10px;align-items:center}
+    .top-actions button{border:1px solid rgba(255,255,255,.28);color:#fff;background:rgba(255,255,255,.08);padding:9px 13px;border-radius:8px;display:flex;align-items:center;gap:7px}
+    .top-actions button:hover{background:rgba(255,255,255,.16)}
+    .icon{width:17px;height:17px;display:inline-block;vertical-align:-3px}
+    .page{padding:14px 18px 28px;max-width:1920px;margin:0 auto}
+    .entry-grid{display:grid;grid-template-columns:minmax(780px,1fr) 390px;gap:12px;align-items:start}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .record-panel{padding:14px;min-width:0}
+    .stats-panel{padding:12px;position:sticky;top:82px}
+    .section-title{font-size:18px;font-weight:800;color:#0e5edf;margin:0 0 12px}
+    .toolbar{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+    .games{display:flex;gap:8px;flex-wrap:wrap}
+    .game-tab,.ghost{padding:8px 15px;border:1px solid #d5deea;border-radius:7px;background:#fff;color:#233044;font-weight:650}
+    .game-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 5px 12px rgba(18,104,243,.2)}
+    .ghost:hover{border-color:#9db5d5;background:#f8fbff}
+    .danger{color:var(--red)!important;border-color:#f0c7c9!important;background:#fff!important}
+    .summary-line{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px;background:#fff}
+    table{border-collapse:collapse;width:100%;min-width:1720px}
+    th,td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 7px;text-align:center;vertical-align:middle;font-size:13px}
+    th{background:#f7faff;color:#0d5bcf;font-weight:800;white-space:nowrap;position:sticky;top:0;z-index:2}
+    th small{display:block;color:#51667f;font-weight:600;margin-top:2px}
+    tr:last-child td{border-bottom:0}
+    th:last-child,td:last-child{border-right:0}
+    td:first-child,th:first-child{position:sticky;left:0;background:#fff;z-index:1}
+    th:first-child{background:#f7faff;z-index:3}
+    select,input[type="number"],input[type="text"]{width:100%;min-width:86px;border:1px solid #d8e1ec;border-radius:6px;padding:7px 8px;background:#fff;color:#1f2d3d;outline:none}
+    select:focus,input:focus{border-color:#6ba3fa;box-shadow:0 0 0 3px rgba(18,104,243,.08)}
+    .score-cell{font-weight:800;color:#153b76;white-space:nowrap}
+    .delete-row{border:0;background:transparent;color:var(--red);font-size:18px;padding:5px 7px}
+    .under-table{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px;flex-wrap:wrap}
+    .add-btn{padding:9px 14px;border:1px solid #bcd2f7;background:#f5f9ff;color:#0e5edf;border-radius:7px;font-weight:750}
+    .live-score{font-weight:800;font-size:16px}
+    .live-score .ours{color:var(--blue)} .live-score .theirs{color:var(--red)}
+    .result-selector{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:12px;background:#fbfdff}
+    .result-selector h3{margin:0 0 10px;font-size:15px;color:#0e5edf}
+    .reason-groups{display:grid;grid-template-columns:1fr 1.1fr;gap:14px}
+    .reason-group h4{margin:0 0 8px;font-size:13px}
+    .reason-group.win h4{color:var(--green)} .reason-group.loss h4{color:var(--red)}
+    .reason-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .reason-chip{display:flex;align-items:center;gap:7px;padding:8px;border:1px solid #dde5ef;border-radius:7px;background:#fff;font-size:12px;min-height:38px}
+    .reason-chip input{accent-color:var(--blue)}
+    .view-results{display:block;margin:18px auto 4px;width:min(460px,80%);background:linear-gradient(90deg,var(--blue),#0856d9);color:#fff;border:0;border-radius:7px;padding:12px 18px;font-weight:800;font-size:16px;box-shadow:0 8px 18px rgba(18,104,243,.18)}
+    .privacy{text-align:center;color:#77859a;font-size:12px;margin-top:10px}
+    .stat-card{border:1px solid var(--line);border-radius:9px;margin-bottom:9px;overflow:hidden}
+    .stat-card h3{font-size:15px;margin:0;padding:10px 11px;border-bottom:1px solid var(--line)}
+    .stat-card.blue{background:#f6f9ff;border-color:#cfe0ff}.stat-card.blue h3{color:#0c5ce2}
+    .stat-card.green{background:var(--green-bg);border-color:#bee9d5}.stat-card.green h3{color:var(--green)}
+    .stat-card.orange{background:var(--orange-bg);border-color:#f0d8ad}.stat-card.orange h3{color:var(--orange)}
+    .stat-card.purple{background:var(--purple-bg);border-color:#ddd0fb}.stat-card.purple h3{color:var(--purple)}
+    .stat-card.cyan{background:var(--cyan-bg);border-color:#c9eaf7}.stat-card.cyan h3{color:var(--cyan)}
+    .metric-grid{display:grid;grid-template-columns:1fr 1fr}
+    .metric{padding:10px;text-align:center;min-height:74px;border-right:1px solid rgba(155,169,188,.22);border-bottom:1px solid rgba(155,169,188,.22)}
+    .metric:nth-child(even){border-right:0}.metric:last-child,.metric:nth-last-child(2){border-bottom:0}
+    .metric-label{font-size:12px;color:#5b6677;margin-bottom:4px}
+    .metric-value{font-size:24px;line-height:1.1;font-weight:850;color:#123b78}
+    .metric-sub{font-size:11px;color:#78869a;margin-top:3px}
+    .mini-list{padding:9px 11px;font-size:12px;color:#34435a;line-height:1.7}
+    .score-footer{border:1px solid #d3e0ef;background:#f9fbff;padding:9px;border-radius:8px;text-align:center;font-weight:850;margin-top:4px}
+    .results-view{display:none}
+    .results-view.active{display:block}.entry-view.hidden{display:none}
+    .results-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .results-top h1{margin:0;font-size:24px}
+    .back-btn{border:1px solid #cbd7e6;background:#fff;color:#27405f;padding:9px 14px;border-radius:8px;font-weight:700}
+    .results-score{background:linear-gradient(135deg,var(--navy),#1356a8);color:#fff;padding:16px 20px;border-radius:12px;box-shadow:var(--shadow);min-width:280px}
+    .results-score small{opacity:.8}.results-score .big{font-size:30px;font-weight:900;margin-top:4px}
+    .kpi-row{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;margin:12px 0}
+    .kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:var(--shadow)}
+    .kpi .label{font-size:12px;color:#607086}.kpi .value{font-size:28px;font-weight:900;margin:7px 0 2px}.kpi .note{font-size:11px;color:#77869b}
+    .results-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+    .results-panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:var(--shadow)}
+    .results-panel h2{font-size:17px;margin:0 0 12px;color:#183a67}
+    .bar-row{display:grid;grid-template-columns:150px 1fr 60px;align-items:center;gap:10px;margin:10px 0;font-size:13px}
+    .bar-track{height:10px;border-radius:999px;background:#edf1f6;overflow:hidden}.bar-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,#0c68f4,#55a0ff)}
+    .recommendation{border-left:4px solid var(--blue);background:#f6f9ff;padding:10px 12px;border-radius:6px;margin:9px 0;font-size:13px;line-height:1.6}
+    .reason-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .rank-card{border:1px solid var(--line);border-radius:8px;padding:10px}
+    .rank-card h3{font-size:14px;margin:0 0 8px}.rank-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5eaf1;font-size:13px}.rank-item:last-child{border-bottom:0}
+    .modal{position:fixed;inset:0;background:rgba(5,20,41,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}.modal.show{display:flex}.modal-card{background:#fff;border-radius:12px;width:min(680px,100%);max-height:85vh;overflow:auto;padding:20px;box-shadow:0 24px 60px rgba(5,20,41,.3)}.modal-card h2{margin-top:0}.modal-card li{margin:8px 0;line-height:1.6}.modal-close{float:right;border:0;background:#f0f4f8;padding:6px 10px;border-radius:6px}
+    .toast{position:fixed;right:18px;bottom:18px;background:#173458;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 10px 25px rgba(8,25,48,.25);opacity:0;pointer-events:none;transform:translateY(8px);transition:.2s;z-index:60}.toast.show{opacity:1;transform:translateY(0)}
+    body.dark{--bg:#0d1725;--panel:#111f31;--text:#e7eef8;--muted:#9fb0c5;--line:#263950;--shadow:none}
+    body.dark .record-panel,body.dark .stats-panel,body.dark .results-panel,body.dark .kpi,body.dark .result-selector,body.dark .table-wrap,body.dark td:first-child{background:var(--panel)}
+    body.dark th{background:#16283d;color:#7eb2ff} body.dark td,body.dark select,body.dark input{background:#132338;color:#eef5ff;border-color:#31445c}
+    body.dark .ghost,body.dark .game-tab:not(.active),body.dark .back-btn,body.dark .reason-chip{background:#132338;color:#dce8f7;border-color:#31445c}
+    body.dark .result-selector{background:#0f1c2c}.dark .score-footer{background:#11243a}.dark .stat-card{background:#112033}
+    @media(max-width:1250px){.entry-grid{grid-template-columns:1fr}.stats-panel{position:static}.kpi-row{grid-template-columns:repeat(3,1fr)}.results-grid{grid-template-columns:1fr}}
+    @media(max-width:760px){.topbar{height:auto;padding:12px 14px;align-items:flex-start}.brand{font-size:18px}.top-actions{gap:6px;flex-wrap:wrap;justify-content:flex-end}.top-actions button span.label{display:none}.page{padding:10px}.reason-groups{grid-template-columns:1fr}.reason-grid{grid-template-columns:repeat(2,1fr)}.kpi-row{grid-template-columns:repeat(2,1fr)}.bar-row{grid-template-columns:120px 1fr 52px}.results-top{align-items:stretch}.results-score{width:100%}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="30" height="30"><path fill="white" d="M8 3c1.9 0 3.6 1.4 4 3.2L16 3l2.7 1.9-4.3 4 5.5-1.5.9 3.2-6 1 5.7 2.3-1.4 3-5.2-2.8 3.6 4.4-2.6 2.1-3.3-5.3-.5 6.2H7.9l.9-6.4-3.5 5.2-2.6-2.1 4-4.4-5.6 2.6-1.2-3.1 5.9-2-6-.8.6-3.3 5.5 1.3-4.5-3.8L3.1 3l4.6 3.3C7.6 4.5 7.5 3.1 8 3Zm3.2 18.1c2.6 0 4.7 2.1 4.7 4.7s-2.1 4.7-4.7 4.7-4.7-2.1-4.7-4.7 2.1-4.7 4.7-4.7Z"/></svg>
+      </span>
+      羽毛球比赛统计分析工具
+    </div>
+    <div class="top-actions">
+      <button id="helpBtn" title="使用说明"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.7 2.7 0 1 1 4.6 1.9c-1.3.9-2.3 1.4-2.3 3"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg><span class="label">使用说明</span></button>
+      <button id="importBtn" title="导入数据"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M12 16V7m0 0-3 3m3-3 3 3"/></svg><span class="label">导入数据</span></button>
+      <button id="exportBtn" title="导出数据"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v10m0 0 4-4m-4 4-4-4"/><path d="M5 18h14"/></svg><span class="label">导出数据</span></button>
+      <button id="themeBtn" title="深色模式"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"/></svg></button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section id="entryView" class="entry-view">
+      <div class="entry-grid">
+        <div class="panel record-panel">
+          <div class="toolbar">
+            <div>
+              <h2 class="section-title">逐分记录 <span id="currentGameLabel">（第1局）</span></h2>
+              <div class="games" id="gameTabs"></div>
+            </div>
+            <div class="summary-line"><span id="recordCount">本局已记录：0 分</span><button class="ghost danger" id="clearGameBtn">清空本局</button></div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>分数<small>（我方-对方）</small></th>
+                  <th>得分方<small>本分</small></th>
+                  <th>发球方</th>
+                  <th>发球后3拍<small>抢到主动</small></th>
+                  <th>接发后3拍<small>抢到主动</small></th>
+                  <th>前三拍<small>主动权</small></th>
+                  <th>女生被突破</th>
+                  <th>女生封网成功</th>
+                  <th>女生防守成功</th>
+                  <th>防守转攻成功</th>
+                  <th>男生连续<small>进攻拍数</small></th>
+                  <th>造成被动挑球<small>我方谁制造</small></th>
+                  <th>被攻击对象</th>
+                  <th>轮转错误</th>
