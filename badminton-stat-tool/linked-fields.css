@@ -1,0 +1,22 @@
+#rallyBody .cycle-choice.linked-disabled,
+#rallyBody .cycle-choice:disabled{
+  cursor:default;
+  opacity:.58;
+  background:#f2f4f7!important;
+  border-color:#d9e0e8!important;
+  color:#8b98a8!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+
+body.dark #rallyBody .cycle-choice.linked-disabled,
+body.dark #rallyBody .cycle-choice:disabled{
+  background:#172331!important;
+  border-color:#2b3b4d!important;
+  color:#6f8195!important;
+}
+
+@media (max-width:1180px), (hover:none) and (pointer:coarse){
+  #rallyBody .cycle-choice.linked-disabled,
+  #rallyBody .cycle-choice:disabled{min-height:38px}
+}
