@@ -63,6 +63,16 @@
   color:#d43a40!important;
 }
 
+.top-primary-actions .top-primary-cache{
+  border:1px solid #d8dee8!important;
+  background:#f7f9fc!important;
+  color:#526277!important;
+}
+.top-primary-actions .top-primary-cache:disabled{
+  opacity:.65;
+  cursor:wait;
+}
+
 .live-score{display:none!important}
 .under-table:empty{display:none!important}
 
@@ -112,8 +122,9 @@
   }
 }
 
-body.dark .top-primary-actions .round-count-button{
-  background:#182536;
-  border-color:#34475e;
-  color:#c4d1df;
+body.dark .top-primary-actions .round-count-button,
+body.dark .top-primary-actions .top-primary-cache{
+  background:#182536!important;
+  border-color:#34475e!important;
+  color:#c4d1df!important;
 }
