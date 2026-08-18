@@ -19,7 +19,7 @@
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = 'mobile-stats-toggle';
-    toggle.innerHTML = '📊 <span>查看本局统计</span>';
+    toggle.innerHTML = '📊 <span>第1局</span>';
     const tableWrap = recordPanel.querySelector('.table-wrap');
     recordPanel.insertBefore(toggle, tableWrap);
 
@@ -62,8 +62,10 @@
 
     function updateToggleText() {
       const score = document.querySelector('#sideScore')?.textContent?.trim();
-      const game = document.querySelector('#statsGameLabel')?.textContent?.trim();
-      toggle.querySelector('span').textContent = score ? `查看本局统计 ${game || ''} · ${score}` : '查看本局统计';
+      const rawGame = document.querySelector('#statsGameLabel')?.textContent?.trim() || '第1局';
+      const game = rawGame.replace(/[（）()]/g, '');
+      toggle.querySelector('span').textContent = score ? `${game} · ${score}` : game;
+      toggle.setAttribute('aria-label', `打开${game}统计`);
     }
 
     const observer = new MutationObserver(() => {
