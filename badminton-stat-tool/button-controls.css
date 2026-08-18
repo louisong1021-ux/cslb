@@ -1,0 +1,58 @@
+#rallyBody .native-cycle-select{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  min-width:0!important;
+  padding:0!important;
+  margin:-1px!important;
+  opacity:0!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+  clip:rect(0 0 0 0)!important;
+  clip-path:inset(50%)!important;
+  white-space:nowrap!important;
+}
+
+#rallyBody .cycle-choice{
+  width:100%;
+  min-width:86px;
+  min-height:34px;
+  border:1px solid #d8e1ec;
+  border-radius:7px;
+  padding:7px 9px;
+  background:#fff;
+  color:#1f2d3d;
+  font-weight:700;
+  line-height:1.15;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease,transform .05s ease;
+}
+
+#rallyBody .cycle-choice:hover{
+  border-color:#83adf3;
+  background:#f7faff;
+  box-shadow:0 0 0 3px rgba(18,104,243,.07);
+}
+
+#rallyBody .cycle-choice:active{transform:translateY(1px)}
+#rallyBody .cycle-choice:focus-visible{outline:2px solid #1268f3;outline-offset:2px}
+#rallyBody .cycle-choice.reason-cycle{min-width:118px}
+
+#rallyBody .cycle-choice[data-tone="primary"]{background:#edf5ff;border-color:#b9d3ff;color:#0758d8}
+#rallyBody .cycle-choice[data-tone="success"]{background:#eefaf4;border-color:#bee9d5;color:#08764c}
+#rallyBody .cycle-choice[data-tone="danger"]{background:#fff3f3;border-color:#f2c6c8;color:#c63439}
+#rallyBody .cycle-choice[data-tone="warning"]{background:#fff8ec;border-color:#f0d8ad;color:#a35d00}
+#rallyBody .cycle-choice[data-tone="neutral"]{background:#f6f8fb;border-color:#dce3ec;color:#5f6d80}
+
+body.dark #rallyBody .cycle-choice{
+  background:#132338;
+  color:#eef5ff;
+  border-color:#31445c;
+}
+body.dark #rallyBody .cycle-choice:hover{background:#172b44;border-color:#4d6b8e}
+body.dark #rallyBody .cycle-choice[data-tone="primary"]{background:#102c50;border-color:#245d9d;color:#8fc1ff}
+body.dark #rallyBody .cycle-choice[data-tone="success"]{background:#102d26;border-color:#25624f;color:#82e0b8}
+body.dark #rallyBody .cycle-choice[data-tone="danger"]{background:#341d25;border-color:#6e3542;color:#ff9aa1}
+body.dark #rallyBody .cycle-choice[data-tone="warning"]{background:#342815;border-color:#6d5426;color:#ffd281}
+body.dark #rallyBody .cycle-choice[data-tone="neutral"]{background:#182536;border-color:#34475e;color:#b7c4d4}
