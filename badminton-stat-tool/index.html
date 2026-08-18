@@ -12,20 +12,21 @@
 <body>
   <div class="loading">正在加载羽毛球统计工具<br><br><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
   <script>
-    Promise.all(['parts/part0.html','parts/part1.html','parts/part2.html'].map(p=>fetch(p,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(p);return r.text()})))
+    const APP_VERSION='20260818-ipad2';
+    Promise.all(['parts/part0.html','parts/part1.html','parts/part2.html'].map(p=>fetch(`${p}?v=${APP_VERSION}`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(p);return r.text()})))
       .then(parts=>{
         document.open();document.write(parts.join(''));document.close();
 
         ['button-controls.css','mobile-layout.css'].forEach(href=>{
           const css=document.createElement('link');
           css.rel='stylesheet';
-          css.href=href;
+          css.href=`${href}?v=${APP_VERSION}`;
           document.head.appendChild(css);
         });
 
         ['count-display.js','button-controls.js','mobile-layout.js'].forEach(src=>{
           const script=document.createElement('script');
-          script.src=src;
+          script.src=`${src}?v=${APP_VERSION}`;
           script.async=false;
           document.body.appendChild(script);
         });
