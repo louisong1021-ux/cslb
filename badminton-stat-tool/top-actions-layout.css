@@ -1,3 +1,6 @@
+.topbar{display:none!important}
+.summary-line{display:none!important}
+
 .top-primary-actions{
   display:grid;
   grid-template-columns:1.25fr 1.15fr .9fr;
@@ -44,7 +47,7 @@
 @media (max-width: 1180px), (hover: none) and (pointer: coarse){
   .top-primary-actions{
     position:sticky;
-    top:52px;
+    top:0;
     z-index:15;
     margin:0 -2px 8px;
     padding:7px 2px;
