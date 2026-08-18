@@ -7,6 +7,8 @@
     const clearBtn = document.querySelector('#clearGameBtn');
     const liveScore = document.querySelector('.live-score');
     const underTable = document.querySelector('.under-table');
+    const recordCount = document.querySelector('#recordCount');
+    const pageHeader = document.querySelector('.topbar');
 
     if (!recordPanel || !toolbar || !addBtn || !resultsBtn || !clearBtn) {
       requestAnimationFrame(init);
@@ -24,6 +26,10 @@
     actionRow.append(addBtn, resultsBtn, clearBtn);
     toolbar.insertAdjacentElement('afterend', actionRow);
 
+    if (recordCount) recordCount.remove();
+    const summaryLine = toolbar.querySelector('.summary-line');
+    if (summaryLine && !summaryLine.children.length && !summaryLine.textContent.trim()) summaryLine.remove();
+    if (pageHeader) pageHeader.remove();
     if (liveScore) liveScore.remove();
     if (underTable && !underTable.children.length) underTable.remove();
   }
