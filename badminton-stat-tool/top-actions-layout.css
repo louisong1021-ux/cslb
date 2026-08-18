@@ -1,6 +1,10 @@
 .topbar{display:none!important}
 .summary-line{display:none!important}
 
+/* Score is derived automatically from each rally winner, so it does not need to occupy entry space. */
+.table-wrap thead th:nth-child(2),
+#rallyBody td:nth-child(2){display:none!important}
+
 .top-primary-actions{
   display:grid;
   grid-template-columns:.8fr 1fr 1.35fr 1.25fr .9fr;
