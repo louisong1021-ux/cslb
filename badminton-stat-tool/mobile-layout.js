@@ -61,10 +61,9 @@
     }
 
     function updateToggleText() {
-      const score = document.querySelector('#sideScore')?.textContent?.trim();
       const rawGame = document.querySelector('#statsGameLabel')?.textContent?.trim() || '第1局';
       const game = rawGame.replace(/[（）()]/g, '');
-      toggle.querySelector('span').textContent = score ? `${game} · ${score}` : game;
+      toggle.querySelector('span').textContent = game;
       toggle.setAttribute('aria-label', `打开${game}统计`);
     }
 
@@ -74,9 +73,7 @@
     });
     observer.observe(tbody, {childList:true, subtree:true});
     const liveStats = document.querySelector('#liveStats');
-    const sideScore = document.querySelector('#sideScore');
     if (liveStats) observer.observe(liveStats, {childList:true, subtree:true, characterData:true});
-    if (sideScore) observer.observe(sideScore, {childList:true, subtree:true, characterData:true});
 
     const syncMode = () => { if (!touchMode.matches) closeStats(); };
     touchMode.addEventListener?.('change', syncMode);
