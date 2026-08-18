@@ -16,14 +16,17 @@
       .then(parts=>{
         document.open();document.write(parts.join(''));document.close();
 
-        const css=document.createElement('link');
-        css.rel='stylesheet';
-        css.href='button-controls.css';
-        document.head.appendChild(css);
+        ['button-controls.css','mobile-layout.css'].forEach(href=>{
+          const css=document.createElement('link');
+          css.rel='stylesheet';
+          css.href=href;
+          document.head.appendChild(css);
+        });
 
-        ['count-display.js','button-controls.js'].forEach(src=>{
+        ['count-display.js','button-controls.js','mobile-layout.js'].forEach(src=>{
           const script=document.createElement('script');
           script.src=src;
+          script.async=false;
           document.body.appendChild(script);
         });
       })
