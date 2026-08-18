@@ -21,37 +21,25 @@
     const value = option ? option.value : '';
     button.textContent = displayText(value, select);
     button.dataset.tone = toneFor(value, select);
-    button.setAttribute('aria-label', `当前：${displayText(value, select)}，点击切换`);
-  }
-
-  function enhanceSelect(select) {
-    if (select.dataset.cycleReady === '1') return;
-    select.dataset.cycleReady = '1';
-    select.classList.add('native-cycle-select');
-    select.tabIndex = -1;
-    select.setAttribute('aria-hidden', 'true');
-
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'cycle-choice';
-    if (select.classList.contains('reason')) button.classList.add('reason-cycle');
-    button.title = '点击切换选项';
-    select.insertAdjacentElement('afterend', button);
-    syncButton(select, button);
-
-    button.addEventListener('click', () => {
-      const options = Array.from(select.options);
-      if (!options.length) return;
-      const current = Math.max(0, select.selectedIndex);
-      select.selectedIndex = (current + 1) % options.length;
-      select.dispatchEvent(new Event('change', { bubbles: true }));
-      if (select.isConnected && button.isConnected) syncButton(select, button);
-    });
+    button.setAttribute('aria-label', `当前：${displayText(value, select)}，点击${select.classList.contains('reason') ? '选择' : '切换'}`);
   }
 
   let numberPicker = null;
   let numberPickerBackdrop = null;
   let activeNumberInput = null;
+  let reasonPicker = null;
+  let reasonPickerBackdrop = null;
+  let activeReasonSelect = null;
+
+  function closeNumberPicker() {
+    document.body.classList.remove('number-picker-visible');
+    activeNumberInput = null;
+  }
+
+  function closeReasonPicker() {
+    document.body.classList.remove('reason-picker-visible');
+    activeReasonSelect = null;
+  }
 
   function ensureNumberPicker() {
     if (numberPicker) return;
@@ -94,6 +82,7 @@
   }
 
   function openNumberPicker(input) {
+    closeReasonPicker();
     ensureNumberPicker();
     activeNumberInput = input;
     const current = String(input.value || '0');
@@ -103,16 +92,93 @@
     document.body.classList.add('number-picker-visible');
   }
 
-  function closeNumberPicker() {
-    document.body.classList.remove('number-picker-visible');
-    activeNumberInput = null;
-  }
-
   function syncNumberButton(input, button) {
     const value = String(Math.max(0, Math.min(20, Number(input.value) || 0)));
     button.textContent = value;
     button.dataset.tone = value === '0' ? 'neutral' : 'primary';
     button.setAttribute('aria-label', `男生连续进攻 ${value} 拍，点击选择`);
+  }
+
+  function ensureReasonPicker() {
+    if (reasonPicker) return;
+
+    reasonPickerBackdrop = document.createElement('div');
+    reasonPickerBackdrop.className = 'reason-picker-backdrop';
+    reasonPickerBackdrop.addEventListener('click', closeReasonPicker);
+    document.body.appendChild(reasonPickerBackdrop);
+
+    reasonPicker = document.createElement('div');
+    reasonPicker.className = 'reason-picker-panel';
+    reasonPicker.innerHTML = `
+      <div class="reason-picker-head">
+        <strong>选择本分结果</strong>
+        <button type="button" class="reason-picker-close" aria-label="关闭">×</button>
+      </div>
+      <div class="reason-picker-grid"></div>`;
+    document.body.appendChild(reasonPicker);
+
+    reasonPicker.querySelector('.reason-picker-close').addEventListener('click', closeReasonPicker);
+    reasonPicker.querySelector('.reason-picker-grid').addEventListener('click', event => {
+      const option = event.target.closest('.reason-picker-option[data-value]');
+      if (!option || !activeReasonSelect) return;
+      activeReasonSelect.value = option.dataset.value;
+      activeReasonSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      const button = activeReasonSelect.nextElementSibling;
+      if (button?.classList.contains('reason-choice')) syncButton(activeReasonSelect, button);
+      closeReasonPicker();
+    });
+  }
+
+  function openReasonPicker(select) {
+    closeNumberPicker();
+    ensureReasonPicker();
+    activeReasonSelect = select;
+    const grid = reasonPicker.querySelector('.reason-picker-grid');
+    const current = select.value || '';
+    const fragment = document.createDocumentFragment();
+
+    Array.from(select.options).forEach(option => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'reason-picker-option';
+      btn.dataset.value = option.value;
+      btn.textContent = option.value === '' ? '—' : option.textContent;
+      if (option.value === current) btn.classList.add('active');
+      fragment.appendChild(btn);
+    });
+
+    grid.replaceChildren(fragment);
+    document.body.classList.add('reason-picker-visible');
+  }
+
+  function enhanceSelect(select) {
+    if (select.dataset.cycleReady === '1') return;
+    select.dataset.cycleReady = '1';
+    select.classList.add('native-cycle-select');
+    select.tabIndex = -1;
+    select.setAttribute('aria-hidden', 'true');
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'cycle-choice';
+    const isReason = select.classList.contains('reason');
+    if (isReason) button.classList.add('reason-cycle', 'reason-choice');
+    button.title = isReason ? '点击选择本分结果' : '点击切换选项';
+    select.insertAdjacentElement('afterend', button);
+    syncButton(select, button);
+
+    button.addEventListener('click', () => {
+      if (isReason) {
+        openReasonPicker(select);
+        return;
+      }
+      const options = Array.from(select.options);
+      if (!options.length) return;
+      const current = Math.max(0, select.selectedIndex);
+      select.selectedIndex = (current + 1) % options.length;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      if (select.isConnected && button.isConnected) syncButton(select, button);
+    });
   }
 
   function enhanceNumberInput(input) {
@@ -156,7 +222,9 @@
   }, true);
 
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && document.body.classList.contains('number-picker-visible')) closeNumberPicker();
+    if (event.key !== 'Escape') return;
+    if (document.body.classList.contains('number-picker-visible')) closeNumberPicker();
+    if (document.body.classList.contains('reason-picker-visible')) closeReasonPicker();
   });
 
   enhanceAll();
