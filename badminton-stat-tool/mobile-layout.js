@@ -34,7 +34,10 @@
     backdrop.className = 'mobile-stats-backdrop';
     document.body.appendChild(backdrop);
 
+    const touchMode = window.matchMedia('(max-width: 1180px), (hover: none) and (pointer: coarse)');
+
     const openStats = () => {
+      if (!touchMode.matches) return;
       statsPanel.classList.add('mobile-open');
       document.body.classList.add('mobile-stats-visible');
       close.focus({preventScroll:true});
@@ -73,9 +76,8 @@
     if (liveStats) observer.observe(liveStats, {childList:true, subtree:true, characterData:true});
     if (sideScore) observer.observe(sideScore, {childList:true, subtree:true, characterData:true});
 
-    const media = window.matchMedia('(max-width: 900px)');
-    const syncMode = () => { if (!media.matches) closeStats(); };
-    media.addEventListener?.('change', syncMode);
+    const syncMode = () => { if (!touchMode.matches) closeStats(); };
+    touchMode.addEventListener?.('change', syncMode);
 
     labelRows();
     updateToggleText();
