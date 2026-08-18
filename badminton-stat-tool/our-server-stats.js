@@ -71,7 +71,7 @@
     const cell = document.createElement('td');
     cell.dataset.field = 'ourServer';
     cell.dataset.label = '我方发球人';
-    cell.innerHTML = `<select class="ourServer" data-i="${rowIndex}"><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select>`;
+    cell.innerHTML = `<select class="ourServer" data-i="${rowIndex}"><option value="">—</option><option value="男">男</option><option value="女">女</option></select>`;
     const select = cell.querySelector('select');
     select.value = stored;
     serverCell.insertAdjacentElement('afterend', cell);
@@ -106,7 +106,7 @@
         button.setAttribute('aria-disabled', 'true');
       } else {
         button.removeAttribute('aria-disabled');
-        button.textContent = select.value || '请选择';
+        button.textContent = select.value || '—';
       }
     });
   }
