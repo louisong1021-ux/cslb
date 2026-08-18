@@ -1,9 +1,8 @@
 .topbar{display:none!important}
 .summary-line{display:none!important}
 
-/* Score is derived automatically from each rally winner, so it does not need to occupy entry space. */
-.table-wrap thead th:nth-child(2),
-#rallyBody td:nth-child(2){display:none!important}
+/* Score is derived automatically and removed from the entry layout. */
+.score-cell{display:none!important}
 
 .top-primary-actions{
   display:grid;
@@ -13,7 +12,6 @@
   align-items:stretch;
 }
 
-/* Let the game buttons participate directly in the same grid as the 3 action buttons. */
 .top-primary-actions .top-game-actions{display:contents!important}
 
 .top-primary-actions .game-tab,
