@@ -13,6 +13,7 @@
   backdrop-filter:blur(12px);
 }
 .rally-footer-nav.has-rallies{display:block}
+.rally-footer-nav.rally-footer-suspended{display:none!important}
 .rally-footer-numbers{
   display:flex;
   gap:7px;
