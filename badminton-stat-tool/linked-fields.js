@@ -26,6 +26,10 @@
     return dispatchField(field(row, cls), next);
   }
 
+  function setButtonText(button, text) {
+    if (button.textContent !== text) button.textContent = text;
+  }
+
   function setDisabled(row, cls, disabled, textWhenDisabled = '—') {
     const select = field(row, cls);
     if (!select) return;
@@ -34,24 +38,24 @@
     button.disabled = !!disabled;
     button.classList.toggle('linked-disabled', !!disabled);
     if (disabled) {
-      button.dataset.linkedLabel = button.textContent;
-      button.textContent = textWhenDisabled;
+      setButtonText(button, textWhenDisabled);
       button.setAttribute('aria-disabled', 'true');
     } else {
       button.removeAttribute('aria-disabled');
       const option = select.options?.[select.selectedIndex];
-      button.textContent = option ? (option.value || '请选择') : (select.value || '请选择');
+      setButtonText(button, option ? (option.value || '请选择') : (select.value || '请选择'));
     }
   }
 
   function schedule(index = null, changed = null) {
-    lastChanged = { index, changed };
+    if (!scheduled || changed) lastChanged = { index, changed };
     if (scheduled) return;
     scheduled = true;
     queueMicrotask(() => {
       scheduled = false;
-      stabilize(lastChanged?.index, lastChanged?.changed);
+      const pending = lastChanged;
       lastChanged = null;
+      stabilize(pending?.index, pending?.changed);
     });
   }
 
@@ -103,10 +107,12 @@
       if (attacked !== '女') return setField(row, 'attacked', '女');
       if (defense !== '否') return setField(row, 'femaleDefense', '否');
     }
-    if (changed === 'femaleDefense' && defense === '是') {
+
+    if (changed === 'femaleDefense' && defense !== '不适用') {
       if (attacked !== '女') return setField(row, 'attacked', '女');
-      if (broken !== '否') return setField(row, 'femaleBreak', '否');
+      if (defense === '是' && broken !== '否') return setField(row, 'femaleBreak', '否');
     }
+
     if (changed === 'attacked') {
       if (attacked !== '女') {
         if (broken !== '否') return setField(row, 'femaleBreak', '否');
@@ -115,6 +121,7 @@
         return setField(row, 'femaleDefense', '否');
       }
     }
+
     if (attacked !== '女' && defense !== '不适用') return setField(row, 'femaleDefense', '不适用');
     if (attacked !== '女' && broken === '是') return setField(row, 'femaleBreak', '否');
     if (broken === '是' && defense === '是') return setField(row, 'femaleDefense', '否');
@@ -135,18 +142,14 @@
     }
     if (reason === '女生封网' && value(row, 'femaleNet') !== '是') return setField(row, 'femaleNet', '是');
     if (reason === '防守反击得分' && value(row, 'defenseToAttack') !== '是') return setField(row, 'defenseToAttack', '是');
-    if (reason === '发接发抢攻') {
-      if (value(row, 'first3') !== '我方') return setField(row, 'first3', '我方');
-    }
+    if (reason === '发接发抢攻' && value(row, 'first3') !== '我方') return setField(row, 'first3', '我方');
     if (reason === '女生被突破') {
       if (value(row, 'femaleBreak') !== '是') return setField(row, 'femaleBreak', '是');
       if (value(row, 'attacked') !== '女') return setField(row, 'attacked', '女');
       if (value(row, 'femaleDefense') !== '否') return setField(row, 'femaleDefense', '否');
     }
     if (reason === '轮转错误' && value(row, 'rotation') !== '是') return setField(row, 'rotation', '是');
-    if (reason === '发接发被抢') {
-      if (value(row, 'first3') !== '对方') return setField(row, 'first3', '对方');
-    }
+    if (reason === '发接发被抢' && value(row, 'first3') !== '对方') return setField(row, 'first3', '对方');
     return false;
   }
 
@@ -155,7 +158,6 @@
       const server = value(row, 'server');
       setDisabled(row, 'serveActive', server !== '我方');
       setDisabled(row, 'returnActive', server !== '对方');
-      setDisabled(row, 'femaleDefense', value(row, 'attacked') !== '女');
     });
   }
 
@@ -185,7 +187,7 @@
     const el = event.target;
     if (!(el instanceof HTMLSelectElement) || !tbody.contains(el)) return;
     const idx = Number(el.dataset.i);
-    const key = Array.from(el.classList).find(c => !['native-cycle-select'].includes(c));
+    const key = Array.from(el.classList).find(c => c !== 'native-cycle-select');
     schedule(Number.isInteger(idx) ? idx : null, key || null);
   }, true);
 
