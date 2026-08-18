@@ -1,5 +1,10 @@
-/* Touch-first match entry layout for phones and iPads. Desktop stays unchanged. */
+/* Touch-first match entry layout for phones and iPads. */
 .mobile-stats-toggle,.mobile-stats-close,.mobile-stats-backdrop{display:none}
+
+/* The utility actions are intentionally removed from the visible UI. */
+.top-actions{display:none!important}
+.topbar{justify-content:center!important}
+.brand{margin:0 auto;text-align:center}
 
 @media (max-width: 1180px), (hover: none) and (pointer: coarse){
   body.mobile-stats-visible{overflow:hidden}
@@ -7,12 +12,16 @@
   .entry-grid{display:block}
   .record-panel{padding:10px;border-radius:10px}
 
-  .topbar{padding:10px 12px;gap:8px}
-  .brand{font-size:16px;line-height:1.25;gap:8px}
+  .topbar{
+    min-height:52px;
+    height:52px;
+    padding:7px 12px;
+    gap:0;
+    box-shadow:0 1px 8px rgba(7,33,70,.16);
+  }
+  .brand{font-size:17px;line-height:1.2;gap:8px;justify-content:center}
   .brand-mark{width:24px;height:24px}
   .brand-mark svg{width:24px;height:24px}
-  .top-actions{gap:5px}
-  .top-actions button{padding:8px 9px}
 
   .toolbar{gap:8px;margin-bottom:8px}
   .toolbar>div:first-child{width:100%}
@@ -37,7 +46,7 @@
     font-weight:800;
   }
 
-  /* Convert the wide desktop table into one card per rally. */
+  /* Convert the desktop table into touch-friendly rally cards. */
   .table-wrap{overflow:visible;border:0;background:transparent}
   .table-wrap table{display:block;min-width:0;width:100%}
   .table-wrap thead{display:none}
@@ -105,7 +114,7 @@
   .result-selector{display:none}
   .view-results{width:100%;margin:14px 0 4px;min-height:46px}
 
-  /* Live stats become an on-demand bottom sheet. */
+  /* Live stats are hidden until the user explicitly opens them. */
   .stats-panel{display:none!important}
   .stats-panel.mobile-open{
     display:block!important;
@@ -159,10 +168,57 @@
   .reason-list{grid-template-columns:1fr}
 }
 
+/* iPad/tablet: compact two-column rally cards to reduce vertical scrolling. */
 @media (min-width: 700px) and (max-width: 1180px){
-  #rallyBody td{grid-template-columns:160px minmax(0,1fr)}
-  .record-panel{max-width:860px;margin:0 auto}
-  .mobile-stats-toggle{max-width:520px;margin:4px auto 10px}
+  .page{padding:10px 12px 28px}
+  .record-panel{max-width:1060px;margin:0 auto;padding:12px}
+
+  .toolbar{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:end;
+    column-gap:16px;
+    row-gap:8px;
+  }
+  .toolbar>div:first-child{width:auto;min-width:0}
+  .summary-line{width:auto;justify-content:flex-end;white-space:nowrap}
+  .section-title{margin-bottom:7px}
+
+  .mobile-stats-toggle{
+    width:auto;
+    min-width:250px;
+    max-width:340px;
+    margin:2px 0 10px auto;
+    padding:9px 14px;
+  }
+
+  #rallyBody tr{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  #rallyBody td{
+    grid-template-columns:128px minmax(0,1fr);
+    min-height:48px;
+    border-right:1px solid var(--line);
+  }
+  #rallyBody td:nth-child(even){border-right:0}
+  #rallyBody td:nth-last-child(-n+2){border-bottom:0}
+  #rallyBody td:first-child,
+  #rallyBody td:nth-child(2){background:#f5f8fd!important}
+  #rallyBody td:first-child::before,
+  #rallyBody td:nth-child(2)::before{color:#0d5bcf}
+
+  .under-table{display:grid;grid-template-columns:minmax(220px,1fr) auto;align-items:center}
+  .add-btn{max-width:360px}
+  .live-score{font-size:15px}
+
+  .kpi-row{grid-template-columns:repeat(3,1fr)}
+  .results-grid{grid-template-columns:1fr}
+}
+
+@media (max-width: 699px){
+  .topbar{height:50px;min-height:50px}
+  .brand{font-size:16px}
 }
 
 @media (max-width: 430px){
@@ -172,5 +228,6 @@
   .kpi-row{grid-template-columns:1fr 1fr}
 }
 
-body.dark #rallyBody td:first-child{background:#16283d!important}
+body.dark #rallyBody td:first-child,
+body.dark #rallyBody td:nth-child(2){background:#16283d!important}
 body.dark .mobile-stats-toggle{background:#102c50;border-color:#245d9d;color:#8fc1ff}
