@@ -97,7 +97,6 @@
       activeIndex = count ? count - 1 : -1;
       editorOpen = count > 0;
     } else if (count > lastCount) {
-      // A new rally was added: make it the only visible/editable rally.
       activeIndex = count - 1;
       editorOpen = true;
     } else if (count < lastCount) {
@@ -145,13 +144,16 @@
     if (tbody.contains(event.target)) scheduleSync();
   }, true);
 
-  addBtn.addEventListener('click', () => {
-    // Core app adds the row synchronously; the observer below will select the new last row.
+  addBtn.addEventListener('click', () => scheduleSync(), true);
+
+  viewResultsBtn?.addEventListener('click', () => {
+    setEditorOpen(false);
+    footer.classList.add('rally-footer-suspended');
+  }, true);
+  backBtn?.addEventListener('click', () => {
+    footer.classList.remove('rally-footer-suspended');
     scheduleSync();
   }, true);
-
-  viewResultsBtn?.addEventListener('click', () => setEditorOpen(false), true);
-  backBtn?.addEventListener('click', () => scheduleSync(), true);
 
   const observer = new MutationObserver(scheduleSync);
   observer.observe(tbody, { childList: true, subtree: true });
