@@ -11,7 +11,7 @@
 
   const editorBar = document.createElement('div');
   editorBar.className = 'rally-editor-bar';
-  editorBar.innerHTML = '<strong id="rallyEditorTitle">第 1 分</strong><button type="button" class="rally-editor-close" aria-label="关闭本分录入">×</button>';
+  editorBar.innerHTML = '<strong id="rallyEditorTitle">第 1 分</strong><button type="button" class="rally-editor-close" aria-label="关闭旧回合">×</button>';
   tableWrap.insertBefore(editorBar, tableWrap.firstChild);
 
   const backdrop = document.createElement('div');
@@ -26,7 +26,7 @@
   const numberWrap = footer.querySelector('.rally-footer-numbers');
 
   let activeIndex = -1;
-  let editorOpen = false;
+  let floatingOld = false;
   let lastCount = 0;
   let lastGame = null;
   let scheduled = false;
@@ -39,15 +39,26 @@
     return games.querySelector('.game-tab.active[data-game]')?.dataset.game || '0';
   }
 
-  function setEditorOpen(open) {
-    editorOpen = !!open && rows().length > 0;
-    tableWrap.classList.toggle('rally-editor-active', editorOpen);
-    document.body.classList.toggle('rally-editor-visible', editorOpen);
-    if (editorOpen) {
+  function isOldIndex(index, list = rows()) {
+    return index >= 0 && index < list.length - 1;
+  }
+
+  function applyMode() {
+    const list = rows();
+    const hasRows = list.length > 0;
+    const shouldFloat = hasRows && floatingOld && isOldIndex(activeIndex, list);
+
+    floatingOld = shouldFloat;
+    tableWrap.classList.toggle('rally-editor-active', shouldFloat);
+    tableWrap.classList.toggle('rally-editor-inline', hasRows && !shouldFloat);
+    document.body.classList.toggle('rally-editor-visible', shouldFloat);
+
+    if (shouldFloat) {
       requestAnimationFrame(() => {
         tableWrap.scrollTop = 0;
-        const activeButton = numberWrap.querySelector('.rally-number.active');
-        activeButton?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        numberWrap.querySelector('.rally-number.active')?.scrollIntoView({
+          behavior: 'smooth', inline: 'center', block: 'nearest'
+        });
       });
     }
   }
@@ -55,7 +66,7 @@
   function updateEditorTitle() {
     const title = editorBar.querySelector('#rallyEditorTitle');
     if (!title) return;
-    title.textContent = activeIndex >= 0 ? `第 ${activeIndex + 1} 分` : '本分录入';
+    title.textContent = activeIndex >= 0 ? `第 ${activeIndex + 1} 分` : '旧回合';
   }
 
   function markRows(list) {
@@ -69,21 +80,37 @@
   function renderFooter(list) {
     footer.classList.toggle('has-rallies', list.length > 0);
     const fragment = document.createDocumentFragment();
+
     list.forEach((row, index) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'rally-number';
       button.dataset.rallyIndex = String(index);
       button.textContent = String(index + 1);
-      button.setAttribute('aria-label', `打开第 ${index + 1} 分录入`);
+      button.setAttribute(
+        'aria-label',
+        index === list.length - 1 ? `当前第 ${index + 1} 分` : `浮动查看第 ${index + 1} 分`
+      );
       if (index === activeIndex) button.classList.add('active');
+      if (index === list.length - 1) button.classList.add('latest');
 
       const scorer = row.querySelector('select.scorer')?.value;
       if (scorer === '我方') button.dataset.scorer = 'ours';
       else if (scorer === '对方') button.dataset.scorer = 'theirs';
       fragment.appendChild(button);
     });
+
     numberWrap.replaceChildren(fragment);
+  }
+
+  function showLatestInline() {
+    const list = rows();
+    activeIndex = list.length ? list.length - 1 : -1;
+    floatingOld = false;
+    markRows(list);
+    renderFooter(list);
+    updateEditorTitle();
+    applyMode();
   }
 
   function sync() {
@@ -93,23 +120,23 @@
     const game = currentGameKey();
     const gameChanged = game !== lastGame;
 
-    if (gameChanged) {
+    if (gameChanged || count > lastCount) {
+      // New game or newly added rally: always keep the newest rally inline.
       activeIndex = count ? count - 1 : -1;
-      editorOpen = count > 0;
-    } else if (count > lastCount) {
-      activeIndex = count - 1;
-      editorOpen = true;
+      floatingOld = false;
     } else if (count < lastCount) {
-      activeIndex = count ? Math.min(Math.max(activeIndex, 0), count - 1) : -1;
-      if (!count) editorOpen = false;
+      // After deletion, return to the newest remaining rally inline.
+      activeIndex = count ? count - 1 : -1;
+      floatingOld = false;
     } else if (count && (activeIndex < 0 || activeIndex >= count)) {
       activeIndex = count - 1;
+      floatingOld = false;
     }
 
     markRows(list);
     renderFooter(list);
     updateEditorTitle();
-    setEditorOpen(editorOpen);
+    applyMode();
 
     lastCount = count;
     lastGame = game;
@@ -124,20 +151,23 @@
   numberWrap.addEventListener('click', event => {
     const button = event.target.closest('.rally-number[data-rally-index]');
     if (!button) return;
+
     const index = Number(button.dataset.rallyIndex);
     const list = rows();
     if (!Number.isInteger(index) || index < 0 || index >= list.length) return;
+
     activeIndex = index;
+    floatingOld = isOldIndex(index, list);
     markRows(list);
     renderFooter(list);
     updateEditorTitle();
-    setEditorOpen(true);
+    applyMode();
   });
 
-  editorBar.querySelector('.rally-editor-close').addEventListener('click', () => setEditorOpen(false));
-  backdrop.addEventListener('click', () => setEditorOpen(false));
+  editorBar.querySelector('.rally-editor-close').addEventListener('click', showLatestInline);
+  backdrop.addEventListener('click', showLatestInline);
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && editorOpen) setEditorOpen(false);
+    if (event.key === 'Escape' && floatingOld) showLatestInline();
   });
 
   document.addEventListener('change', event => {
@@ -147,12 +177,15 @@
   addBtn.addEventListener('click', () => scheduleSync(), true);
 
   viewResultsBtn?.addEventListener('click', () => {
-    setEditorOpen(false);
+    floatingOld = false;
+    document.body.classList.remove('rally-editor-visible');
+    tableWrap.classList.remove('rally-editor-active');
     footer.classList.add('rally-footer-suspended');
   }, true);
+
   backBtn?.addEventListener('click', () => {
     footer.classList.remove('rally-footer-suspended');
-    scheduleSync();
+    queueMicrotask(showLatestInline);
   }, true);
 
   const observer = new MutationObserver(scheduleSync);
@@ -162,6 +195,6 @@
   lastCount = rows().length;
   lastGame = currentGameKey();
   activeIndex = lastCount ? lastCount - 1 : -1;
-  editorOpen = lastCount > 0;
+  floatingOld = false;
   sync();
 })();
