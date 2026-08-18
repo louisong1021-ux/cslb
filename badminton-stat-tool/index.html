@@ -13,7 +13,12 @@
   <div class="loading">正在加载羽毛球统计工具<br><br><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
   <script>
     Promise.all(['parts/part0.html','parts/part1.html','parts/part2.html'].map(p=>fetch(p,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(p);return r.text()})))
-      .then(parts=>{document.open();document.write(parts.join(''));document.close();})
+      .then(parts=>{
+        document.open();document.write(parts.join(''));document.close();
+        const script=document.createElement('script');
+        script.src='count-display.js';
+        document.body.appendChild(script);
+      })
       .catch(err=>{document.body.innerHTML='<div style="padding:32px"><h2>加载失败</h2><p>请刷新页面后重试。</p><pre>'+String(err)+'</pre></div>';});
   </script>
 </body>
