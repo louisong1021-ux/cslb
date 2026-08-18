@@ -1,6 +1,5 @@
 (() => {
   const FIELD_ORDER = [
-    { key:'rally', label:'回合' },
     { key:'server', selector:'.server', label:'发球方' },
     { key:'serveActive', selector:'.serveActive', label:'发球后3拍主动' },
     { key:'returnActive', selector:'.returnActive', label:'接发后3拍主动' },
@@ -31,6 +30,7 @@
     if (!headerRow) return;
     const cells = Array.from(headerRow.children);
     cells.forEach((cell, i) => { if (!cell.dataset.field && ORIGINAL_HEADER_KEYS[i]) cell.dataset.field = ORIGINAL_HEADER_KEYS[i]; });
+    headerRow.querySelector('[data-field="rally"]')?.remove();
     headerRow.querySelector('[data-field="score"]')?.remove();
     const desired = FIELD_ORDER.map(item => headerRow.querySelector(`[data-field="${item.key}"]`)).filter(Boolean);
     const current = Array.from(headerRow.children);
@@ -38,6 +38,9 @@
   }
 
   function markCells(row) {
+    const first = row.querySelector('td');
+    if (first && !first.dataset.field) first.dataset.field = 'rally';
+
     const score = row.querySelector('.score-cell');
     if (score) score.dataset.field = 'score';
 
@@ -46,9 +49,6 @@
       const control = row.querySelector(item.selector);
       if (control) control.closest('td')?.setAttribute('data-field', item.key);
     });
-
-    const first = row.querySelector('td');
-    if (first && !first.dataset.field) first.dataset.field = 'rally';
   }
 
   function normalizeRows(tbody) {
@@ -57,6 +57,7 @@
     try {
       tbody.querySelectorAll('tr').forEach(row => {
         markCells(row);
+        row.querySelector('td[data-field="rally"]')?.remove();
         row.querySelector('td[data-field="score"]')?.remove();
 
         const desired = FIELD_ORDER.map(item => row.querySelector(`td[data-field="${item.key}"]`)).filter(Boolean);
