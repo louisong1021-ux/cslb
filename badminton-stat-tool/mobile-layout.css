@@ -1,7 +1,7 @@
-/* Mobile-first match entry layout. Desktop stays unchanged. */
+/* Touch-first match entry layout for phones and iPads. Desktop stays unchanged. */
 .mobile-stats-toggle,.mobile-stats-close,.mobile-stats-backdrop{display:none}
 
-@media (max-width: 900px){
+@media (max-width: 1180px), (hover: none) and (pointer: coarse){
   body.mobile-stats-visible{overflow:hidden}
   .page{padding:8px 8px 24px}
   .entry-grid{display:block}
@@ -102,7 +102,6 @@
   .add-btn{flex:1;min-height:42px;font-size:14px}
   .live-score{font-size:14px;white-space:nowrap}
 
-  /* This legend costs a lot of vertical space on phones; result remains editable in each rally card. */
   .result-selector{display:none}
   .view-results{width:100%;margin:14px 0 4px;min-height:46px}
 
@@ -149,7 +148,6 @@
 
   .privacy{font-size:11px;margin-top:8px}
 
-  /* Results page should also read comfortably on a phone. */
   .results-top h1{font-size:20px}
   .results-score{padding:12px 14px;min-width:0}
   .results-score .big{font-size:24px}
@@ -159,6 +157,12 @@
   .results-panel{padding:11px}
   .bar-row{grid-template-columns:110px 1fr 46px;gap:7px;font-size:12px}
   .reason-list{grid-template-columns:1fr}
+}
+
+@media (min-width: 700px) and (max-width: 1180px){
+  #rallyBody td{grid-template-columns:160px minmax(0,1fr)}
+  .record-panel{max-width:860px;margin:0 auto}
+  .mobile-stats-toggle{max-width:520px;margin:4px auto 10px}
 }
 
 @media (max-width: 430px){
