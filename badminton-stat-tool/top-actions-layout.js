@@ -21,35 +21,46 @@
     const actionRow = document.createElement('div');
     actionRow.className = 'top-primary-actions';
 
-    const cacheBtn = document.createElement('button');
-    cacheBtn.type = 'button';
-    cacheBtn.id = 'clearCacheBtn';
-    cacheBtn.className = 'top-primary-action top-primary-cache';
-    cacheBtn.textContent = '清空缓存';
-    cacheBtn.title = '清除网页缓存并重新加载，不删除比赛记录';
+    const resetBtn = document.createElement('button');
+    resetBtn.type = 'button';
+    resetBtn.id = 'resetAllBtn';
+    resetBtn.className = 'top-primary-action top-primary-cache';
+    resetBtn.textContent = '刷新清空';
+    resetBtn.title = '删除所有比赛记录并刷新页面';
 
     games.classList.add('top-game-actions');
     addBtn.classList.add('top-primary-action', 'top-primary-add');
     resultsBtn.classList.add('top-primary-action', 'top-primary-results');
     clearBtn.classList.add('top-primary-action', 'top-primary-clear');
 
-    actionRow.append(games, addBtn, resultsBtn, clearBtn, cacheBtn);
+    actionRow.append(games, addBtn, resultsBtn, clearBtn, resetBtn);
     toolbar.insertAdjacentElement('afterend', actionRow);
 
-    cacheBtn.addEventListener('click', async () => {
-      if (!confirm('清空网页缓存并重新加载？\n比赛记录不会删除。')) return;
-      cacheBtn.disabled = true;
-      cacheBtn.textContent = '清理中…';
+    resetBtn.addEventListener('click', () => {
+      if (!confirm('确定删除所有比赛记录并刷新页面吗？\n此操作不可恢复。')) return;
+
+      resetBtn.disabled = true;
+      resetBtn.textContent = '正在重置…';
+
       try {
-        if ('caches' in window) {
-          const keys = await caches.keys();
-          await Promise.all(keys.map(key => caches.delete(key)));
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i += 1) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('badminton_match_stats_') || key.startsWith('badminton_our_server_'))) {
+            keys.push(key);
+          }
         }
+        keys.forEach(key => localStorage.removeItem(key));
+
+        const sessionKeys = [];
+        for (let i = 0; i < sessionStorage.length; i += 1) {
+          const key = sessionStorage.key(i);
+          if (key && key.startsWith('badminton_')) sessionKeys.push(key);
+        }
+        sessionKeys.forEach(key => sessionStorage.removeItem(key));
       } catch {}
 
-      const url = new URL(window.location.href);
-      url.searchParams.set('_refresh', Date.now().toString());
-      window.location.replace(url.toString());
+      window.location.reload();
     });
 
     if (recordCount) recordCount.remove();
