@@ -85,7 +85,7 @@
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = 'mobile-stats-toggle';
-    toggle.innerHTML = '📊 <span>第1局</span>';
+    toggle.innerHTML = '📊 <span>第1局 · 回合 0 · 0 - 0</span>';
     const tableWrap = recordPanel.querySelector('.table-wrap');
     recordPanel.insertBefore(toggle, tableWrap);
 
@@ -121,8 +121,17 @@
     function updateToggleText() {
       const rawGame = document.querySelector('#statsGameLabel')?.textContent?.trim() || '第1局';
       const game = rawGame.replace(/[（）()]/g, '');
-      toggle.querySelector('span').textContent = game;
-      toggle.setAttribute('aria-label', `打开${game}统计`);
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      let ours = 0;
+      let theirs = 0;
+      rows.forEach(row => {
+        const scorer = row.querySelector('select.scorer')?.value;
+        if (scorer === '我方') ours += 1;
+        else if (scorer === '对方') theirs += 1;
+      });
+      const rounds = rows.length;
+      toggle.querySelector('span').textContent = `${game} · 回合 ${rounds} · ${ours} - ${theirs}`;
+      toggle.setAttribute('aria-label', `打开${game}统计，当前${rounds}回合，比分${ours}比${theirs}`);
     }
 
     const observer = new MutationObserver(() => {
@@ -132,6 +141,12 @@
     observer.observe(tbody, {childList:true, subtree:true});
     const liveStats = document.querySelector('#liveStats');
     if (liveStats) observer.observe(liveStats, {childList:true, subtree:true, characterData:true});
+
+    document.addEventListener('change', event => {
+      if (event.target instanceof HTMLSelectElement && event.target.classList.contains('scorer') && tbody.contains(event.target)) {
+        queueMicrotask(updateToggleText);
+      }
+    }, true);
 
     const syncMode = () => { if (!touchMode.matches) closeStats(); };
     touchMode.addEventListener?.('change', syncMode);
