@@ -20,7 +20,6 @@
   }
 
   const ratio = (n, d) => d ? n / d * 100 : 0;
-  const pct = (n, d) => d ? `${Math.round(n / d * 100)}%` : '—';
   const countText = n => n ? `${n} 次` : '没有';
 
   function bucket(rows, pred) {
@@ -75,7 +74,7 @@
     const rotationRows = rows.filter(r => r.rotation === '是');
     const rotationLosses = rotationRows.filter(r => r.scorer === '对方');
 
-    // Strict full-chain funnel: each later stage is a subset of the previous one.
+    // 严格完整链：后一阶段必须同时满足前一阶段条件。
     const chain1 = rows.filter(r => r.first3 === '我方');
     const chain2 = chain1.filter(r => r.forcedLift === '男' || r.forcedLift === '女');
     const chain3 = chain2.filter(r => Number(r.maleAttack) > 0);
@@ -181,7 +180,7 @@
     const base = s.chain[0] || 0;
     return `<div class="opt-funnel">${s.chain.map((v, i) => {
       const rate = i === 0 ? (base ? 100 : 0) : ratio(v, base);
-      return `<div class="opt-funnel-step"><div class="opt-funnel-top"><span>${labels[i]}</span><b>${v} 次</b></div><div class="opt-funnel-track"><i style="width:${Math.max(4, Math.min(100, rate))}%"></i></div>${i ? `<small>占抢到主动回合 ${base ? Math.round(rate) + '%' : '—'}</small>` : '<small>完整进攻链起点</small>'}</div>`;
+      return `<div class="opt-funnel-step"><div class="opt-funnel-top"><span>${labels[i]}</span><b>${v} 次</b></div><div class="opt-funnel-track"><i style="width:${rate ? Math.max(4, Math.min(100, rate)) : 0}%"></i></div>${i ? `<small>占抢到主动回合 ${base ? Math.round(rate) + '%' : '—'}</small>` : '<small>完整进攻链起点</small>'}</div>`;
     }).join('')}</div>`;
   }
 
@@ -246,7 +245,7 @@
         `女 ${s.targetFemale.count ? Math.round(s.targetFemale.lossRate) + '%' : '—'}`,
         `中路 ${s.targetMid.count ? Math.round(s.targetMid.lossRate) + '%' : '—'}`
       ].join(' · ');
-      card.innerHTML = `
+      const html = `
         <h3>比赛诊断摘要</h3>
         <div class="opt-live-grid">
           <div><span>完整进攻链</span><b>${s.chain.join(' → ')}</b><small>主动 → 起球 → 连续进攻 → 得分</small></div>
@@ -254,12 +253,13 @@
           <div><span>对手攻击后的得分率</span><b class="opt-small-value">${targetText}</b><small>越高代表该区域越危险</small></div>
           <div><span>关键分</span><b>${critical.count ? Math.round(critical.rate) + '%' : '—'}</b><small>${critical.wins}/${critical.count} · 15分后胶着或18分后</small></div>
         </div>`;
+      if (card.innerHTML !== html) card.innerHTML = html;
     } finally {
       renderingLive = false;
     }
   }
 
-  function ensurePanel(id, title) {
+  function ensurePanel(id) {
     let panel = document.getElementById(id);
     if (!panel) {
       panel = document.createElement('div');
@@ -269,7 +269,6 @@
       if (serverCard && serverCard.parentElement === resultsGrid) resultsGrid.insertBefore(panel, serverCard);
       else resultsGrid.appendChild(panel);
     }
-    panel.dataset.title = title;
     return panel;
   }
 
@@ -307,16 +306,16 @@
     const recommendations = $('#recommendations');
     if (recommendations) recommendations.innerHTML = buildOptimizedRecommendations(s, critical).map(x => `<div class="recommendation">${x}</div>`).join('');
 
-    const funnel = ensurePanel('optAttackFunnel', '完整进攻链漏斗');
+    const funnel = ensurePanel('optAttackFunnel');
     funnel.innerHTML = `<h2>完整进攻链漏斗</h2><p class="opt-explain">只统计同一个回合内连续满足“前三拍主动 → 逼出被动挑球 → 男生连续进攻 → 得分”的完整链条。</p>${funnelHtml(s)}<div class="opt-share-row"><span>逼起球贡献</span><b>男 ${s.forcedMale}（${s.forcedMale + s.forcedFemale ? Math.round(s.forcedMaleShare) + '%' : '—'}）</b><b>女 ${s.forcedFemale}（${s.forcedMale + s.forcedFemale ? Math.round(s.forcedFemaleShare) + '%' : '—'}）</b></div>`;
 
-    const attack = ensurePanel('optAttackEfficiency', '连续进攻效率');
+    const attack = ensurePanel('optAttackEfficiency');
     attack.innerHTML = `<h2>男生连续进攻效率</h2><div class="opt-card-grid">${attackBucketCard('1拍进攻', s.attackOne)}${attackBucketCard('2–3拍进攻', s.attackTwoThree)}${attackBucketCard('4拍以上', s.attackFourPlus)}</div><div class="opt-detail-line">女生在男生形成连续进攻后的封网记录：${countText(s.netAfterAttackCount)}；成功 ${s.netAfterAttackYes} 次；成功率 ${s.netAfterAttackCount ? Math.round(s.netAfterAttackRate) + '%' : '—'}。</div>`;
 
-    const defense = ensurePanel('optDefenseTargets', '防守靶点');
+    const defense = ensurePanel('optDefenseTargets');
     defense.innerHTML = `<h2>防守靶点与突破</h2><div class="opt-card-grid">${targetCard('攻击男生', s.targetMale)}${targetCard('攻击女生', s.targetFemale)}${targetCard('攻击中路', s.targetMid)}</div><div class="opt-detail-line">女生被攻击 ${s.femaleTargetCount} 次 → 防住 ${s.femaleTargetDef} 次 → 被突破 ${s.femaleBreak} 次；防守成功率 ${s.femaleTargetCount ? Math.round(s.femaleTargetDefRate) + '%' : '—'}。轮转错误 ${s.rotationCount} 次，其中直接丢分 ${s.rotationLosses} 次。</div>`;
 
-    const structure = ensurePanel('optLossStructure', '丢分结构');
+    const structure = ensurePanel('optLossStructure');
     const criticalLoss = critical.topLoss ? `${critical.topLoss[0]} ${critical.topLoss[1]} 次` : '暂无';
     structure.innerHTML = `<h2>丢分结构与关键分</h2><div class="opt-loss-list">${lossBars(s)}</div><div class="opt-critical-box"><div><span>关键分定义</span><b>15分后分差≤2，或任一方达到18分以后</b></div><div><span>关键分得分</span><b>${critical.count ? `${critical.wins}/${critical.count} · ${Math.round(critical.rate)}%` : '暂无样本'}</b></div><div><span>关键分最常见丢分</span><b>${criticalLoss}</b></div></div>`;
 
