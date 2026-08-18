@@ -46,7 +46,6 @@
     font-weight:800;
   }
 
-  /* Convert the desktop table into touch-friendly rally cards. */
   .table-wrap{overflow:visible;border:0;background:transparent}
   .table-wrap table{display:block;min-width:0;width:100%}
   .table-wrap thead{display:none}
@@ -92,7 +91,6 @@
     font-weight:850;
   }
   #rallyBody td:first-child::before{color:#0d5bcf}
-  #rallyBody td:nth-child(2){font-size:17px;font-weight:900}
   #rallyBody .cycle-choice,
   #rallyBody input[type="number"],
   #rallyBody input[type="text"]{min-width:0;width:100%;min-height:38px}
@@ -114,7 +112,6 @@
   .result-selector{display:none}
   .view-results{width:100%;margin:14px 0 4px;min-height:46px}
 
-  /* Live stats are hidden until the user explicitly opens them. */
   .stats-panel{display:none!important}
   .stats-panel.mobile-open{
     display:block!important;
@@ -168,7 +165,6 @@
   .reason-list{grid-template-columns:1fr}
 }
 
-/* iPad/tablet: compact two-column rally cards to reduce vertical scrolling. */
 @media (min-width: 700px) and (max-width: 1180px){
   .page{padding:10px 12px 28px}
   .record-panel{max-width:1060px;margin:0 auto;padding:12px}
@@ -203,10 +199,8 @@
   }
   #rallyBody td:nth-child(even){border-right:0}
   #rallyBody td:nth-last-child(-n+2){border-bottom:0}
-  #rallyBody td:first-child,
-  #rallyBody td:nth-child(2){background:#f5f8fd!important}
-  #rallyBody td:first-child::before,
-  #rallyBody td:nth-child(2)::before{color:#0d5bcf}
+  #rallyBody td:first-child{background:#f5f8fd!important}
+  #rallyBody td:first-child::before{color:#0d5bcf}
 
   .under-table{display:grid;grid-template-columns:minmax(220px,1fr) auto;align-items:center}
   .add-btn{max-width:360px}
@@ -228,6 +222,5 @@
   .kpi-row{grid-template-columns:1fr 1fr}
 }
 
-body.dark #rallyBody td:first-child,
-body.dark #rallyBody td:nth-child(2){background:#16283d!important}
+body.dark #rallyBody td:first-child{background:#16283d!important}
 body.dark .mobile-stats-toggle{background:#102c50;border-color:#245d9d;color:#8fc1ff}
