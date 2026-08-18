@@ -1,4 +1,5 @@
-#rallyBody .native-cycle-select{display:none!important}
+#rallyBody .native-cycle-select,
+#rallyBody .native-number-input{display:none!important}
 
 #rallyBody .cycle-choice{
   width:100%;
@@ -32,6 +33,69 @@
 #rallyBody .cycle-choice[data-tone="warning"]{background:#fff8ec;border-color:#f0d8ad;color:#a35d00}
 #rallyBody .cycle-choice[data-tone="neutral"]{background:#f6f8fb;border-color:#dce3ec;color:#5f6d80}
 
+.number-picker-backdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:220;
+  background:rgba(6,20,39,.42);
+  backdrop-filter:blur(2px);
+}
+.number-picker-panel{
+  display:none;
+  position:fixed;
+  left:50%;
+  bottom:max(14px,env(safe-area-inset-bottom));
+  z-index:221;
+  width:min(520px,calc(100vw - 20px));
+  transform:translateX(-50%);
+  padding:12px;
+  border:1px solid #d8e1ec;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 22px 60px rgba(5,20,41,.3);
+}
+body.number-picker-visible .number-picker-backdrop,
+body.number-picker-visible .number-picker-panel{display:block}
+.number-picker-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.number-picker-head strong{font-size:16px;color:#1f2d3d}
+.number-picker-close{
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  border:1px solid #d8e1ec;
+  background:#fff;
+  color:#1f2d3d;
+  font-size:20px;
+  line-height:1;
+}
+.number-picker-grid{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:7px;
+}
+.number-picker-option{
+  min-height:42px;
+  border:1px solid #d8e1ec;
+  border-radius:9px;
+  background:#f7f9fc;
+  color:#34485f;
+  font-weight:800;
+  font-size:15px;
+}
+.number-picker-option.active{
+  border-color:#1268f3;
+  background:#1268f3;
+  color:#fff;
+  box-shadow:0 0 0 3px rgba(18,104,243,.12);
+}
+
 body.dark #rallyBody .cycle-choice{
   background:#132338;
   color:#eef5ff;
@@ -43,3 +107,13 @@ body.dark #rallyBody .cycle-choice[data-tone="success"]{background:#102d26;borde
 body.dark #rallyBody .cycle-choice[data-tone="danger"]{background:#341d25;border-color:#6e3542;color:#ff9aa1}
 body.dark #rallyBody .cycle-choice[data-tone="warning"]{background:#342815;border-color:#6d5426;color:#ffd281}
 body.dark #rallyBody .cycle-choice[data-tone="neutral"]{background:#182536;border-color:#34475e;color:#b7c4d4}
+body.dark .number-picker-panel{background:#132338;border-color:#31445c}
+body.dark .number-picker-head strong{color:#eef5ff}
+body.dark .number-picker-close{background:#182536;border-color:#34475e;color:#eef5ff}
+body.dark .number-picker-option{background:#182536;border-color:#34475e;color:#c8d5e4}
+body.dark .number-picker-option.active{background:#1268f3;border-color:#4f91ff;color:#fff}
+
+@media (max-width:430px){
+  .number-picker-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+  .number-picker-option{min-height:40px;font-size:14px}
+}
