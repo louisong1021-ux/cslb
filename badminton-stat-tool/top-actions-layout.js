@@ -2,6 +2,7 @@
   function init() {
     const recordPanel = document.querySelector('.record-panel');
     const toolbar = recordPanel?.querySelector('.toolbar');
+    const games = document.querySelector('#gameTabs');
     const addBtn = document.querySelector('#addRallyBtn');
     const resultsBtn = document.querySelector('#viewResultsBtn');
     const clearBtn = document.querySelector('#clearGameBtn');
@@ -10,7 +11,7 @@
     const recordCount = document.querySelector('#recordCount');
     const pageHeader = document.querySelector('.topbar');
 
-    if (!recordPanel || !toolbar || !addBtn || !resultsBtn || !clearBtn) {
+    if (!recordPanel || !toolbar || !games || !addBtn || !resultsBtn || !clearBtn) {
       requestAnimationFrame(init);
       return;
     }
@@ -20,10 +21,12 @@
     const actionRow = document.createElement('div');
     actionRow.className = 'top-primary-actions';
 
+    games.classList.add('top-game-actions');
     addBtn.classList.add('top-primary-action', 'top-primary-add');
     resultsBtn.classList.add('top-primary-action', 'top-primary-results');
     clearBtn.classList.add('top-primary-action', 'top-primary-clear');
-    actionRow.append(addBtn, resultsBtn, clearBtn);
+
+    actionRow.append(games, addBtn, resultsBtn, clearBtn);
     toolbar.insertAdjacentElement('afterend', actionRow);
 
     if (recordCount) recordCount.remove();
