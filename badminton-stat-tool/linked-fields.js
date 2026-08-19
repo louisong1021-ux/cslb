@@ -3,8 +3,8 @@
   if (!tbody) return;
 
   const WIN_REASONS = new Set(['男生杀球','女生封网','平抽挡得分','防守反击得分','对方主动失误','对方被迫失误','发接发抢攻','其他得分']);
-  const LOSS_REASONS = new Set(['男生失误','女生失误','女生被突破','防守被杀穿','轮转错误','发接发被抢','主动进攻丢分','判断失误','其他丢分']);
-  const LINKED_SELECTS = new Set(['scorer','server','serveActive','returnActive','first3','femaleBreak','femaleDefense','attacked','reason']);
+  const LOSS_REASONS = new Set(['男生失误','女生失误','防守被杀穿','轮转错误','发接发被抢','主动进攻丢分','判断失误','其他丢分']);
+  const LINKED_SELECTS = new Set(['scorer','server','serveActive','returnActive','first3','attacked','reason']);
 
   let scheduled = false;
   let lastChanged = null;
@@ -99,34 +99,12 @@
     return false;
   }
 
-  function syncFemaleDefense(row, changed) {
-    const attacked = value(row, 'attacked');
-    const broken = value(row, 'femaleBreak');
-    const defense = value(row, 'femaleDefense');
-
-    if (changed === 'femaleBreak' && broken === '是') {
-      if (attacked !== '女') return setField(row, 'attacked', '女');
-      if (defense !== '否') return setField(row, 'femaleDefense', '否');
-    }
-
-    if (changed === 'femaleDefense' && defense !== '不适用') {
-      if (attacked !== '女') return setField(row, 'attacked', '女');
-      if (defense === '是' && broken !== '否') return setField(row, 'femaleBreak', '否');
-    }
-
-    if (changed === 'attacked') {
-      if (attacked !== '女') {
-        if (broken !== '否') return setField(row, 'femaleBreak', '否');
-        if (defense !== '不适用') return setField(row, 'femaleDefense', '不适用');
-      } else if (defense === '不适用') {
-        return setField(row, 'femaleDefense', '否');
-      }
-    }
-
-    if (attacked !== '女' && defense !== '不适用') return setField(row, 'femaleDefense', '不适用');
-    if (attacked !== '女' && broken === '是') return setField(row, 'femaleBreak', '否');
-    if (broken === '是' && defense === '是') return setField(row, 'femaleDefense', '否');
-    return false;
+  function ensureCounterAtLeastOne(row, counterClass, legacyClass) {
+    const counter = field(row, counterClass) || field(row, legacyClass);
+    if (!counter) return false;
+    const numeric = Number(counter.value);
+    if (Number.isFinite(numeric)) return numeric < 1 ? dispatchField(counter, 1) : false;
+    return counter.value !== '是' ? dispatchField(counter, '是') : false;
   }
 
   function syncReason(row, changed) {
@@ -141,14 +119,9 @@
       const n = Number(value(row, 'maleAttack')) || 0;
       if (n < 1) return setField(row, 'maleAttack', 1);
     }
-    if (reason === '女生封网' && value(row, 'femaleNet') !== '是') return setField(row, 'femaleNet', '是');
-    if (reason === '防守反击得分' && value(row, 'defenseToAttack') !== '是') return setField(row, 'defenseToAttack', '是');
+    if (reason === '女生封网' && ensureCounterAtLeastOne(row, 'femaleNetCount', 'femaleNet')) return true;
+    if (reason === '防守反击得分' && ensureCounterAtLeastOne(row, 'defenseToAttackCount', 'defenseToAttack')) return true;
     if (reason === '发接发抢攻' && value(row, 'first3') !== '我方') return setField(row, 'first3', '我方');
-    if (reason === '女生被突破') {
-      if (value(row, 'femaleBreak') !== '是') return setField(row, 'femaleBreak', '是');
-      if (value(row, 'attacked') !== '女') return setField(row, 'attacked', '女');
-      if (value(row, 'femaleDefense') !== '否') return setField(row, 'femaleDefense', '否');
-    }
     if (reason === '轮转错误' && value(row, 'rotation') !== '是') return setField(row, 'rotation', '是');
     if (reason === '发接发被抢' && value(row, 'first3') !== '对方') return setField(row, 'first3', '对方');
     return false;
@@ -172,11 +145,9 @@
       if (row) {
         if (syncReason(row, changed)) return;
         if (syncService(row, changed)) return;
-        if (syncFemaleDefense(row, changed)) return;
       }
       for (const r of rs) {
         if (syncService(r, null)) return;
-        if (syncFemaleDefense(r, null)) return;
       }
       refreshDisabledStates();
     } finally {
@@ -193,7 +164,6 @@
     schedule(Number.isInteger(idx) ? idx : null, key || null);
   }, true);
 
-  // 只在整行新增/删除时重新稳定联动，不再因每个按钮被插入 DOM 而重复扫描所有回合。
   const observer = new MutationObserver(() => schedule(null, null));
   observer.observe(tbody, { childList: true });
 
