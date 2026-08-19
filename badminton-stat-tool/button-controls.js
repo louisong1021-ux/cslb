@@ -3,7 +3,7 @@
   if (!tbody) return;
 
   const displayText = (value, select) => {
-    if (value === '' && select?.classList.contains('ourServer')) return '—';
+    if (value === '' && (select?.classList.contains('ourServer') || select?.classList.contains('receiverPerson'))) return '—';
     return value === '' ? '请选择' : value;
   };
 
@@ -26,14 +26,16 @@
 
   let numberPicker = null;
   let numberPickerBackdrop = null;
-  let activeNumberInput = null;
+  let activeNumberControl = null;
   let reasonPicker = null;
   let reasonPickerBackdrop = null;
   let activeReasonSelect = null;
 
+  const numberLabel = control => control?.dataset.numberPickerLabel || (control?.classList.contains('maleAttack') ? '男生连续进攻拍数' : '次数');
+
   function closeNumberPicker() {
     document.body.classList.remove('number-picker-visible');
-    activeNumberInput = null;
+    activeNumberControl = null;
   }
 
   function closeReasonPicker() {
@@ -72,31 +74,34 @@
     numberPicker.querySelector('.number-picker-close').addEventListener('click', closeNumberPicker);
     grid.addEventListener('click', event => {
       const option = event.target.closest('.number-picker-option[data-value]');
-      if (!option || !activeNumberInput) return;
-      activeNumberInput.value = option.dataset.value;
-      activeNumberInput.dispatchEvent(new Event('change', { bubbles: true }));
-      const button = activeNumberInput.nextElementSibling;
-      if (button?.classList.contains('number-choice')) syncNumberButton(activeNumberInput, button);
+      if (!option || !activeNumberControl) return;
+      activeNumberControl.value = option.dataset.value;
+      activeNumberControl.dispatchEvent(new Event('change', { bubbles: true }));
+      const button = activeNumberControl.nextElementSibling;
+      if (button?.classList.contains('number-choice')) syncNumberButton(activeNumberControl, button);
       closeNumberPicker();
     });
   }
 
-  function openNumberPicker(input) {
+  function openNumberPicker(control) {
     closeReasonPicker();
     ensureNumberPicker();
-    activeNumberInput = input;
-    const current = String(input.value || '0');
+    activeNumberControl = control;
+    const heading = numberPicker.querySelector('.number-picker-head strong');
+    if (heading) heading.textContent = `选择${numberLabel(control)}`;
+    const current = String(control.value || '0');
     numberPicker.querySelectorAll('.number-picker-option').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.value === current);
     });
     document.body.classList.add('number-picker-visible');
   }
 
-  function syncNumberButton(input, button) {
-    const value = String(Math.max(0, Math.min(20, Number(input.value) || 0)));
+  function syncNumberButton(control, button) {
+    const value = String(Math.max(0, Math.min(20, Number(control.value) || 0)));
+    const label = numberLabel(control);
     button.textContent = value;
     button.dataset.tone = value === '0' ? 'neutral' : 'primary';
-    button.setAttribute('aria-label', `男生连续进攻 ${value} 拍，点击选择`);
+    button.setAttribute('aria-label', `${label} ${value}，点击选择`);
   }
 
   function ensureReasonPicker() {
@@ -151,7 +156,28 @@
     document.body.classList.add('reason-picker-visible');
   }
 
+  function enhanceNumberSelect(select) {
+    if (select.dataset.numberChoiceReady === '1') return;
+    select.dataset.numberChoiceReady = '1';
+    select.dataset.cycleReady = '1';
+    select.classList.add('native-cycle-select');
+    select.tabIndex = -1;
+    select.setAttribute('aria-hidden', 'true');
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'cycle-choice number-choice';
+    button.title = `点击选择${numberLabel(select)}`;
+    select.insertAdjacentElement('afterend', button);
+    syncNumberButton(select, button);
+    button.addEventListener('click', () => openNumberPicker(select));
+  }
+
   function enhanceSelect(select) {
+    if (select.classList.contains('event-number-select')) {
+      enhanceNumberSelect(select);
+      return;
+    }
     if (select.dataset.cycleReady === '1') return;
     select.dataset.cycleReady = '1';
     select.classList.add('native-cycle-select');
@@ -184,6 +210,7 @@
   function enhanceNumberInput(input) {
     if (input.dataset.numberChoiceReady === '1') return;
     input.dataset.numberChoiceReady = '1';
+    input.dataset.numberPickerLabel = input.dataset.numberPickerLabel || '男生连续进攻拍数';
     input.classList.add('native-number-input');
     input.tabIndex = -1;
     input.setAttribute('aria-hidden', 'true');
@@ -191,7 +218,7 @@
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'cycle-choice number-choice';
-    button.title = '点击选择拍数';
+    button.title = '点击选择进攻拍数';
     input.insertAdjacentElement('afterend', button);
     syncNumberButton(input, button);
     button.addEventListener('click', () => openNumberPicker(input));
@@ -211,7 +238,11 @@
 
     if (target instanceof HTMLSelectElement) {
       const button = target.nextElementSibling;
-      if (button?.classList.contains('cycle-choice')) syncButton(target, button);
+      if (target.classList.contains('event-number-select')) {
+        if (button?.classList.contains('number-choice')) syncNumberButton(target, button);
+      } else if (button?.classList.contains('cycle-choice')) {
+        syncButton(target, button);
+      }
       return;
     }
 
