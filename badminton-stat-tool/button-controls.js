@@ -99,9 +99,13 @@
   function syncNumberButton(control, button) {
     const value = String(Math.max(0, Math.min(20, Number(control.value) || 0)));
     const label = numberLabel(control);
-    button.textContent = value;
+    button.innerHTML = `<span class="number-choice-label">${label}</span><strong class="number-choice-value">${value}</strong>`;
     button.dataset.tone = value === '0' ? 'neutral' : 'primary';
     button.setAttribute('aria-label', `${label} ${value}，点击选择`);
+  }
+
+  function markNumberCell(control) {
+    control?.closest('td')?.classList.add('number-choice-cell');
   }
 
   function ensureReasonPicker() {
@@ -157,12 +161,18 @@
   }
 
   function enhanceNumberSelect(select) {
-    if (select.dataset.numberChoiceReady === '1') return;
+    if (select.dataset.numberChoiceReady === '1') {
+      markNumberCell(select);
+      const existing = select.nextElementSibling;
+      if (existing?.classList.contains('number-choice')) syncNumberButton(select, existing);
+      return;
+    }
     select.dataset.numberChoiceReady = '1';
     select.dataset.cycleReady = '1';
     select.classList.add('native-cycle-select');
     select.tabIndex = -1;
     select.setAttribute('aria-hidden', 'true');
+    markNumberCell(select);
 
     const button = document.createElement('button');
     button.type = 'button';
@@ -208,12 +218,18 @@
   }
 
   function enhanceNumberInput(input) {
-    if (input.dataset.numberChoiceReady === '1') return;
+    if (input.dataset.numberChoiceReady === '1') {
+      markNumberCell(input);
+      const existing = input.nextElementSibling;
+      if (existing?.classList.contains('number-choice')) syncNumberButton(input, existing);
+      return;
+    }
     input.dataset.numberChoiceReady = '1';
     input.dataset.numberPickerLabel = input.dataset.numberPickerLabel || '男生连续进攻拍数';
     input.classList.add('native-number-input');
     input.tabIndex = -1;
     input.setAttribute('aria-hidden', 'true');
+    markNumberCell(input);
 
     const button = document.createElement('button');
     button.type = 'button';
