@@ -70,7 +70,7 @@
     const stored = records[rowIndex]?.ourServer || suggestedServer(records, rowIndex, server);
     const cell = document.createElement('td');
     cell.dataset.field = 'ourServer';
-    cell.dataset.label = '我方发球人';
+    cell.dataset.label = '发球人';
     cell.innerHTML = `<select class="ourServer" data-i="${rowIndex}"><option value="">—</option><option value="男">男</option><option value="女">女</option></select>`;
     const select = cell.querySelector('select');
     select.value = stored;
@@ -84,7 +84,7 @@
     if (!serverHeader) return;
     const th = document.createElement('th');
     th.dataset.field = 'ourServer';
-    th.textContent = '我方发球人';
+    th.textContent = '发球人';
     serverHeader.insertAdjacentElement('afterend', th);
   }
 
@@ -160,7 +160,7 @@
       card.className = 'stat-card blue';
       liveStats.appendChild(card);
     }
-    const html = `<h3>我方发球人</h3><div class="metric-grid">` +
+    const html = `<h3>发球人</h3><div class="metric-grid">` +
       `<div class="metric"><div class="metric-label">男生发球</div><div class="metric-value">${s.male.count} 次</div><div class="metric-sub">前三拍主动 ${s.male.activeRate} · 本分得分 ${s.male.winRate}</div></div>` +
       `<div class="metric"><div class="metric-label">女生发球</div><div class="metric-value">${s.female.count} 次</div><div class="metric-sub">前三拍主动 ${s.female.activeRate} · 本分得分 ${s.female.winRate}</div></div>` +
       `</div><div class="mini-list">未标记发球人：${s.unassigned ? s.unassigned + ' 次' : '没有'}</div>`;
@@ -177,7 +177,7 @@
       panel.className = 'results-panel';
       resultsGrid.appendChild(panel);
     }
-    const html = `<h2>我方发球人对比</h2>` +
+    const html = `<h2>发球人对比</h2>` +
       `<div class="reason-list">` +
       `<div class="rank-card"><h3>男生发球</h3><div class="mini-list">发球 ${s.male.count} 次<br>前三拍主动率 ${s.male.activeRate}<br>该分得分率 ${s.male.winRate}</div></div>` +
       `<div class="rank-card"><h3>女生发球</h3><div class="mini-list">发球 ${s.female.count} 次<br>前三拍主动率 ${s.female.activeRate}<br>该分得分率 ${s.female.winRate}</div></div>` +
