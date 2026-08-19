@@ -26,6 +26,16 @@
 #rallyBody .cycle-choice:active{transform:translateY(1px)}
 #rallyBody .cycle-choice:focus-visible{outline:2px solid #1268f3;outline-offset:2px}
 #rallyBody .cycle-choice.reason-cycle{min-width:118px}
+#rallyBody .cycle-choice.number-choice{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  text-align:left;
+  padding:9px 12px;
+}
+#rallyBody .number-choice-label{min-width:0;white-space:normal}
+#rallyBody .number-choice-value{font-size:17px;line-height:1;flex:0 0 auto}
 
 #rallyBody .cycle-choice[data-tone="primary"]{background:#edf5ff;border-color:#b9d3ff;color:#0758d8}
 #rallyBody .cycle-choice[data-tone="success"]{background:#eefaf4;border-color:#bee9d5;color:#08764c}
