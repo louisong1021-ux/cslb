@@ -123,7 +123,7 @@
   }
 
   function labelFor(control) {
-    return control.closest('td')?.dataset.label || control.dataset.numberPickerLabel || fallbackLabel(control);
+    return control.dataset.numberPickerLabel || control.closest('td')?.dataset.label || fallbackLabel(control);
   }
 
   function isNumberControl(control) {
