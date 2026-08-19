@@ -1,4 +1,7 @@
 /* Unified match entry layout: desktop uses the same UI as iPad. */
+html,body,button,input,select,textarea,[role="button"],.cycle-choice,.rally-number{
+  touch-action:manipulation;
+}
 .mobile-stats-toggle,.mobile-stats-close,.mobile-stats-backdrop{display:none}
 
 /* The utility actions are intentionally removed from the visible UI. */
