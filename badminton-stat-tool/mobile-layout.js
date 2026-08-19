@@ -2,6 +2,7 @@
   const FIELD_ORDER = [
     { key:'server', selector:'.server', label:'发球方' },
     { key:'ourServer', selector:'.ourServer', label:'发球人' },
+    { key:'receiverPerson', selector:'.receiverPerson', label:'接发球人' },
     { key:'serveActive', selector:'.serveActive', label:'发球后3拍主动' },
     { key:'returnActive', selector:'.returnActive', label:'接发后3拍主动' },
     { key:'first3', selector:'.first3', label:'前三拍主动权' },
