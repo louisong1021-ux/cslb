@@ -58,7 +58,6 @@
       records[i] = {
         serverPerson,
         receiverPerson,
-        // Keep the legacy field so previously stored versions remain compatible.
         ourServer: serverPerson,
         server: selectValue(row, 'server'),
         scorer: selectValue(row, 'scorer'),
@@ -74,7 +73,6 @@
     if (!server || rowIndex <= 0) return '';
     const prev = records[rowIndex - 1];
     const prevPerson = personOf(prev);
-    // If the serving side won the previous rally, the same player continues serving.
     if (prev?.server === server && prev?.scorer === server && prevPerson) return prevPerson;
     return '';
   }
@@ -188,12 +186,10 @@
       ourServerFemale: statFor(byServer(oursServe, '女'), 'serve'),
       oppServerMale: statFor(byServer(oppServe, '男'), 'return'),
       oppServerFemale: statFor(byServer(oppServe, '女'), 'return'),
-
       ourReceiverMale: statFor(byReceiver(oppServe, '男'), 'return'),
       ourReceiverFemale: statFor(byReceiver(oppServe, '女'), 'return'),
       oppReceiverMale: statFor(byReceiver(oursServe, '男'), 'serve'),
       oppReceiverFemale: statFor(byReceiver(oursServe, '女'), 'serve'),
-
       ourServeCombos: {
         mm: combo(oursServe, '男', '男', 'serve'),
         mf: combo(oursServe, '男', '女', 'serve'),
@@ -206,7 +202,6 @@
         fm: combo(oppServe, '女', '男', 'return'),
         ff: combo(oppServe, '女', '女', 'return')
       },
-
       ourServerUnassigned: oursServe.filter(r => !personOf(r)).length,
       oppServerUnassigned: oppServe.filter(r => !personOf(r)).length,
       ourReceiverUnassigned: oppServe.filter(r => !receiverOf(r)).length,
@@ -304,9 +299,6 @@
     }
 
     if (target.classList.contains('server')) {
-      // A serving-side change invalidates both player-role selections. Only the continuing
-      // server can be inferred safely; the receiver is left blank because court positions
-      // are not stored by this tool.
       const row = target.closest('tr');
       const rows = Array.from(tbody.querySelectorAll('tr'));
       const rowIndex = rows.indexOf(row);
@@ -350,7 +342,7 @@
   }, true);
 
   const observer = new MutationObserver(() => queueMicrotask(refresh));
-  observer.observe(tbody, { childList: true, subtree: true });
+  observer.observe(tbody, { childList: true });
   observer.observe(games, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
 
   refresh();
