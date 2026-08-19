@@ -102,6 +102,13 @@
     document.head.appendChild(style);
   }
 
+  function patchOptimizedLive(s) {
+    const item = document.querySelector('#optimizedLiveCard .opt-live-grid>div:nth-child(2)');
+    if (!item) return;
+    const rate = s.femaleTargetTotal ? Math.round(s.femaleDefenseTotal / s.femaleTargetTotal * 100) : null;
+    item.innerHTML = `<span>女生受攻 / 防守</span><b>${s.femaleTargetTotal} / ${s.femaleDefenseTotal}</b><small>${rate === null ? '暂无受攻样本' : `单次防守成功率 ${rate}%`} · 未防住 ${s.femaleDefenseMiss}</small>`;
+  }
+
   let liveQueued = false;
   function scheduleLive() {
     if (liveQueued) return;
@@ -122,6 +129,7 @@
     setMetric(liveStats, ['防守转攻成功率','防守转攻成功次数'], '防守转攻成功次数', countText(s.defenseToAttackTotal), rallyText(s.defenseToAttackRallies));
     setMetric(liveStats, ['轮转错误次数','轮转错误'], '轮转错误次数', countText(s.rotations));
     removeMetric(liveStats, ['女生被突破次数','女生被突破']);
+    patchOptimizedLive(s);
   }
 
   function ensureEventPanel(s) {
@@ -174,6 +182,23 @@
     if (defenseDetail) {
       const rate = s.femaleTargetTotal ? Math.round(s.femaleDefenseTotal / s.femaleTargetTotal * 100) : 0;
       defenseDetail.textContent = `女生受攻 ${s.femaleTargetTotal} 次；防守成功 ${s.femaleDefenseTotal} 次；未防住 ${s.femaleDefenseMiss} 次；${s.femaleTargetTotal ? `单次防守成功率 ${rate}%` : '暂无受攻样本'}。轮转错误 ${s.rotations} 次，其中直接丢分 ${s.rotationLosses} 次。`;
+    }
+  }
+
+  function patchRecommendations(s) {
+    const box = document.querySelector('#recommendations');
+    if (!box) return;
+    Array.from(box.querySelectorAll('.recommendation')).forEach(item => {
+      if (/女生被对手攻击|女生防守成功率|女生被突破/.test(item.textContent || '')) item.remove();
+    });
+    if (s.femaleTargetTotal >= 4) {
+      const rate = Math.round(s.femaleDefenseTotal / s.femaleTargetTotal * 100);
+      if (rate < 65) {
+        const item = document.createElement('div');
+        item.className = 'recommendation';
+        item.textContent = `女生受攻 ${s.femaleTargetTotal} 次，成功防起 ${s.femaleDefenseTotal} 次，单次防守成功率 ${rate}%。建议优先练连续防守稳定性。`;
+        box.appendChild(item);
+      }
     }
   }
 
@@ -253,6 +278,7 @@
     removeRateBars();
     updateKpi(s);
     updateOptimizedDetails(s);
+    patchRecommendations(s);
     updateGameCompare(state);
   }
 
