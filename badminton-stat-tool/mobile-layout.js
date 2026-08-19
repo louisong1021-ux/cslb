@@ -1,74 +1,51 @@
 (() => {
   const FIELD_ORDER = [
     { key:'server', selector:'.server', label:'发球方' },
-    { key:'ourServer', selector:'.ourServer', label:'发球人' },
+    { key:'serverPerson', selector:'.serverPerson', label:'发球人' },
     { key:'receiverPerson', selector:'.receiverPerson', label:'接发球人' },
-    { key:'serveActive', selector:'.serveActive', label:'发球后3拍主动' },
-    { key:'returnActive', selector:'.returnActive', label:'接发后3拍主动' },
     { key:'first3', selector:'.first3', label:'前三拍主动权' },
-    { key:'forcedLift', selector:'.forcedLift', label:'造成被动挑球' },
+    { key:'forcedLiftMaleCount', selector:'.forcedLiftMaleCount', label:'男生造成被动挑球次数' },
+    { key:'forcedLiftFemaleCount', selector:'.forcedLiftFemaleCount', label:'女生造成被动挑球次数' },
     { key:'maleAttack', selector:'.maleAttack', label:'男生连续进攻拍数' },
-    { key:'femaleNet', selector:'.femaleNet', label:'女生封网成功次数' },
+    { key:'femaleNetCount', selector:'.femaleNetCount', label:'女生封网成功次数' },
     { key:'attacked', selector:'.attacked', label:'被攻击对象' },
-    { key:'femaleBreak', selector:'.femaleBreak', label:'女生受攻次数' },
-    { key:'femaleDefense', selector:'.femaleDefense', label:'女生防守成功次数' },
-    { key:'defenseToAttack', selector:'.defenseToAttack', label:'防守转攻成功次数' },
-    { key:'rotation', selector:'.rotation', label:'轮转错误' },
+    { key:'femaleTargetCount', selector:'.femaleTargetCount', label:'女生受攻次数' },
+    { key:'femaleDefenseCount', selector:'.femaleDefenseCount', label:'女生防守成功次数' },
+    { key:'defenseToAttackCount', selector:'.defenseToAttackCount', label:'防守转攻成功次数' },
+    { key:'rotationCount', selector:'.rotationCount', label:'轮转错误次数' },
     { key:'scorer', selector:'.scorer', label:'得分方' },
     { key:'reason', selector:'.reason', label:'本分结果' },
     { key:'note', selector:'.note', label:'备注' },
     { key:'delete', selector:'[data-del]', label:'操作' }
   ];
 
-  const ORIGINAL_HEADER_KEYS = [
-    'rally','score','scorer','server','serveActive','returnActive','first3','femaleBreak','femaleNet',
-    'femaleDefense','defenseToAttack','maleAttack','forcedLift','attacked','rotation','reason','note','delete'
-  ];
-
   let normalizing = false;
 
-  function markAndReorderHeader() {
+  function rebuildHeader() {
     const headerRow = document.querySelector('.table-wrap thead tr');
     if (!headerRow) return;
-    const cells = Array.from(headerRow.children);
-    cells.forEach((cell, i) => { if (!cell.dataset.field && ORIGINAL_HEADER_KEYS[i]) cell.dataset.field = ORIGINAL_HEADER_KEYS[i]; });
-    headerRow.querySelector('[data-field="rally"]')?.remove();
-    headerRow.querySelector('[data-field="score"]')?.remove();
-
-    const desired = [];
+    const fragment = document.createDocumentFragment();
     FIELD_ORDER.forEach(item => {
-      const matches = Array.from(headerRow.querySelectorAll(`[data-field="${item.key}"]`));
-      matches.slice(1).forEach(cell => cell.remove());
-      const cell = matches[0];
-      if (!cell) return;
-      cell.textContent = item.label;
-      desired.push(cell);
+      const th = document.createElement('th');
+      th.dataset.field = item.key;
+      th.textContent = item.label;
+      fragment.appendChild(th);
     });
-
-    const current = Array.from(headerRow.children);
-    if (desired.length && current.some((cell, i) => cell !== desired[i])) headerRow.append(...desired);
+    headerRow.replaceChildren(fragment);
   }
 
   function markCells(row) {
     const first = row.querySelector('td');
     if (first && !first.dataset.field) first.dataset.field = 'rally';
-
     const score = row.querySelector('.score-cell');
     if (score) score.dataset.field = 'score';
 
     FIELD_ORDER.forEach(item => {
-      if (!item.selector) return;
-      const controls = Array.from(row.querySelectorAll(item.selector));
-      controls.forEach((control, i) => {
-        const cell = control.closest('td');
-        if (!cell) return;
-        if (i > 0 && (item.key === 'ourServer' || item.key === 'receiverPerson')) {
-          cell.remove();
-          return;
-        }
-        cell.dataset.field = item.key;
-        cell.dataset.label = item.label;
-      });
+      const control = row.querySelector(item.selector);
+      const cell = control?.closest('td');
+      if (!cell) return;
+      cell.dataset.field = item.key;
+      cell.dataset.label = item.label;
     });
   }
 
@@ -86,10 +63,11 @@
           if (cell) cell.dataset.label = item.label;
           return cell;
         }).filter(Boolean);
-        const current = Array.from(row.children);
-        if (desired.length && current.some((cell, i) => cell !== desired[i])) row.append(...desired);
+        const allowed = new Set(desired);
+        Array.from(row.children).forEach(cell => { if (!allowed.has(cell)) cell.remove(); });
+        if (desired.length) row.append(...desired);
       });
-      markAndReorderHeader();
+      rebuildHeader();
     } finally {
       normalizing = false;
     }
