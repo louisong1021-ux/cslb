@@ -29,21 +29,6 @@
     return state.games[gameIndex]?.rallies?.[index] || null;
   }
 
-  function installStyle() {
-    if (document.getElementById('eventCounterEntryStyle')) return;
-    const style = document.createElement('style');
-    style.id = 'eventCounterEntryStyle';
-    style.textContent = `
-      #optimizedLiveCard .opt-live-grid>div:nth-child(2){display:none!important}
-      #rallyBody .event-counter-native-button{display:none!important}
-      #rallyBody .event-counter-control{display:grid;grid-template-columns:38px minmax(44px,1fr) 38px;align-items:center;gap:6px;width:100%}
-      #rallyBody .event-counter-control button{min-height:38px;border:1px solid #cbd8e8;border-radius:8px;background:#f7faff;color:#155fc5;font-size:19px;font-weight:850;line-height:1}
-      #rallyBody .event-counter-control .event-counter-value{min-height:38px;display:grid;place-items:center;border:1px solid #d8e1ec;border-radius:8px;background:#fff;color:#173458;font-size:17px;font-weight:900}
-      body.dark #rallyBody .event-counter-control button,body.dark #rallyBody .event-counter-control .event-counter-value{background:#132338;color:#e7eef8;border-color:#31445c}
-    `;
-    document.head.appendChild(style);
-  }
-
   function replaceOptions(select) {
     const fragment = document.createDocumentFragment();
     for (let i = 0; i <= MAX_COUNT; i += 1) {
@@ -55,53 +40,31 @@
     select.replaceChildren(fragment);
   }
 
-  function syncVisible(select) {
-    const control = select.closest('td')?.querySelector('.event-counter-control');
-    if (!control) return;
-    const value = clamp(select.value);
-    const display = control.querySelector('.event-counter-value');
-    if (display) display.textContent = String(value);
-    control.querySelector('[data-step="-1"]')?.toggleAttribute('disabled', value <= 0);
-    control.querySelector('[data-step="1"]')?.toggleAttribute('disabled', value >= MAX_COUNT);
-  }
-
   function setCount(select, next) {
     if (!select) return;
     const value = clamp(next);
-    if (String(select.value) === String(value)) {
-      syncVisible(select);
-      return;
-    }
+    if (String(select.value) === String(value)) return;
     select.value = String(value);
     select.dispatchEvent(new Event('change', { bubbles: true }));
-    syncVisible(select);
   }
 
-  function enforceDefenseRelation(row, changedSelect) {
+  function enforceDefenseRelation(row) {
     const defense = row?.querySelector('select.femaleDefenseCount');
     const target = row?.querySelector('select.femaleTargetCount');
     if (!defense || !target) return;
     const defenseCount = clamp(defense.value);
     const targetCount = clamp(target.value);
     if (defenseCount > targetCount) setCount(target, defenseCount);
-    else if (changedSelect === target && targetCount < defenseCount) setCount(target, defenseCount);
   }
 
-  function buildControl(select) {
-    const cell = select.closest('td');
-    if (!cell || cell.querySelector('.event-counter-control')) return;
+  function resetOldButtonEnhancement(select) {
     const oldButton = select.nextElementSibling;
-    if (oldButton?.classList.contains('cycle-choice')) oldButton.classList.add('event-counter-native-button');
-
-    const control = document.createElement('div');
-    control.className = 'event-counter-control';
-    control.innerHTML = '<button type="button" data-step="-1" aria-label="减少1次">−</button><span class="event-counter-value">0</span><button type="button" data-step="1" aria-label="增加1次">＋</button>';
-    cell.appendChild(control);
-    control.addEventListener('click', event => {
-      const button = event.target.closest('button[data-step]');
-      if (!button) return;
-      setCount(select, clamp(select.value) + Number(button.dataset.step));
-    });
+    if (oldButton?.classList.contains('cycle-choice')) oldButton.remove();
+    delete select.dataset.cycleReady;
+    delete select.dataset.numberChoiceReady;
+    select.classList.remove('native-cycle-select');
+    select.removeAttribute('tabindex');
+    select.removeAttribute('aria-hidden');
   }
 
   function transformSelect(select, config) {
@@ -111,16 +74,22 @@
     const hasStored = rally && Object.prototype.hasOwnProperty.call(rally, config.key);
     const initial = hasStored ? clamp(rally[config.key]) : clamp(config.fallback(rally));
 
-    const extras = Array.from(select.classList).filter(cls => cls !== config.legacyClass && cls !== config.key);
-    select.className = [config.key, config.legacyClass, ...extras].join(' ');
+    resetOldButtonEnhancement(select);
+
+    const extras = Array.from(select.classList).filter(cls =>
+      cls !== config.legacyClass &&
+      cls !== config.key &&
+      cls !== 'event-number-select' &&
+      cls !== 'native-cycle-select'
+    );
+    select.className = [config.key, config.legacyClass, 'event-number-select', ...extras].join(' ');
     select.dataset.eventCounterReady = '1';
+    select.dataset.numberPickerLabel = config.label;
     replaceOptions(select);
     select.value = String(initial);
 
     const cell = select.closest('td');
     if (cell) cell.dataset.label = config.label;
-    buildControl(select);
-    syncVisible(select);
 
     if (!hasStored) select.dispatchEvent(new Event('change', { bubbles: true }));
   }
@@ -135,15 +104,13 @@
   document.addEventListener('change', event => {
     const select = event.target;
     if (!(select instanceof HTMLSelectElement) || !tbody.contains(select) || select.dataset.eventCounterReady !== '1') return;
-    syncVisible(select);
     if (select.classList.contains('femaleDefenseCount') || select.classList.contains('femaleTargetCount')) {
-      queueMicrotask(() => enforceDefenseRelation(select.closest('tr'), select));
+      queueMicrotask(() => enforceDefenseRelation(select.closest('tr')));
     }
   }, true);
 
   const observer = new MutationObserver(() => queueMicrotask(transformAll));
   observer.observe(tbody, { childList: true });
 
-  installStyle();
   transformAll();
 })();
