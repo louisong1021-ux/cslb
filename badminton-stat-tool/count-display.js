@@ -79,18 +79,46 @@
   }
 
   let queued = false;
-  const observer = new MutationObserver(() => {
+  const schedule = () => {
     if (queued) return;
     queued = true;
     requestAnimationFrame(() => {
       queued = false;
       applyCountFormatting();
     });
-  });
+  };
+
+  const resultsObserver = new MutationObserver(schedule);
+  const liveObserver = new MutationObserver(schedule);
 
   const start = () => {
-    applyCountFormatting();
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    const resultsView = document.querySelector('#resultsView');
+    const liveStats = document.querySelector('#liveStats');
+    const statsPanel = document.querySelector('.stats-panel');
+
+    if (resultsView) resultsObserver.observe(resultsView, { childList: true, subtree: true, characterData: true });
+
+    const startLiveObserver = () => {
+      if (!liveStats) return;
+      liveObserver.disconnect();
+      liveObserver.observe(liveStats, { childList: true, subtree: true, characterData: true });
+      schedule();
+    };
+
+    const stopLiveObserver = () => liveObserver.disconnect();
+
+    document.addEventListener('badminton:open-stats', startLiveObserver);
+
+    if (statsPanel) {
+      const panelObserver = new MutationObserver(() => {
+        if (statsPanel.classList.contains('mobile-open')) startLiveObserver();
+        else stopLiveObserver();
+      });
+      panelObserver.observe(statsPanel, { attributes: true, attributeFilter: ['class'] });
+      if (statsPanel.classList.contains('mobile-open')) startLiveObserver();
+    }
+
+    schedule();
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
