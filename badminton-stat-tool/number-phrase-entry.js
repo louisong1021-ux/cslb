@@ -77,7 +77,8 @@
         grid-template-columns:minmax(0,1fr) auto;
         align-items:stretch;
         gap:8px;
-        margin:4px 0 10px;
+        width:min(100%,430px);
+        margin:4px auto 10px;
       }
       .entry-title-actions .mobile-stats-toggle{
         width:100%!important;
@@ -107,8 +108,7 @@
           grid-template-columns:repeat(2,minmax(0,1fr))!important;
         }
         .entry-title-actions{
-          width:min(100%,430px);
-          margin:2px 0 10px auto;
+          margin:2px auto 10px;
         }
       }
     `;
