@@ -8,11 +8,11 @@
     { key:'first3', selector:'.first3', label:'前三拍主动权' },
     { key:'forcedLift', selector:'.forcedLift', label:'造成被动挑球' },
     { key:'maleAttack', selector:'.maleAttack', label:'男生连续进攻拍数' },
-    { key:'femaleNet', selector:'.femaleNet', label:'女生封网成功' },
+    { key:'femaleNet', selector:'.femaleNet', label:'女生封网成功次数' },
     { key:'attacked', selector:'.attacked', label:'被攻击对象' },
-    { key:'femaleDefense', selector:'.femaleDefense', label:'女生防守成功' },
-    { key:'femaleBreak', selector:'.femaleBreak', label:'女生被突破' },
-    { key:'defenseToAttack', selector:'.defenseToAttack', label:'防守转攻成功' },
+    { key:'femaleDefense', selector:'.femaleDefense', label:'女生防守成功次数' },
+    { key:'femaleBreak', selector:'.femaleBreak', label:'女生受攻次数' },
+    { key:'defenseToAttack', selector:'.defenseToAttack', label:'防守转攻成功次数' },
     { key:'rotation', selector:'.rotation', label:'轮转错误' },
     { key:'scorer', selector:'.scorer', label:'得分方' },
     { key:'reason', selector:'.reason', label:'本分结果' },
@@ -167,7 +167,6 @@
       });
     };
 
-    // 只监听回合行本身的增删；不再监听每个按钮/统计卡片的内部 DOM 变化。
     const observer = new MutationObserver(scheduleLayoutUpdate);
     observer.observe(tbody, {childList:true});
 
