@@ -2,99 +2,109 @@
   const tbody = document.querySelector('#rallyBody');
   if (!tbody) return;
 
-  const PHRASES = [
-    { selector: 'input.maleAttack', prefix: '男生连续进攻', suffix: '拍' },
-    { selector: 'select.femaleTargetCount', prefix: '女生受攻', suffix: '次' },
-    { selector: 'select.femaleDefenseCount', prefix: '女生防守成功', suffix: '次' },
-    { selector: 'select.femaleNetCount', prefix: '女生封网成功', suffix: '次' },
-    { selector: 'select.defenseToAttackCount', prefix: '防守转攻成功', suffix: '次' }
+  const FIELD_LABELS = [
+    ['server','发球方'],
+    ['ourServer','发球人'],
+    ['receiverPerson','接发球人'],
+    ['serveActive','发球后3拍主动'],
+    ['returnActive','接发后3拍主动'],
+    ['first3','前三拍主动权'],
+    ['forcedLift','造成被动挑球'],
+    ['maleAttack','男生连续进攻拍数'],
+    ['femaleNetCount','女生封网成功次数'],
+    ['femaleNet','女生封网成功次数'],
+    ['attacked','被攻击对象'],
+    ['femaleTargetCount','女生受攻次数'],
+    ['femaleDefenseCount','女生防守成功次数'],
+    ['femaleDefense','女生防守成功次数'],
+    ['defenseToAttackCount','防守转攻成功次数'],
+    ['defenseToAttack','防守转攻成功次数'],
+    ['rotation','轮转错误'],
+    ['scorer','得分方'],
+    ['reason','本分结果']
   ];
 
   function installStyle() {
-    if (document.getElementById('numberPhraseEntryStyle')) return;
+    if (document.getElementById('mergedStatButtonStyle')) return;
     const style = document.createElement('style');
-    style.id = 'numberPhraseEntryStyle';
+    style.id = 'mergedStatButtonStyle';
     style.textContent = `
-      #rallyBody td.number-phrase-cell{
-        display:flex!important;
-        grid-template-columns:none!important;
-        align-items:center;
-        justify-content:flex-start;
-        gap:8px;
-        text-align:left;
+      #rallyBody td.merged-stat-cell{
+        grid-template-columns:minmax(0,1fr)!important;
+        gap:0!important;
       }
-      #rallyBody td.number-phrase-cell::before{display:none!important}
-      #rallyBody .number-phrase-prefix{
-        flex:1 1 auto;
-        min-width:0;
-        color:#5d6c80;
-        font-size:12px;
-        font-weight:750;
-        line-height:1.25;
-        text-align:left;
-      }
-      #rallyBody .number-phrase-suffix{
-        flex:0 0 auto;
-        color:#5d6c80;
-        font-size:12px;
-        font-weight:750;
-      }
-      #rallyBody td.number-phrase-cell .cycle-choice.number-choice{
-        width:58px!important;
-        min-width:58px!important;
-        max-width:58px!important;
-        flex:0 0 58px;
-        min-height:38px;
-        padding:7px 6px;
+      #rallyBody td.merged-stat-cell::before{display:none!important}
+      #rallyBody td.merged-stat-cell .cycle-choice.merged-stat-choice{
+        width:100%!important;
+        min-width:0!important;
+        min-height:40px;
+        padding:9px 10px;
         text-align:center;
-      }
-      body.dark #rallyBody .number-phrase-prefix,
-      body.dark #rallyBody .number-phrase-suffix{color:#aebed0}
-      @media(max-width:430px){
-        #rallyBody td.number-phrase-cell{gap:7px}
-        #rallyBody td.number-phrase-cell .cycle-choice.number-choice{
-          width:54px!important;
-          min-width:54px!important;
-          max-width:54px!important;
-          flex-basis:54px;
-        }
+        white-space:normal;
+        line-height:1.25;
+        font-weight:800;
       }
     `;
     document.head.appendChild(style);
   }
 
-  function applyPhrase(control, phrase) {
-    if (!control?.isConnected) return;
-    const cell = control.closest('td');
+  function fallbackLabel(control) {
+    for (const [cls, label] of FIELD_LABELS) {
+      if (control.classList.contains(cls)) return label;
+    }
+    return '';
+  }
+
+  function labelFor(control) {
+    return control.closest('td')?.dataset.label || control.dataset.numberPickerLabel || fallbackLabel(control);
+  }
+
+  function isNumberControl(control) {
+    return control.classList.contains('maleAttack') || control.classList.contains('event-number-select');
+  }
+
+  function compactNumberLabel(label, control) {
+    if (control.classList.contains('maleAttack')) return '男生连续进攻';
+    return String(label || '次数').replace(/次数$/, '').replace(/拍数$/, '');
+  }
+
+  function buttonText(control) {
+    const label = labelFor(control);
+    const raw = String(control.value ?? '');
+
+    if (isNumberControl(control)) {
+      const value = String(Math.max(0, Math.min(20, Math.round(Number(raw) || 0))));
+      const unit = control.classList.contains('maleAttack') ? '拍' : '次';
+      return `${compactNumberLabel(label, control)}：${value}${unit}`;
+    }
+
+    const value = raw === '' ? '—' : raw;
+    return label ? `${label}：${value}` : value;
+  }
+
+  function applyButton(button) {
+    if (!button?.isConnected || !button.classList.contains('cycle-choice')) return;
+    const control = button.previousElementSibling;
+    if (!(control instanceof HTMLSelectElement || control instanceof HTMLInputElement)) return;
+
+    const cell = button.closest('td');
     if (!cell) return;
-    const button = control.nextElementSibling;
-    if (!button?.classList.contains('number-choice')) return;
 
-    cell.classList.add('number-phrase-cell');
+    cell.querySelectorAll(':scope > .number-phrase-prefix, :scope > .number-phrase-suffix').forEach(el => el.remove());
+    cell.classList.remove('number-phrase-cell');
+    cell.classList.add('merged-stat-cell');
+    button.classList.add('merged-stat-choice');
 
-    let prefix = cell.querySelector(':scope > .number-phrase-prefix');
-    if (!prefix) {
-      prefix = document.createElement('span');
-      prefix.className = 'number-phrase-prefix';
-      control.insertAdjacentElement('beforebegin', prefix);
-    }
-    prefix.textContent = phrase.prefix;
+    const text = buttonText(control);
+    if (button.textContent !== text) button.textContent = text;
 
-    let suffix = cell.querySelector(':scope > .number-phrase-suffix');
-    if (!suffix) {
-      suffix = document.createElement('span');
-      suffix.className = 'number-phrase-suffix';
-      button.insertAdjacentElement('afterend', suffix);
-    }
-    suffix.textContent = phrase.suffix;
-
-    button.title = `点击选择${phrase.prefix}${phrase.suffix === '拍' ? '拍数' : '次数'}`;
+    const label = labelFor(control) || '统计项目';
+    button.setAttribute('aria-label', `${text}，点击${control.classList.contains('reason') || isNumberControl(control) ? '选择' : '切换'}`);
+    button.title = `点击${control.classList.contains('reason') || isNumberControl(control) ? '选择' : '切换'}${label}`;
   }
 
   function enhanceAll() {
-    PHRASES.forEach(phrase => {
-      tbody.querySelectorAll(phrase.selector).forEach(control => applyPhrase(control, phrase));
-    });
+    tbody.querySelectorAll('button.cycle-choice').forEach(applyButton);
   }
 
   let queued = false;
@@ -106,6 +116,10 @@
       enhanceAll();
     });
   }
+
+  document.addEventListener('change', event => {
+    if (tbody.contains(event.target)) schedule();
+  }, true);
 
   const observer = new MutationObserver(schedule);
   observer.observe(tbody, { childList: true, subtree: true });
