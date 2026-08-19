@@ -44,6 +44,16 @@
         line-height:1.25;
         font-weight:800;
       }
+      #rallyBody td.note-inline-cell{
+        grid-template-columns:minmax(0,1fr)!important;
+        gap:0!important;
+      }
+      #rallyBody td.note-inline-cell::before{display:none!important}
+      #rallyBody td.note-inline-cell input.note{
+        width:100%!important;
+        min-width:0!important;
+        min-height:40px;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -103,8 +113,18 @@
     button.title = `点击${control.classList.contains('reason') || isNumberControl(control) ? '选择' : '切换'}${label}`;
   }
 
+  function applyNoteInput(input) {
+    if (!(input instanceof HTMLInputElement) || !input.classList.contains('note')) return;
+    const cell = input.closest('td');
+    if (!cell) return;
+    cell.classList.add('note-inline-cell');
+    if (input.placeholder !== '备注') input.placeholder = '备注';
+    input.setAttribute('aria-label', '备注');
+  }
+
   function enhanceAll() {
     tbody.querySelectorAll('button.cycle-choice').forEach(applyButton);
+    tbody.querySelectorAll('input.note').forEach(applyNoteInput);
   }
 
   let queued = false;
