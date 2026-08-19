@@ -51,8 +51,6 @@
     select.dataset.numberPickerLabel = label;
     makeOptions(select);
     select.value = String(clamp(value));
-
-    // Reuse the core row handler so these values live in the main match record.
     select.onchange = legacy.onchange;
     return select;
   }
@@ -81,7 +79,6 @@
     const maleValue = storedCount(rally, 'forcedLiftMaleCount', '男');
     const femaleValue = storedCount(rally, 'forcedLiftFemaleCount', '女');
 
-    // Remove the old categorical button, but keep its hidden select as a compatibility field.
     const oldButton = legacy.nextElementSibling;
     if (oldButton?.classList.contains('cycle-choice')) oldButton.remove();
     legacy.dataset.forcedLiftLegacy = '1';
@@ -96,7 +93,6 @@
     cell.insertBefore(male, legacy);
     cell.insertBefore(female, legacy);
 
-    // Migrate old 男/女/无 records into the new numeric fields once.
     if (!maleStored) male.dispatchEvent(new Event('change', { bubbles: true }));
     if (!femaleStored) female.dispatchEvent(new Event('change', { bubbles: true }));
     queueMicrotask(() => syncLegacy(cell));
@@ -131,13 +127,13 @@
     style.textContent = `
       #rallyBody td.forced-lift-count-cell.merged-stat-cell{
         display:grid!important;
-        grid-template-columns:repeat(2,minmax(0,1fr))!important;
+        grid-template-columns:minmax(0,1fr)!important;
         gap:8px!important;
       }
-      @media(max-width:520px){
-        #rallyBody td.forced-lift-count-cell.merged-stat-cell{
-          grid-template-columns:minmax(0,1fr)!important;
-        }
+      #rallyBody td.forced-lift-count-cell.merged-stat-cell .cycle-choice{
+        width:100%!important;
+        min-height:44px!important;
+        padding:10px 12px!important;
       }
     `;
     document.head.appendChild(style);
