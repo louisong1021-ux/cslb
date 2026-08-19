@@ -36,9 +36,16 @@
     return row.querySelector(`select.${cls}`)?.value || '';
   }
 
-  function personOf(record) {
-    const value = record?.serverPerson ?? record?.ourServer ?? '';
+  function validPerson(value) {
     return value === '男' || value === '女' ? value : '';
+  }
+
+  function personOf(record) {
+    return validPerson(record?.serverPerson ?? record?.ourServer ?? '');
+  }
+
+  function receiverOf(record) {
+    return validPerson(record?.receiverPerson ?? '');
   }
 
   function syncCurrentFromDom() {
@@ -46,9 +53,11 @@
     const records = gameData();
     rows.forEach((row, i) => {
       const prev = records[i] || {};
-      const serverPerson = row.querySelector('select.ourServer')?.value ?? personOf(prev);
+      const serverPerson = validPerson(row.querySelector('select.ourServer')?.value) || personOf(prev);
+      const receiverPerson = validPerson(row.querySelector('select.receiverPerson')?.value) || receiverOf(prev);
       records[i] = {
         serverPerson,
+        receiverPerson,
         // Keep the legacy field so previously stored versions remain compatible.
         ourServer: serverPerson,
         server: selectValue(row, 'server'),
@@ -70,47 +79,65 @@
     return '';
   }
 
-  function makeServerPersonCell(row, rowIndex) {
-    const serverCell = row.querySelector('select.server')?.closest('td');
-    if (!serverCell || row.querySelector('select.ourServer')) return;
+  function makePersonCell(row, rowIndex, type) {
+    const anchor = type === 'server'
+      ? row.querySelector('select.server')?.closest('td')
+      : row.querySelector('select.ourServer')?.closest('td');
+    const cls = type === 'server' ? 'ourServer' : 'receiverPerson';
+    if (!anchor || row.querySelector(`select.${cls}`)) return;
 
     const records = gameData();
     const server = selectValue(row, 'server');
-    const stored = personOf(records[rowIndex]) || suggestedServer(records, rowIndex, server);
+    const stored = type === 'server'
+      ? (personOf(records[rowIndex]) || suggestedServer(records, rowIndex, server))
+      : receiverOf(records[rowIndex]);
+    const label = type === 'server' ? '发球人' : '接发球人';
+    const field = type === 'server' ? 'ourServer' : 'receiverPerson';
     const cell = document.createElement('td');
-    cell.dataset.field = 'ourServer';
-    cell.dataset.label = '发球人';
-    cell.innerHTML = `<select class="ourServer" data-i="${rowIndex}"><option value="">—</option><option value="男">男</option><option value="女">女</option></select>`;
+    cell.dataset.field = field;
+    cell.dataset.label = label;
+    cell.innerHTML = `<select class="${cls}" data-i="${rowIndex}"><option value="">—</option><option value="男">男</option><option value="女">女</option></select>`;
     const select = cell.querySelector('select');
     select.value = stored;
-    serverCell.insertAdjacentElement('afterend', cell);
+    anchor.insertAdjacentElement('afterend', cell);
   }
 
   function ensureHeader() {
     const header = document.querySelector('.table-wrap thead tr');
-    if (!header || header.querySelector('[data-field="ourServer"]')) return;
+    if (!header) return;
     const serverHeader = header.querySelector('[data-field="server"]');
     if (!serverHeader) return;
-    const th = document.createElement('th');
-    th.dataset.field = 'ourServer';
-    th.textContent = '发球人';
-    serverHeader.insertAdjacentElement('afterend', th);
+
+    let serverPersonHeader = header.querySelector('[data-field="ourServer"]');
+    if (!serverPersonHeader) {
+      serverPersonHeader = document.createElement('th');
+      serverPersonHeader.dataset.field = 'ourServer';
+      serverPersonHeader.textContent = '发球人';
+      serverHeader.insertAdjacentElement('afterend', serverPersonHeader);
+    }
+
+    if (!header.querySelector('[data-field="receiverPerson"]')) {
+      const th = document.createElement('th');
+      th.dataset.field = 'receiverPerson';
+      th.textContent = '接发球人';
+      serverPersonHeader.insertAdjacentElement('afterend', th);
+    }
   }
 
   function syncRowState(row) {
-    const select = row.querySelector('select.ourServer');
-    if (!select) return;
-    // Both sides' server gender is now recorded, so this control is always available.
-    select.disabled = false;
-
-    requestAnimationFrame(() => {
-      if (!select.isConnected) return;
-      const button = select.nextElementSibling;
-      if (!button?.classList.contains('cycle-choice')) return;
-      button.disabled = false;
-      button.classList.remove('linked-disabled');
-      button.removeAttribute('aria-disabled');
-      button.textContent = select.value || '—';
+    ['ourServer', 'receiverPerson'].forEach(cls => {
+      const select = row.querySelector(`select.${cls}`);
+      if (!select) return;
+      select.disabled = false;
+      requestAnimationFrame(() => {
+        if (!select.isConnected) return;
+        const button = select.nextElementSibling;
+        if (!button?.classList.contains('cycle-choice')) return;
+        button.disabled = false;
+        button.classList.remove('linked-disabled');
+        button.removeAttribute('aria-disabled');
+        button.textContent = select.value || '—';
+      });
     });
   }
 
@@ -120,7 +147,10 @@
     try {
       ensureHeader();
       const rows = Array.from(tbody.querySelectorAll('tr'));
-      rows.forEach((row, i) => makeServerPersonCell(row, i));
+      rows.forEach((row, i) => {
+        makePersonCell(row, i, 'server');
+        makePersonCell(row, i, 'receiver');
+      });
       rows.forEach(syncRowState);
       syncCurrentFromDom();
     } finally {
@@ -132,46 +162,55 @@
     return den ? `${Math.round(num / den * 100)}%` : '—';
   }
 
-  function summarize(records) {
-    const sideRows = side => records.filter(r => r.server === side);
-    const byPerson = (side, who) => sideRows(side).filter(r => personOf(r) === who);
-
-    const ourServeFor = who => {
-      const rows = byPerson('我方', who);
-      const active = rows.filter(r => r.serveActive === '是').length;
-      const wins = rows.filter(r => r.scorer === '我方').length;
-      return {
-        count: rows.length,
-        active,
-        wins,
-        activeRate: pct(active, rows.length),
-        winRate: pct(wins, rows.length)
-      };
-    };
-
-    const oppServeFor = who => {
-      const rows = byPerson('对方', who);
-      const returnActive = rows.filter(r => r.returnActive === '是').length;
-      const ourWins = rows.filter(r => r.scorer === '我方').length;
-      return {
-        count: rows.length,
-        returnActive,
-        ourWins,
-        returnActiveRate: pct(returnActive, rows.length),
-        ourWinRate: pct(ourWins, rows.length),
-        oppWinRate: pct(rows.length - ourWins, rows.length)
-      };
-    };
-
-    const ours = sideRows('我方');
-    const opp = sideRows('对方');
+  function statFor(rows, mode) {
+    const activeKey = mode === 'serve' ? 'serveActive' : 'returnActive';
+    const active = rows.filter(r => r[activeKey] === '是').length;
+    const ourWins = rows.filter(r => r.scorer === '我方').length;
     return {
-      ourMale: ourServeFor('男'),
-      ourFemale: ourServeFor('女'),
-      oppMale: oppServeFor('男'),
-      oppFemale: oppServeFor('女'),
-      ourUnassigned: ours.filter(r => !personOf(r)).length,
-      oppUnassigned: opp.filter(r => !personOf(r)).length
+      count: rows.length,
+      active,
+      ourWins,
+      activeRate: pct(active, rows.length),
+      ourWinRate: pct(ourWins, rows.length),
+      oppWinRate: pct(rows.length - ourWins, rows.length)
+    };
+  }
+
+  function summarize(records) {
+    const oursServe = records.filter(r => r.server === '我方');
+    const oppServe = records.filter(r => r.server === '对方');
+    const byServer = (rows, who) => rows.filter(r => personOf(r) === who);
+    const byReceiver = (rows, who) => rows.filter(r => receiverOf(r) === who);
+    const combo = (rows, serverWho, receiverWho, mode) => statFor(rows.filter(r => personOf(r) === serverWho && receiverOf(r) === receiverWho), mode);
+
+    return {
+      ourServerMale: statFor(byServer(oursServe, '男'), 'serve'),
+      ourServerFemale: statFor(byServer(oursServe, '女'), 'serve'),
+      oppServerMale: statFor(byServer(oppServe, '男'), 'return'),
+      oppServerFemale: statFor(byServer(oppServe, '女'), 'return'),
+
+      ourReceiverMale: statFor(byReceiver(oppServe, '男'), 'return'),
+      ourReceiverFemale: statFor(byReceiver(oppServe, '女'), 'return'),
+      oppReceiverMale: statFor(byReceiver(oursServe, '男'), 'serve'),
+      oppReceiverFemale: statFor(byReceiver(oursServe, '女'), 'serve'),
+
+      ourServeCombos: {
+        mm: combo(oursServe, '男', '男', 'serve'),
+        mf: combo(oursServe, '男', '女', 'serve'),
+        fm: combo(oursServe, '女', '男', 'serve'),
+        ff: combo(oursServe, '女', '女', 'serve')
+      },
+      oppServeCombos: {
+        mm: combo(oppServe, '男', '男', 'return'),
+        mf: combo(oppServe, '男', '女', 'return'),
+        fm: combo(oppServe, '女', '男', 'return'),
+        ff: combo(oppServe, '女', '女', 'return')
+      },
+
+      ourServerUnassigned: oursServe.filter(r => !personOf(r)).length,
+      oppServerUnassigned: oppServe.filter(r => !personOf(r)).length,
+      ourReceiverUnassigned: oppServe.filter(r => !receiverOf(r)).length,
+      oppReceiverUnassigned: oursServe.filter(r => !receiverOf(r)).length
     };
   }
 
@@ -180,12 +219,14 @@
     return data.games.flatMap(g => Array.isArray(g) ? g : []);
   }
 
-  function serveMetric(title, x) {
-    return `<div class="metric"><div class="metric-label">${title}</div><div class="metric-value">${x.count} 次</div><div class="metric-sub">前三拍主动 ${x.activeRate} · 本分得分 ${x.winRate}</div></div>`;
+  function metric(title, x, mode) {
+    const activeLabel = mode === 'serve' ? '发球前三拍主动' : '接发前三拍主动';
+    return `<div class="metric"><div class="metric-label">${title}</div><div class="metric-value">${x.count} 次</div><div class="metric-sub">${activeLabel} ${x.activeRate} · 我方得分 ${x.ourWinRate}</div></div>`;
   }
 
-  function returnMetric(title, x) {
-    return `<div class="metric"><div class="metric-label">${title}</div><div class="metric-value">${x.count} 次</div><div class="metric-sub">我方接发主动 ${x.returnActiveRate} · 我方得分 ${x.ourWinRate}</div></div>`;
+  function comboLine(label, x, mode) {
+    const activeLabel = mode === 'serve' ? '主动' : '接发主动';
+    return `<div class="rank-item"><span>${label}</span><b>${x.count ? `${x.count}次 · ${activeLabel}${x.activeRate} · 得分${x.ourWinRate}` : '没有'}</b></div>`;
   }
 
   function updateLiveCard() {
@@ -199,23 +240,29 @@
       liveStats.appendChild(card);
     }
 
-    const html = `<h3>发球人对比</h3>` +
+    const html = `<h3>发球 / 接发人分析</h3>` +
       `<div class="mini-list"><b>我方发球</b></div><div class="metric-grid">` +
-      serveMetric('我方男生发球', s.ourMale) + serveMetric('我方女生发球', s.ourFemale) +
-      `</div><div class="mini-list" style="margin-top:8px"><b>对方发球 / 我方接发</b></div><div class="metric-grid">` +
-      returnMetric('对方男生发球', s.oppMale) + returnMetric('对方女生发球', s.oppFemale) +
-      `</div><div class="mini-list">未标记：我方发球 ${s.ourUnassigned ? s.ourUnassigned + ' 次' : '没有'} · 对方发球 ${s.oppUnassigned ? s.oppUnassigned + ' 次' : '没有'}</div>`;
+      metric('男生发球', s.ourServerMale, 'serve') + metric('女生发球', s.ourServerFemale, 'serve') +
+      `</div><div class="mini-list" style="margin-top:8px"><b>我方接发</b></div><div class="metric-grid">` +
+      metric('男生接发', s.ourReceiverMale, 'return') + metric('女生接发', s.ourReceiverFemale, 'return') +
+      `</div><div class="mini-list" style="margin-top:8px"><b>对方发球对象</b>：男发 ${s.oppServerMale.count} 次 · 女发 ${s.oppServerFemale.count} 次；<b>对方接发对象</b>：男接 ${s.oppReceiverMale.count} 次 · 女接 ${s.oppReceiverFemale.count} 次</div>`;
     if (card.innerHTML !== html) card.innerHTML = html;
   }
 
-  function resultBlock(title, maleTitle, femaleTitle, male, female, opponent = false) {
-    const detail = x => opponent
-      ? `发球 ${x.count} 次<br>我方接发前三拍主动率 ${x.returnActiveRate}<br>我方该分得分率 ${x.ourWinRate}<br>对方发球得分率 ${x.oppWinRate}`
-      : `发球 ${x.count} 次<br>前三拍主动率 ${x.activeRate}<br>该分得分率 ${x.winRate}`;
+  function twoPersonBlock(title, maleTitle, femaleTitle, male, female, mode) {
+    const activeLabel = mode === 'serve' ? '前三拍主动率' : '接发前三拍主动率';
+    const detail = x => `发生 ${x.count} 次<br>${activeLabel} ${x.activeRate}<br>我方该分得分率 ${x.ourWinRate}`;
     return `<h3 style="margin:12px 0 8px">${title}</h3><div class="reason-list">` +
       `<div class="rank-card"><h3>${maleTitle}</h3><div class="mini-list">${detail(male)}</div></div>` +
       `<div class="rank-card"><h3>${femaleTitle}</h3><div class="mini-list">${detail(female)}</div></div>` +
       `</div>`;
+  }
+
+  function comboBlock(title, combos, mode, ourServing) {
+    const labels = ourServing
+      ? [['mm','我方男发 → 对方男接'],['mf','我方男发 → 对方女接'],['fm','我方女发 → 对方男接'],['ff','我方女发 → 对方女接']]
+      : [['mm','对方男发 → 我方男接'],['mf','对方男发 → 我方女接'],['fm','对方女发 → 我方男接'],['ff','对方女发 → 我方女接']];
+    return `<h3 style="margin:14px 0 8px">${title}</h3><div class="rank-card">${labels.map(([key,label]) => comboLine(label, combos[key], mode)).join('')}</div>`;
   }
 
   function updateResultsCard() {
@@ -229,10 +276,14 @@
       resultsGrid.appendChild(panel);
     }
 
-    const html = `<h2>发球人 / 接发对象分析</h2>` +
-      resultBlock('我方发球效果', '我方男生发球', '我方女生发球', s.ourMale, s.ourFemale, false) +
-      resultBlock('对方发球时我方接发表现', '对方男生发球', '对方女生发球', s.oppMale, s.oppFemale, true) +
-      `<div class="mini-list" style="margin-top:10px">未标记发球人：我方 ${s.ourUnassigned ? s.ourUnassigned + ' 次' : '没有'} · 对方 ${s.oppUnassigned ? s.oppUnassigned + ' 次' : '没有'}</div>`;
+    const html = `<h2>发球人 / 接发球人分析</h2>` +
+      twoPersonBlock('我方发球效果', '男生发球', '女生发球', s.ourServerMale, s.ourServerFemale, 'serve') +
+      twoPersonBlock('我方接发表现', '男生接发', '女生接发', s.ourReceiverMale, s.ourReceiverFemale, 'return') +
+      twoPersonBlock('面对对方发球人', '对方男生发球', '对方女生发球', s.oppServerMale, s.oppServerFemale, 'return') +
+      twoPersonBlock('我方发球打向谁', '对方男生接发', '对方女生接发', s.oppReceiverMale, s.oppReceiverFemale, 'serve') +
+      comboBlock('我方发球组合', s.ourServeCombos, 'serve', true) +
+      comboBlock('我方接发组合', s.oppServeCombos, 'return', false) +
+      `<div class="mini-list" style="margin-top:10px">未标记：我方发球人 ${s.ourServerUnassigned ? s.ourServerUnassigned + ' 次' : '没有'} · 对方发球人 ${s.oppServerUnassigned ? s.oppServerUnassigned + ' 次' : '没有'} · 我方接发球人 ${s.ourReceiverUnassigned ? s.ourReceiverUnassigned + ' 次' : '没有'} · 对方接发球人 ${s.oppReceiverUnassigned ? s.oppReceiverUnassigned + ' 次' : '没有'}</div>`;
     if (panel.innerHTML !== html) panel.innerHTML = html;
   }
 
@@ -246,23 +297,27 @@
     const target = event.target;
     if (!(target instanceof HTMLSelectElement) || !tbody.contains(target)) return;
 
-    if (target.classList.contains('ourServer')) {
+    if (target.classList.contains('ourServer') || target.classList.contains('receiverPerson')) {
       syncCurrentFromDom();
       updateLiveCard();
       return;
     }
 
     if (target.classList.contains('server')) {
-      // Changing the serving side invalidates an old person selection unless the same
-      // serving player can be inferred from the previous rally.
+      // A serving-side change invalidates both player-role selections. Only the continuing
+      // server can be inferred safely; the receiver is left blank because court positions
+      // are not stored by this tool.
       const row = target.closest('tr');
       const rows = Array.from(tbody.querySelectorAll('tr'));
       const rowIndex = rows.indexOf(row);
-      const personSelect = row?.querySelector('select.ourServer');
-      if (rowIndex >= 0 && personSelect) {
+      const serverSelect = row?.querySelector('select.ourServer');
+      const receiverSelect = row?.querySelector('select.receiverPerson');
+      if (rowIndex >= 0) {
         syncCurrentFromDom();
-        personSelect.value = suggestedServer(gameData(), rowIndex, target.value);
-        personSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        if (serverSelect) serverSelect.value = suggestedServer(gameData(), rowIndex, target.value);
+        if (receiverSelect) receiverSelect.value = '';
+        serverSelect?.dispatchEvent(new Event('change', { bubbles: true }));
+        receiverSelect?.dispatchEvent(new Event('change', { bubbles: true }));
       }
       queueMicrotask(refresh);
       return;
