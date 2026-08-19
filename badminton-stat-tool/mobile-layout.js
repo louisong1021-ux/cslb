@@ -101,10 +101,7 @@
     backdrop.className = 'mobile-stats-backdrop';
     document.body.appendChild(backdrop);
 
-    const touchMode = window.matchMedia('(max-width: 1180px), (hover: none) and (pointer: coarse)');
-
     const openStats = () => {
-      if (!touchMode.matches) return;
       statsPanel.classList.add('mobile-open');
       document.body.classList.add('mobile-stats-visible');
       close.focus({preventScroll:true});
@@ -148,9 +145,6 @@
         queueMicrotask(updateToggleText);
       }
     }, true);
-
-    const syncMode = () => { if (!touchMode.matches) closeStats(); };
-    touchMode.addEventListener?.('change', syncMode);
 
     normalizeRows(tbody);
     updateToggleText();
