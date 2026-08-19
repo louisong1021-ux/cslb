@@ -60,16 +60,82 @@
   </main>
 </div>
 <input type="file" id="fileInput" accept="application/json" hidden />
-<div class="modal" id="helpModal"><div class="modal-card"><button class="modal-close" id="closeHelp">关闭</button><h2>使用说明</h2><ol><li>进入网页后默认就是录入界面，不需要填写比赛基本信息。</li><li>每打一分，点击“添加一分记录”，按实际情况记录这一分；分数会根据得分方自动累计。</li><li>“男生连续进攻拍数”只在男生形成连续下压进攻时填写，没有形成进攻填 0。</li><li>“女生防守成功”建议仅在对手实际攻击女生时判断；没发生可选“不适用”。</li><li>“女生封网成功”和“防守转攻成功”同样支持“不适用”，这样统计率的分母会更准确。</li><li>完成后点击“查看统计结果”，网页会自动生成关键指标、得失分结构和训练优先级。</li><li>数据自动保存在本机浏览器。可以导出 JSON 备份，也可从 JSON 导入恢复。</li></ol></div></div>
+<div class="modal" id="helpModal"><div class="modal-card"><button class="modal-close" id="closeHelp">关闭</button><h2>使用说明</h2><ol><li>每打一分只需要判断一次“前三拍主动权”；发球主动率和接发主动率会根据发球方自动计算。</li><li>发球人、接发球人直接记录男/女；换发后按实际站位选择。</li><li>女生受攻、女生防守成功、女生封网、防守转攻、男女造成被动挑球和轮转错误都按实际发生次数填写；没有发生填 0。</li><li>“男生连续进攻拍数”只在男生形成连续下压进攻时填写，没有形成进攻填 0。</li><li>完成后点击“查看统计结果”，网页会自动生成关键指标、得失分结构和训练优先级。</li><li>数据自动保存在本机浏览器。</li></ol></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
 (() => {
-  const WIN_REASONS = ['男生杀球','女生封网','平抽挡得分','防守反击得分','对方主动失误','对方被迫失误','发接发抢攻','其他得分'];
-  const LOSS_REASONS = ['男生失误','女生失误','女生被突破','防守被杀穿','轮转错误','发接发被抢','主动进攻丢分','判断失误','其他丢分'];
+  const WIN_REASONS = ['男生杀球','男生吊球/劈吊','女生封网','女生扑球','网前搓放得分','平抽挡得分','防守反击得分','发接发抢攻','对方主动失误','对方受压失误','其他得分'];
+  const LOSS_REASONS = ['男生主动进攻失误','男生网前失误','女生网前失误','女生防守失误','发球失误','接发失误','发接发被抢','平抽挡被压死','防守被杀穿','网前被扑死','轮转错误','判断/让球失误','其他丢分'];
   const STORAGE_KEY = 'badminton_match_stats_v2';
-  const defaultRally = (server='我方') => ({ scorer:'我方', server, serveActive:'不适用', returnActive:'不适用', first3:'均势', femaleBreak:'否', femaleNet:'不适用', femaleDefense:'不适用', defenseToAttack:'不适用', maleAttack:0, forcedLift:'无', attacked:'无', rotation:'否', reason:'', note:'' });
-  let state = loadState() || { currentGame:0, games:[{rallies:[]}], theme:'light' };
+  const PERSON_KEY = 'badminton_our_server_v1';
+  const NUMERIC_KEYS = new Set(['maleAttack','femaleNetCount','femaleTargetCount','femaleDefenseCount','defenseToAttackCount','forcedLiftMaleCount','forcedLiftFemaleCount','rotationCount']);
+  const clampCount = value => Math.max(0, Math.min(20, Math.round(Number(value) || 0)));
+  const validPerson = value => value === '男' || value === '女' ? value : '';
+  const storedCount = (value, fallback=0) => value !== undefined && value !== null && value !== '' && Number.isFinite(Number(value)) ? clampCount(value) : clampCount(fallback);
+
+  function syncDerived(r){
+    r.serveActive = r.server === '我方' ? (r.first3 === '我方' ? '是' : '否') : '不适用';
+    r.returnActive = r.server === '对方' ? (r.first3 === '我方' ? '是' : '否') : '不适用';
+    r.femaleNet = r.femaleNetCount > 0 ? '是' : '不适用';
+    r.femaleDefense = r.femaleTargetCount > 0 ? (r.femaleDefenseCount > 0 ? '是' : '否') : '不适用';
+    r.defenseToAttack = r.defenseToAttackCount > 0 ? '是' : '不适用';
+    r.forcedLift = r.forcedLiftMaleCount > 0 ? '男' : (r.forcedLiftFemaleCount > 0 ? '女' : '无');
+    r.rotation = r.rotationCount > 0 ? '是' : '否';
+    r.femaleBreak = '否';
+    r.ourServer = r.serverPerson || '';
+    return r;
+  }
+
+  function normalizeRally(source={}, person={}){
+    const r = source && typeof source === 'object' ? source : {};
+    r.scorer = r.scorer === '对方' ? '对方' : '我方';
+    r.server = r.server === '对方' ? '对方' : '我方';
+    r.serverPerson = validPerson(r.serverPerson ?? r.ourServer ?? person?.serverPerson ?? person?.ourServer ?? '');
+    r.receiverPerson = validPerson(r.receiverPerson ?? person?.receiverPerson ?? '');
+    r.first3 = ['我方','对方','均势'].includes(r.first3) ? r.first3 : '均势';
+    r.maleAttack = clampCount(r.maleAttack);
+    r.femaleNetCount = storedCount(r.femaleNetCount, r.femaleNet === '是' ? 1 : 0);
+    r.femaleDefenseCount = storedCount(r.femaleDefenseCount, r.femaleDefense === '是' ? 1 : 0);
+    r.femaleTargetCount = storedCount(r.femaleTargetCount, (r.attacked === '女' || r.femaleBreak === '是') ? 1 : 0);
+    if (r.femaleTargetCount < r.femaleDefenseCount) r.femaleTargetCount = r.femaleDefenseCount;
+    r.defenseToAttackCount = storedCount(r.defenseToAttackCount, r.defenseToAttack === '是' ? 1 : 0);
+    r.forcedLiftMaleCount = storedCount(r.forcedLiftMaleCount, r.forcedLift === '男' ? 1 : 0);
+    r.forcedLiftFemaleCount = storedCount(r.forcedLiftFemaleCount, r.forcedLift === '女' ? 1 : 0);
+    r.rotationCount = storedCount(r.rotationCount, r.rotation === '是' ? 1 : 0);
+    r.attacked = ['男','女','中间','无'].includes(r.attacked) ? r.attacked : '无';
+    r.reason = typeof r.reason === 'string' ? r.reason : '';
+    r.note = typeof r.note === 'string' ? r.note : '';
+    return syncDerived(r);
+  }
+
+  function loadPersonState(){
+    try {
+      const parsed = JSON.parse(localStorage.getItem(PERSON_KEY) || 'null');
+      return parsed && Array.isArray(parsed.games) ? parsed : {games:[]};
+    } catch { return {games:[]}; }
+  }
+
+  function normalizeState(raw){
+    const state = raw && typeof raw === 'object' ? raw : {currentGame:0,games:[{rallies:[]}],theme:'light'};
+    if (!Array.isArray(state.games) || !state.games.length) state.games = [{rallies:[]}];
+    const people = loadPersonState();
+    state.games.forEach((game, gi) => {
+      if (!game || typeof game !== 'object') state.games[gi] = game = {rallies:[]};
+      if (!Array.isArray(game.rallies)) game.rallies = [];
+      game.rallies = game.rallies.map((r, ri) => normalizeRally(r, people.games?.[gi]?.[ri] || {}));
+    });
+    state.currentGame = Math.max(0, Math.min(state.games.length - 1, Number(state.currentGame) || 0));
+    state.theme = state.theme === 'dark' ? 'dark' : 'light';
+    return state;
+  }
+
+  const defaultRally = (server='我方') => normalizeRally({
+    scorer:'我方', server, serverPerson:'', receiverPerson:'', first3:'均势', maleAttack:0,
+    femaleNetCount:0, femaleTargetCount:0, femaleDefenseCount:0, defenseToAttackCount:0,
+    forcedLiftMaleCount:0, forcedLiftFemaleCount:0, rotationCount:0, attacked:'无', reason:'', note:''
+  });
+  let state = normalizeState(loadState() || { currentGame:0, games:[{rallies:[]}], theme:'light' });
 
   const $ = s => document.querySelector(s);
   const els = {
@@ -78,13 +144,18 @@
     entryView:$('#entryView'), resultsView:$('#resultsView'), toast:$('#toast')
   };
 
-  function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch{} }
+  function saveState(){
+    try {
+      state = normalizeState(state);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.removeItem(PERSON_KEY);
+    } catch {}
+  }
   function loadState(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch{return null} }
   function toast(msg){ els.toast.textContent=msg; els.toast.classList.add('show'); setTimeout(()=>els.toast.classList.remove('show'),1600); }
   function opt(v,label=v){ return `<option value="${v}">${label}</option>` }
   function selectHtml(value, options, cls, idx){ return `<select class="${cls}" data-i="${idx}">${options.map(o=>opt(o,o)).join('')}</select>` }
-  function yesNoNA(value, cls, idx){ return `<select class="${cls}" data-i="${idx}">${['不适用','是','否'].map(o=>opt(o)).join('')}</select>` }
-  function yesNo(value, cls, idx){ return `<select class="${cls}" data-i="${idx}">${['是','否'].map(o=>opt(o)).join('')}</select>` }
+  function countSelectHtml(value, cls, idx, label){ return `<select class="${cls} event-number-select" data-i="${idx}" data-number-picker-label="${label}">${Array.from({length:21},(_,n)=>opt(n,n)).join('')}</select>` }
 
   function scoreAt(game,index){ let a=0,b=0; for(let i=0;i<=index;i++){ const r=game.rallies[i]; if(r.scorer==='我方')a++;else b++; } return [a,b]; }
   function gameScore(game){ let a=0,b=0; game.rallies.forEach(r=>r.scorer==='我方'?a++:b++); return [a,b]; }
@@ -112,17 +183,18 @@
         <td>${i+1}</td><td class="score-cell">${a} - ${b}</td>
         <td>${selectHtml(r.scorer,['我方','对方'],'scorer',i)}</td>
         <td>${selectHtml(r.server,['我方','对方'],'server',i)}</td>
-        <td>${yesNoNA(r.serveActive,'serveActive',i)}</td>
-        <td>${yesNoNA(r.returnActive,'returnActive',i)}</td>
+        <td>${selectHtml(r.serverPerson,['','男','女'],'serverPerson ourServer',i)}</td>
+        <td>${selectHtml(r.receiverPerson,['','男','女'],'receiverPerson',i)}</td>
         <td>${selectHtml(r.first3,['我方','对方','均势'],'first3',i)}</td>
-        <td>${yesNo(r.femaleBreak,'femaleBreak',i)}</td>
-        <td>${yesNoNA(r.femaleNet,'femaleNet',i)}</td>
-        <td>${yesNoNA(r.femaleDefense,'femaleDefense',i)}</td>
-        <td>${yesNoNA(r.defenseToAttack,'defenseToAttack',i)}</td>
-        <td><input type="number" min="0" max="20" value="${r.maleAttack}" class="maleAttack" data-i="${i}" /></td>
-        <td>${selectHtml(r.forcedLift,['男','女','无'],'forcedLift',i)}</td>
+        <td>${countSelectHtml(r.forcedLiftMaleCount,'forcedLiftMaleCount',i,'男生造成被动挑球次数')}</td>
+        <td>${countSelectHtml(r.forcedLiftFemaleCount,'forcedLiftFemaleCount',i,'女生造成被动挑球次数')}</td>
+        <td><input type="number" min="0" max="20" value="${r.maleAttack}" class="maleAttack" data-i="${i}" data-number-picker-label="男生连续进攻拍数" /></td>
+        <td>${countSelectHtml(r.femaleNetCount,'femaleNetCount',i,'女生封网成功次数')}</td>
         <td>${selectHtml(r.attacked,['男','女','中间','无'],'attacked',i)}</td>
-        <td>${yesNo(r.rotation,'rotation',i)}</td>
+        <td>${countSelectHtml(r.femaleTargetCount,'femaleTargetCount',i,'女生受攻次数')}</td>
+        <td>${countSelectHtml(r.femaleDefenseCount,'femaleDefenseCount',i,'女生防守成功次数')}</td>
+        <td>${countSelectHtml(r.defenseToAttackCount,'defenseToAttackCount',i,'防守转攻成功次数')}</td>
+        <td>${countSelectHtml(r.rotationCount,'rotationCount',i,'轮转错误次数')}</td>
         <td><select class="reason" data-i="${i}"><option value="">请选择</option>${allReasons.map(o=>opt(o)).join('')}</select></td>
         <td><input type="text" value="${escapeHtml(r.note)}" class="note" data-i="${i}" placeholder="可选" /></td>
         <td><button class="delete-row" data-del="${i}" title="删除">🗑</button></td>
@@ -130,10 +202,9 @@
     }).join('');
     g.rallies.forEach((r,i)=>{
       const row=els.rallyBody.children[i];
-      row.querySelector('.scorer').value=r.scorer; row.querySelector('.server').value=r.server; row.querySelector('.serveActive').value=r.serveActive;
-      row.querySelector('.returnActive').value=r.returnActive; row.querySelector('.first3').value=r.first3; row.querySelector('.femaleBreak').value=r.femaleBreak;
-      row.querySelector('.femaleNet').value=r.femaleNet; row.querySelector('.femaleDefense').value=r.femaleDefense; row.querySelector('.defenseToAttack').value=r.defenseToAttack;
-      row.querySelector('.forcedLift').value=r.forcedLift; row.querySelector('.attacked').value=r.attacked; row.querySelector('.rotation').value=r.rotation; row.querySelector('.reason').value=r.reason;
+      ['scorer','server','serverPerson','receiverPerson','first3','forcedLiftMaleCount','forcedLiftFemaleCount','femaleNetCount','attacked','femaleTargetCount','femaleDefenseCount','defenseToAttackCount','rotationCount','reason'].forEach(cls=>{
+        const el=row.querySelector(`.${cls}`); if(el) el.value=String(r[cls] ?? '');
+      });
     });
     els.rallyBody.querySelectorAll('select,input').forEach(el=>{
       el.onchange=onFieldChange; el.oninput=el.tagName==='INPUT'?onFieldChange:null;
@@ -144,7 +215,12 @@
   function onFieldChange(e){
     const el=e.target, i=+el.dataset.i, r=currentGame().rallies[i], key=[...el.classList][0];
     if(!r || !key)return;
-    r[key] = key==='maleAttack'?Math.max(0,Number(el.value)||0):el.value;
+    r[key] = NUMERIC_KEYS.has(key) ? clampCount(el.value) : el.value;
+    if(key==='femaleDefenseCount' && r.femaleTargetCount < r.femaleDefenseCount){
+      r.femaleTargetCount = r.femaleDefenseCount;
+      syncDerived(r); saveState(); renderAll(); return;
+    }
+    syncDerived(r);
     if(key==='scorer'){
       const valid = r.scorer==='我方'?WIN_REASONS:LOSS_REASONS;
       if(!valid.includes(r.reason))r.reason='';
@@ -155,6 +231,7 @@
 
   function aggregate(rallies){
     const count=(pred)=>rallies.filter(pred).length;
+    const sum=(key)=>rallies.reduce((total,r)=>total+clampCount(r[key]),0);
     const ratio=(num,den)=>den?num/den*100:0;
     const ourServe=rallies.filter(r=>r.server==='我方'); const oppServe=rallies.filter(r=>r.server==='对方');
-    const serveYes=count(r=>r.server==='我方'&&r.serveActive==='是');
+    const serveYes=count(r=>r.server==='我方'&&r.first3==='我方');
