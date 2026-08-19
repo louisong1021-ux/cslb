@@ -3,7 +3,8 @@
   if (!tbody) return;
 
   const displayText = (value, select) => {
-    if (value === '' && (select?.classList.contains('ourServer') || select?.classList.contains('receiverPerson'))) return '—';
+    if (select?.classList.contains('ourServer')) return `发球人：${value || '—'}`;
+    if (select?.classList.contains('receiverPerson')) return `接发球人：${value || '—'}`;
     return value === '' ? '请选择' : value;
   };
 
