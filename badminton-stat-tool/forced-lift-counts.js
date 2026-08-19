@@ -135,6 +135,12 @@
         min-height:44px!important;
         padding:10px 12px!important;
       }
+      @media (min-width:700px){
+        #rallyBody td.forced-lift-count-cell.merged-stat-cell{
+          grid-column:1 / -1!important;
+          grid-template-columns:repeat(2,minmax(0,1fr))!important;
+        }
+      }
     `;
     document.head.appendChild(style);
   }
