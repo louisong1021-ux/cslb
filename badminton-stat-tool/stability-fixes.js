@@ -104,13 +104,20 @@
     });
   }
 
+  function personBlankText(select) {
+    if (select.classList.contains('ourServer')) return '发球人：—';
+    if (select.classList.contains('receiverPerson')) return '接发球人：—';
+    return '—';
+  }
+
   function normalizePersonBlankButtons(root = document) {
     root.querySelectorAll?.('select.receiverPerson, select.ourServer').forEach(select => {
       if (select.value !== '') return;
       const button = select.nextElementSibling;
       if (!button?.classList.contains('cycle-choice')) return;
-      if (button.textContent !== '—') button.textContent = '—';
-      button.setAttribute('aria-label', '当前：—，点击切换');
+      const text = personBlankText(select);
+      if (button.textContent !== text) button.textContent = text;
+      button.setAttribute('aria-label', `${text}，点击切换`);
     });
   }
 
