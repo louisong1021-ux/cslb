@@ -4,6 +4,7 @@
 
   const WIN_REASONS = new Set(['男生杀球','女生封网','平抽挡得分','防守反击得分','对方主动失误','对方被迫失误','发接发抢攻','其他得分']);
   const LOSS_REASONS = new Set(['男生失误','女生失误','女生被突破','防守被杀穿','轮转错误','发接发被抢','主动进攻丢分','判断失误','其他丢分']);
+  const LINKED_SELECTS = new Set(['scorer','server','serveActive','returnActive','first3','femaleBreak','femaleDefense','attacked','reason']);
 
   let scheduled = false;
   let lastChanged = null;
@@ -186,21 +187,15 @@
   document.addEventListener('change', event => {
     const el = event.target;
     if (!(el instanceof HTMLSelectElement) || !tbody.contains(el)) return;
-    const idx = Number(el.dataset.i);
     const key = Array.from(el.classList).find(c => c !== 'native-cycle-select');
+    if (!LINKED_SELECTS.has(key)) return;
+    const idx = Number(el.dataset.i);
     schedule(Number.isInteger(idx) ? idx : null, key || null);
   }, true);
 
-  document.addEventListener('input', event => {
-    const el = event.target;
-    if (!(el instanceof HTMLInputElement) || !tbody.contains(el)) return;
-    const idx = Number(el.dataset.i);
-    const key = Array.from(el.classList)[0] || null;
-    schedule(Number.isInteger(idx) ? idx : null, key);
-  }, true);
-
+  // 只在整行新增/删除时重新稳定联动，不再因每个按钮被插入 DOM 而重复扫描所有回合。
   const observer = new MutationObserver(() => schedule(null, null));
-  observer.observe(tbody, { childList: true, subtree: true });
+  observer.observe(tbody, { childList: true });
 
   schedule(null, null);
 })();
