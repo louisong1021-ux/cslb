@@ -58,13 +58,17 @@
 
   function stripLegacyBreakChoices() {
     document.querySelectorAll('select.reason').forEach(select => {
+      const selectedLegacy = select.value === LEGACY_BREAK_REASON;
       Array.from(select.options).forEach(option => {
         if (option.value === LEGACY_BREAK_REASON) option.remove();
       });
       const button = select.nextElementSibling;
-      if (select.value === LEGACY_BREAK_REASON) {
+      if (selectedLegacy) {
         select.value = '';
-        if (button?.classList.contains('reason-choice')) button.textContent = '—';
+        if (button?.classList.contains('reason-choice')) {
+          button.textContent = '—';
+          button.setAttribute('aria-label', '当前：—，点击选择');
+        }
       }
     });
     document.querySelectorAll('#lossReasons .reason-chip').forEach(chip => {
@@ -82,12 +86,18 @@
     });
   }
 
+  function setFemaleDefense(row, next) {
+    const defense = row?.querySelector('select.femaleDefense');
+    if (!defense || defense.value === next) return;
+    defense.value = next;
+    defense.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
   function restoreNeutralFemaleDefense(row) {
     const attacked = row?.querySelector('select.attacked');
     const defense = row?.querySelector('select.femaleDefense');
     if (!attacked || !defense || attacked.value !== '女' || defense.value !== '否') return;
-    defense.value = '不适用';
-    defense.dispatchEvent(new Event('change', { bubbles: true }));
+    setFemaleDefense(row, '不适用');
   }
 
   // Selecting “被攻击对象=女” only records the target. It must not silently count as a failed defense.
@@ -95,11 +105,16 @@
     const target = event.target;
     if (!(target instanceof HTMLSelectElement) || !tbody?.contains(target)) return;
 
-    if (target.classList.contains('attacked') && target.value === '女') {
+    if (target.classList.contains('attacked')) {
       const row = target.closest('tr');
       const defense = row?.querySelector('select.femaleDefense');
-      const wasNeutral = defense?.value === '不适用';
-      if (wasNeutral) setTimeout(() => restoreNeutralFemaleDefense(row), 0);
+      if (target.value === '女') {
+        const wasNeutral = defense?.value === '不适用';
+        if (wasNeutral) setTimeout(() => restoreNeutralFemaleDefense(row), 0);
+      } else {
+        // When the target is no longer the female player, her defense result is not applicable.
+        setTimeout(() => setFemaleDefense(row, '不适用'), 0);
+      }
     }
 
     if (target.classList.contains('receiverPerson') || target.classList.contains('ourServer')) {
