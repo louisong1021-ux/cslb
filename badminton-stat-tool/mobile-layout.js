@@ -34,7 +34,17 @@
     cells.forEach((cell, i) => { if (!cell.dataset.field && ORIGINAL_HEADER_KEYS[i]) cell.dataset.field = ORIGINAL_HEADER_KEYS[i]; });
     headerRow.querySelector('[data-field="rally"]')?.remove();
     headerRow.querySelector('[data-field="score"]')?.remove();
-    const desired = FIELD_ORDER.map(item => headerRow.querySelector(`[data-field="${item.key}"]`)).filter(Boolean);
+
+    const desired = [];
+    FIELD_ORDER.forEach(item => {
+      const matches = Array.from(headerRow.querySelectorAll(`[data-field="${item.key}"]`));
+      matches.slice(1).forEach(cell => cell.remove());
+      const cell = matches[0];
+      if (!cell) return;
+      cell.textContent = item.label;
+      desired.push(cell);
+    });
+
     const current = Array.from(headerRow.children);
     if (desired.length && current.some((cell, i) => cell !== desired[i])) headerRow.append(...desired);
   }
@@ -48,8 +58,17 @@
 
     FIELD_ORDER.forEach(item => {
       if (!item.selector) return;
-      const control = row.querySelector(item.selector);
-      if (control) control.closest('td')?.setAttribute('data-field', item.key);
+      const controls = Array.from(row.querySelectorAll(item.selector));
+      controls.forEach((control, i) => {
+        const cell = control.closest('td');
+        if (!cell) return;
+        if (i > 0 && (item.key === 'ourServer' || item.key === 'receiverPerson')) {
+          cell.remove();
+          return;
+        }
+        cell.dataset.field = item.key;
+        cell.dataset.label = item.label;
+      });
     });
   }
 
@@ -62,8 +81,11 @@
         row.querySelector('td[data-field="rally"]')?.remove();
         row.querySelector('td[data-field="score"]')?.remove();
 
-        const desired = FIELD_ORDER.map(item => row.querySelector(`td[data-field="${item.key}"]`)).filter(Boolean);
-        desired.forEach((cell, i) => { cell.dataset.label = FIELD_ORDER[i].label; });
+        const desired = FIELD_ORDER.map(item => {
+          const cell = row.querySelector(`td[data-field="${item.key}"]`);
+          if (cell) cell.dataset.label = item.label;
+          return cell;
+        }).filter(Boolean);
         const current = Array.from(row.children);
         if (desired.length && current.some((cell, i) => cell !== desired[i])) row.append(...desired);
       });
