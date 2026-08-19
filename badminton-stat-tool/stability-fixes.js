@@ -1,6 +1,5 @@
 (() => {
   const MATCH_KEY = 'badminton_match_stats_v2';
-  const PERSON_KEY = 'badminton_our_server_v1';
   const LEGACY_BREAK_REASON = '女生被突破';
   const tbody = document.querySelector('#rallyBody');
 
@@ -13,12 +12,14 @@
     }
   }
 
-  function showToast(message) {
-    const toast = document.querySelector('#toast');
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 1800);
+  // 导入/导出功能已取消：移除入口、文件选择器及帮助里的相关说明。
+  function removeImportExportUI() {
+    document.querySelector('#importBtn')?.remove();
+    document.querySelector('#exportBtn')?.remove();
+    document.querySelector('#fileInput')?.remove();
+    document.querySelectorAll('#helpModal li').forEach(item => {
+      if (/导入|导出|JSON\s*备份/.test(item.textContent || '')) item.remove();
+    });
   }
 
   // Migrate old explicit “女生被突破” records into fields that can derive the same conclusion.
@@ -49,6 +50,8 @@
     }
     return changed;
   }
+
+  removeImportExportUI();
 
   if (migrateLegacyBreakData()) {
     // Core state was loaded before this enhancement; reload once so it cannot overwrite migrated data.
@@ -124,65 +127,11 @@
 
   if (tbody) {
     const observer = new MutationObserver(() => {
+      removeImportExportUI();
       stripLegacyBreakChoices();
       normalizePersonBlankButtons(tbody);
     });
     observer.observe(tbody, { childList: true, subtree: true });
-  }
-
-  // Export one complete backup containing both rally data and server/receiver-person data.
-  const exportBtn = document.querySelector('#exportBtn');
-  if (exportBtn) {
-    exportBtn.onclick = () => {
-      const matchState = parseStorage(MATCH_KEY, { currentGame: 0, games: [{ rallies: [] }], theme: 'light' });
-      const personState = parseStorage(PERSON_KEY, { games: [] });
-      const payload = {
-        format: 'badminton-match-backup',
-        version: 3,
-        exportedAt: new Date().toISOString(),
-        matchState,
-        personState
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'badminton-match-backup.json';
-      a.click();
-      URL.revokeObjectURL(a.href);
-      showToast('完整比赛数据已导出');
-    };
-  }
-
-  // Import new complete backups and remain compatible with old match-only JSON files.
-  const fileInput = document.querySelector('#fileInput');
-  if (fileInput) {
-    fileInput.onchange = event => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const data = JSON.parse(reader.result);
-          const isComplete = data?.format === 'badminton-match-backup' && data?.matchState;
-          const matchState = isComplete ? data.matchState : data;
-          if (!matchState || !Array.isArray(matchState.games)) throw new Error('invalid match data');
-
-          localStorage.setItem(MATCH_KEY, JSON.stringify(matchState));
-          if (isComplete && data.personState && Array.isArray(data.personState.games)) {
-            localStorage.setItem(PERSON_KEY, JSON.stringify(data.personState));
-          } else {
-            // Avoid stale server/receiver-person mappings when importing an old match-only backup.
-            localStorage.removeItem(PERSON_KEY);
-          }
-          showToast(isComplete ? '完整比赛数据已导入' : '旧版比赛数据已导入');
-          setTimeout(() => location.reload(), 120);
-        } catch {
-          alert('无法读取该数据文件');
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = '';
-    };
   }
 
   stripLegacyBreakChoices();
