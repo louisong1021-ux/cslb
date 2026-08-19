@@ -34,6 +34,7 @@
     const style = document.createElement('style');
     style.id = 'eventCounterEntryStyle';
     style.textContent = `
+      #optimizedLiveCard .opt-live-grid>div:nth-child(2){display:none!important}
       #rallyBody .event-counter-native-button{display:none!important}
       #rallyBody .event-counter-control{display:grid;grid-template-columns:38px minmax(44px,1fr) 38px;align-items:center;gap:6px;width:100%}
       #rallyBody .event-counter-control button{min-height:38px;border:1px solid #cbd8e8;border-radius:8px;background:#f7faff;color:#155fc5;font-size:19px;font-weight:850;line-height:1}
@@ -121,7 +122,6 @@
     buildControl(select);
     syncVisible(select);
 
-    // New rallies do not yet contain the numeric field in the core state; persist it through the core onchange handler.
     if (!hasStored) select.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
