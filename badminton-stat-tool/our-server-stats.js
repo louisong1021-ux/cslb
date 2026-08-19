@@ -1,39 +1,18 @@
 (() => {
-  const STORAGE_KEY = 'badminton_our_server_v1';
+  const STORAGE_KEY = 'badminton_match_stats_v2';
   const tbody = document.querySelector('#rallyBody');
-  const games = document.querySelector('#gameTabs');
   const liveStats = document.querySelector('#liveStats');
   const resultsGrid = document.querySelector('#resultsView .results-grid');
-  if (!tbody || !games) return;
+  const viewResultsBtn = document.querySelector('#viewResultsBtn');
+  if (!tbody) return;
 
-  let data = load();
-  let enhancing = false;
-
-  function load() {
+  function loadState() {
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-      return parsed && Array.isArray(parsed.games) ? parsed : { games: [] };
+      return parsed && Array.isArray(parsed.games) ? parsed : { currentGame: 0, games: [{ rallies: [] }] };
     } catch {
-      return { games: [] };
+      return { currentGame: 0, games: [{ rallies: [] }] };
     }
-  }
-
-  function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
-  }
-
-  function currentGameIndex() {
-    const active = games.querySelector('.game-tab.active[data-game]');
-    return Math.max(0, Number(active?.dataset.game) || 0);
-  }
-
-  function gameData(index = currentGameIndex()) {
-    if (!Array.isArray(data.games[index])) data.games[index] = [];
-    return data.games[index];
-  }
-
-  function selectValue(row, cls) {
-    return row.querySelector(`select.${cls}`)?.value || '';
   }
 
   function validPerson(value) {
@@ -48,129 +27,19 @@
     return validPerson(record?.receiverPerson ?? '');
   }
 
-  function syncCurrentFromDom() {
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    const records = gameData();
-    rows.forEach((row, i) => {
-      const prev = records[i] || {};
-      const serverPerson = validPerson(row.querySelector('select.ourServer')?.value) || personOf(prev);
-      const receiverPerson = validPerson(row.querySelector('select.receiverPerson')?.value) || receiverOf(prev);
-      records[i] = {
-        serverPerson,
-        receiverPerson,
-        ourServer: serverPerson,
-        server: selectValue(row, 'server'),
-        scorer: selectValue(row, 'scorer'),
-        serveActive: selectValue(row, 'serveActive'),
-        returnActive: selectValue(row, 'returnActive')
-      };
-    });
-    records.length = rows.length;
-    save();
-  }
-
-  function suggestedServer(records, rowIndex, server) {
-    if (!server || rowIndex <= 0) return '';
-    const prev = records[rowIndex - 1];
-    const prevPerson = personOf(prev);
-    if (prev?.server === server && prev?.scorer === server && prevPerson) return prevPerson;
-    return '';
-  }
-
-  function makePersonCell(row, rowIndex, type) {
-    const anchor = type === 'server'
-      ? row.querySelector('select.server')?.closest('td')
-      : row.querySelector('select.ourServer')?.closest('td');
-    const cls = type === 'server' ? 'ourServer' : 'receiverPerson';
-    if (!anchor || row.querySelector(`select.${cls}`)) return;
-
-    const records = gameData();
-    const server = selectValue(row, 'server');
-    const stored = type === 'server'
-      ? (personOf(records[rowIndex]) || suggestedServer(records, rowIndex, server))
-      : receiverOf(records[rowIndex]);
-    const label = type === 'server' ? '发球人' : '接发球人';
-    const field = type === 'server' ? 'ourServer' : 'receiverPerson';
-    const cell = document.createElement('td');
-    cell.dataset.field = field;
-    cell.dataset.label = label;
-    cell.innerHTML = `<select class="${cls}" data-i="${rowIndex}"><option value="">—</option><option value="男">男</option><option value="女">女</option></select>`;
-    const select = cell.querySelector('select');
-    select.value = stored;
-    anchor.insertAdjacentElement('afterend', cell);
-  }
-
-  function ensureHeader() {
-    const header = document.querySelector('.table-wrap thead tr');
-    if (!header) return;
-    const serverHeader = header.querySelector('[data-field="server"]');
-    if (!serverHeader) return;
-
-    let serverPersonHeader = header.querySelector('[data-field="ourServer"]');
-    if (!serverPersonHeader) {
-      serverPersonHeader = document.createElement('th');
-      serverPersonHeader.dataset.field = 'ourServer';
-      serverPersonHeader.textContent = '发球人';
-      serverHeader.insertAdjacentElement('afterend', serverPersonHeader);
-    }
-
-    if (!header.querySelector('[data-field="receiverPerson"]')) {
-      const th = document.createElement('th');
-      th.dataset.field = 'receiverPerson';
-      th.textContent = '接发球人';
-      serverPersonHeader.insertAdjacentElement('afterend', th);
-    }
-  }
-
-  function syncRowState(row) {
-    ['ourServer', 'receiverPerson'].forEach(cls => {
-      const select = row.querySelector(`select.${cls}`);
-      if (!select) return;
-      select.disabled = false;
-      requestAnimationFrame(() => {
-        if (!select.isConnected) return;
-        const button = select.nextElementSibling;
-        if (!button?.classList.contains('cycle-choice')) return;
-        button.disabled = false;
-        button.classList.remove('linked-disabled');
-        button.removeAttribute('aria-disabled');
-        button.textContent = select.value || '—';
-      });
-    });
-  }
-
-  function enhanceRows() {
-    if (enhancing) return;
-    enhancing = true;
-    try {
-      ensureHeader();
-      const rows = Array.from(tbody.querySelectorAll('tr'));
-      rows.forEach((row, i) => {
-        makePersonCell(row, i, 'server');
-        makePersonCell(row, i, 'receiver');
-      });
-      rows.forEach(syncRowState);
-      syncCurrentFromDom();
-    } finally {
-      enhancing = false;
-    }
-  }
-
   function pct(num, den) {
     return den ? `${Math.round(num / den * 100)}%` : '—';
   }
 
-  function statFor(rows, mode) {
-    const activeKey = mode === 'serve' ? 'serveActive' : 'returnActive';
-    const active = rows.filter(r => r[activeKey] === '是').length;
+  function statFor(rows) {
+    const active = rows.filter(r => r.first3 === '我方').length;
     const ourWins = rows.filter(r => r.scorer === '我方').length;
     return {
       count: rows.length,
       active,
       ourWins,
       activeRate: pct(active, rows.length),
-      ourWinRate: pct(ourWins, rows.length),
-      oppWinRate: pct(rows.length - ourWins, rows.length)
+      ourWinRate: pct(ourWins, rows.length)
     };
   }
 
@@ -179,28 +48,28 @@
     const oppServe = records.filter(r => r.server === '对方');
     const byServer = (rows, who) => rows.filter(r => personOf(r) === who);
     const byReceiver = (rows, who) => rows.filter(r => receiverOf(r) === who);
-    const combo = (rows, serverWho, receiverWho, mode) => statFor(rows.filter(r => personOf(r) === serverWho && receiverOf(r) === receiverWho), mode);
+    const combo = (rows, serverWho, receiverWho) => statFor(rows.filter(r => personOf(r) === serverWho && receiverOf(r) === receiverWho));
 
     return {
-      ourServerMale: statFor(byServer(oursServe, '男'), 'serve'),
-      ourServerFemale: statFor(byServer(oursServe, '女'), 'serve'),
-      oppServerMale: statFor(byServer(oppServe, '男'), 'return'),
-      oppServerFemale: statFor(byServer(oppServe, '女'), 'return'),
-      ourReceiverMale: statFor(byReceiver(oppServe, '男'), 'return'),
-      ourReceiverFemale: statFor(byReceiver(oppServe, '女'), 'return'),
-      oppReceiverMale: statFor(byReceiver(oursServe, '男'), 'serve'),
-      oppReceiverFemale: statFor(byReceiver(oursServe, '女'), 'serve'),
+      ourServerMale: statFor(byServer(oursServe, '男')),
+      ourServerFemale: statFor(byServer(oursServe, '女')),
+      oppServerMale: statFor(byServer(oppServe, '男')),
+      oppServerFemale: statFor(byServer(oppServe, '女')),
+      ourReceiverMale: statFor(byReceiver(oppServe, '男')),
+      ourReceiverFemale: statFor(byReceiver(oppServe, '女')),
+      oppReceiverMale: statFor(byReceiver(oursServe, '男')),
+      oppReceiverFemale: statFor(byReceiver(oursServe, '女')),
       ourServeCombos: {
-        mm: combo(oursServe, '男', '男', 'serve'),
-        mf: combo(oursServe, '男', '女', 'serve'),
-        fm: combo(oursServe, '女', '男', 'serve'),
-        ff: combo(oursServe, '女', '女', 'serve')
+        mm: combo(oursServe, '男', '男'),
+        mf: combo(oursServe, '男', '女'),
+        fm: combo(oursServe, '女', '男'),
+        ff: combo(oursServe, '女', '女')
       },
       oppServeCombos: {
-        mm: combo(oppServe, '男', '男', 'return'),
-        mf: combo(oppServe, '男', '女', 'return'),
-        fm: combo(oppServe, '女', '男', 'return'),
-        ff: combo(oppServe, '女', '女', 'return')
+        mm: combo(oppServe, '男', '男'),
+        mf: combo(oppServe, '男', '女'),
+        fm: combo(oppServe, '女', '男'),
+        ff: combo(oppServe, '女', '女')
       },
       ourServerUnassigned: oursServe.filter(r => !personOf(r)).length,
       oppServerUnassigned: oppServe.filter(r => !personOf(r)).length,
@@ -209,9 +78,13 @@
     };
   }
 
-  function allRecords() {
-    syncCurrentFromDom();
-    return data.games.flatMap(g => Array.isArray(g) ? g : []);
+  function currentRows(state) {
+    const index = Math.max(0, Math.min(state.games.length - 1, Number(state.currentGame) || 0));
+    return state.games[index]?.rallies || [];
+  }
+
+  function allRows(state) {
+    return state.games.flatMap(game => Array.isArray(game.rallies) ? game.rallies : []);
   }
 
   function metric(title, x, mode) {
@@ -226,7 +99,8 @@
 
   function updateLiveCard() {
     if (!liveStats) return;
-    const s = summarize(gameData());
+    const state = loadState();
+    const s = summarize(currentRows(state));
     let card = document.querySelector('#ourServerLiveCard');
     if (!card) {
       card = document.createElement('div');
@@ -262,7 +136,7 @@
 
   function updateResultsCard() {
     if (!resultsGrid) return;
-    const s = summarize(allRecords());
+    const s = summarize(allRows(loadState()));
     let panel = document.querySelector('#ourServerResultsCard');
     if (!panel) {
       panel = document.createElement('div');
@@ -282,68 +156,41 @@
     if (panel.innerHTML !== html) panel.innerHTML = html;
   }
 
-  function refresh() {
-    enhanceRows();
-    updateLiveCard();
-    if (document.querySelector('#resultsView.active')) updateResultsCard();
+  let liveQueued = false;
+  function scheduleLive() {
+    if (liveQueued) return;
+    liveQueued = true;
+    requestAnimationFrame(() => {
+      liveQueued = false;
+      updateLiveCard();
+    });
+  }
+
+  let resultsQueued = false;
+  function scheduleResults() {
+    if (resultsQueued) return;
+    resultsQueued = true;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      resultsQueued = false;
+      if (document.querySelector('#resultsView.active')) updateResultsCard();
+    }));
   }
 
   document.addEventListener('change', event => {
-    const target = event.target;
-    if (!(target instanceof HTMLSelectElement) || !tbody.contains(target)) return;
-
-    if (target.classList.contains('ourServer') || target.classList.contains('receiverPerson')) {
-      syncCurrentFromDom();
-      updateLiveCard();
-      return;
-    }
-
-    if (target.classList.contains('server')) {
-      const row = target.closest('tr');
-      const rows = Array.from(tbody.querySelectorAll('tr'));
-      const rowIndex = rows.indexOf(row);
-      const serverSelect = row?.querySelector('select.ourServer');
-      const receiverSelect = row?.querySelector('select.receiverPerson');
-      if (rowIndex >= 0) {
-        syncCurrentFromDom();
-        if (serverSelect) serverSelect.value = suggestedServer(gameData(), rowIndex, target.value);
-        if (receiverSelect) receiverSelect.value = '';
-        serverSelect?.dispatchEvent(new Event('change', { bubbles: true }));
-        receiverSelect?.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-      queueMicrotask(refresh);
-      return;
-    }
-
-    if (target.classList.contains('scorer') || target.classList.contains('serveActive') || target.classList.contains('returnActive')) {
-      syncCurrentFromDom();
-      queueMicrotask(refresh);
-    }
+    if (!tbody.contains(event.target)) return;
+    scheduleLive();
+    scheduleResults();
   }, true);
 
-  document.addEventListener('click', event => {
-    const deleteBtn = event.target.closest?.('[data-del]');
-    if (deleteBtn && tbody.contains(deleteBtn)) {
-      syncCurrentFromDom();
-      const index = Number(deleteBtn.dataset.del);
-      if (Number.isInteger(index)) gameData().splice(index, 1);
-      save();
-      return;
-    }
+  document.addEventListener('badminton:open-stats', scheduleLive);
+  viewResultsBtn?.addEventListener('click', scheduleResults);
 
-    const gameBtn = event.target.closest?.('.game-tab[data-game], #addGameInline, #addRallyBtn, #clearGameBtn, #viewResultsBtn');
-    if (gameBtn) {
-      syncCurrentFromDom();
-      queueMicrotask(() => {
-        refresh();
-        if (gameBtn.id === 'viewResultsBtn') updateResultsCard();
-      });
-    }
-  }, true);
-
-  const observer = new MutationObserver(() => queueMicrotask(refresh));
+  const observer = new MutationObserver(() => {
+    scheduleLive();
+    scheduleResults();
+  });
   observer.observe(tbody, { childList: true });
-  observer.observe(games, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
 
-  refresh();
+  updateLiveCard();
+  scheduleResults();
 })();
