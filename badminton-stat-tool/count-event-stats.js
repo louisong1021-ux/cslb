@@ -7,6 +7,7 @@
   if (!tbody) return;
 
   const countText = n => Number(n) ? `${Number(n)} 次` : '没有';
+  const rallyText = n => Number(n) ? `${Number(n)} 个回合` : '没有发生';
 
   function loadState() {
     try {
@@ -21,35 +22,46 @@
     return state.games.flatMap(g => Array.isArray(g.rallies) ? g.rallies : []);
   }
 
+  function eventCount(rally, key, fallback) {
+    if (rally && rally[key] !== undefined && rally[key] !== null && rally[key] !== '' && Number.isFinite(Number(rally[key]))) {
+      return Math.max(0, Math.round(Number(rally[key])));
+    }
+    return Math.max(0, Math.round(Number(fallback?.(rally)) || 0));
+  }
+
   function summarize(rows) {
-    const femaleNetYes = rows.filter(r => r.femaleNet === '是').length;
-    const femaleDefenseYes = rows.filter(r => r.femaleDefense === '是').length;
-    const defenseToAttackYes = rows.filter(r => r.defenseToAttack === '是').length;
+    const femaleNetCounts = rows.map(r => eventCount(r, 'femaleNetCount', x => x?.femaleNet === '是' ? 1 : 0));
+    const femaleDefenseCounts = rows.map(r => eventCount(r, 'femaleDefenseCount', x => x?.femaleDefense === '是' ? 1 : 0));
+    const defenseToAttackCounts = rows.map(r => eventCount(r, 'defenseToAttackCount', x => x?.defenseToAttack === '是' ? 1 : 0));
+    const femaleTargetCounts = rows.map(r => eventCount(r, 'femaleTargetCount', x => x?.attacked === '女' ? 1 : 0));
+
+    const sum = values => values.reduce((total, value) => total + value, 0);
+    const rallies = values => values.filter(value => value > 0).length;
+    const femaleNetTotal = sum(femaleNetCounts);
+    const femaleDefenseTotal = sum(femaleDefenseCounts);
+    const defenseToAttackTotal = sum(defenseToAttackCounts);
+    const femaleTargetTotal = sum(femaleTargetCounts);
+    const femaleDefenseMiss = Math.max(0, femaleTargetTotal - femaleDefenseTotal);
     const rotations = rows.filter(r => r.rotation === '是').length;
-    const femaleTarget = rows.filter(r => r.attacked === '女').length;
-    const femaleDefenseNo = rows.filter(r => r.attacked === '女' && r.femaleDefense === '否').length;
     const rotationLosses = rows.filter(r => r.rotation === '是' && r.scorer === '对方').length;
+
     return {
-      femaleNetYes,
-      femaleDefenseYes,
-      defenseToAttackYes,
+      femaleNetTotal,
+      femaleNetRallies: rallies(femaleNetCounts),
+      femaleDefenseTotal,
+      femaleDefenseRallies: rallies(femaleDefenseCounts),
+      defenseToAttackTotal,
+      defenseToAttackRallies: rallies(defenseToAttackCounts),
+      femaleTargetTotal,
+      femaleTargetRallies: rallies(femaleTargetCounts),
+      femaleDefenseMiss,
       rotations,
-      femaleTarget,
-      femaleDefenseNo,
       rotationLosses
     };
   }
 
   function currentRows(state) {
     return state.games[state.currentGame]?.rallies || state.games[0]?.rallies || [];
-  }
-
-  function removeFemaleBreakField() {
-    document.querySelectorAll('select.femaleBreak').forEach(select => select.closest('td')?.remove());
-    document.querySelectorAll('td[data-field="femaleBreak"], th[data-field="femaleBreak"]').forEach(el => el.remove());
-    document.querySelectorAll('.table-wrap thead th').forEach(th => {
-      if (th.textContent.trim().replace(/\s+/g, '') === '女生被突破') th.remove();
-    });
   }
 
   function findMetric(root, labels) {
@@ -81,9 +93,10 @@
     const style = document.createElement('style');
     style.id = 'countEventStatsStyle';
     style.textContent = `
-      #optimizedLiveCard .opt-live-grid>div:nth-child(2){display:none!important}
-      #eventCountPanel .opt-card-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+      #eventCountPanel .opt-card-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
       #eventCountPanel .opt-mini-card b{font-size:24px}
+      #eventCountPanel .opt-mini-card small{display:block;margin-top:4px;color:#6c7a8f}
+      @media(max-width:900px){#eventCountPanel .opt-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
       @media(max-width:700px){#eventCountPanel .opt-card-grid{grid-template-columns:1fr 1fr}}
     `;
     document.head.appendChild(style);
@@ -100,16 +113,15 @@
   }
 
   function applyLive() {
-    removeFemaleBreakField();
     if (!liveStats || !liveStats.children.length) return;
     const state = loadState();
     const s = summarize(currentRows(state));
 
-    setMetric(liveStats, '女生封网成功率', '女生封网成功次数', countText(s.femaleNetYes));
-    setMetric(liveStats, '女生防守成功率', '女生防守成功次数', countText(s.femaleDefenseYes));
-    setMetric(liveStats, '防守转攻成功率', '防守转攻成功次数', countText(s.defenseToAttackYes));
-    setMetric(liveStats, ['轮转错误次数', '轮转错误'], '轮转错误次数', countText(s.rotations));
-    removeMetric(liveStats, ['女生被突破次数', '女生被突破']);
+    setMetric(liveStats, ['女生封网成功率','女生封网成功次数'], '女生封网成功次数', countText(s.femaleNetTotal), rallyText(s.femaleNetRallies));
+    setMetric(liveStats, ['女生防守成功率','女生防守成功次数'], '女生防守成功次数', countText(s.femaleDefenseTotal), rallyText(s.femaleDefenseRallies));
+    setMetric(liveStats, ['防守转攻成功率','防守转攻成功次数'], '防守转攻成功次数', countText(s.defenseToAttackTotal), rallyText(s.defenseToAttackRallies));
+    setMetric(liveStats, ['轮转错误次数','轮转错误'], '轮转错误次数', countText(s.rotations));
+    removeMetric(liveStats, ['女生被突破次数','女生被突破']);
   }
 
   function ensureEventPanel(s) {
@@ -123,7 +135,8 @@
       if (funnel && funnel.parentElement === resultsGrid) resultsGrid.insertBefore(panel, funnel);
       else resultsGrid.prepend(panel);
     }
-    panel.innerHTML = `<h2>关键事件次数</h2><p class="opt-explain">这些项目按发生次数统计，不再用成功率作为主显示。</p><div class="opt-card-grid"><div class="opt-mini-card"><span>女生封网成功</span><b>${countText(s.femaleNetYes)}</b></div><div class="opt-mini-card"><span>女生防守成功</span><b>${countText(s.femaleDefenseYes)}</b></div><div class="opt-mini-card"><span>防守转攻成功</span><b>${countText(s.defenseToAttackYes)}</b></div><div class="opt-mini-card"><span>轮转错误</span><b>${countText(s.rotations)}</b></div></div>`;
+    const card = (label, total, rallyCount) => `<div class="opt-mini-card"><span>${label}</span><b>${countText(total)}</b><small>${rallyText(rallyCount)}</small></div>`;
+    panel.innerHTML = `<h2>关键事件次数</h2><p class="opt-explain">总次数表示实际发生多少次；回合数表示有多少个回合至少发生过一次。</p><div class="opt-card-grid">${card('女生受攻',s.femaleTargetTotal,s.femaleTargetRallies)}${card('女生防守成功',s.femaleDefenseTotal,s.femaleDefenseRallies)}${card('女生封网成功',s.femaleNetTotal,s.femaleNetRallies)}${card('防守转攻成功',s.defenseToAttackTotal,s.defenseToAttackRallies)}<div class="opt-mini-card"><span>轮转错误</span><b>${countText(s.rotations)}</b><small>${s.rotationLosses ? `直接丢分 ${s.rotationLosses} 次` : '没有直接丢分记录'}</small></div></div>`;
   }
 
   function removeRateBars() {
@@ -140,26 +153,27 @@
     if (!kpiRow) return;
     const target = Array.from(kpiRow.querySelectorAll('.kpi')).find(card => {
       const label = card.querySelector('.label')?.textContent.trim() || '';
-      return ['女生受攻防守率', '女生防守成功率', '女生被突破'].includes(label);
+      return ['女生受攻防守率', '女生防守成功率', '女生防守成功', '女生被突破'].includes(label);
     });
     if (!target) return;
     const label = target.querySelector('.label');
     const value = target.querySelector('.value');
     const note = target.querySelector('.note');
     if (label) label.textContent = '女生防守成功';
-    if (value) value.textContent = countText(s.femaleDefenseYes);
-    if (note) note.textContent = `对手攻击女生 ${s.femaleTarget} 次`;
+    if (value) value.textContent = countText(s.femaleDefenseTotal);
+    if (note) note.textContent = `受攻 ${s.femaleTargetTotal} 次 · ${rallyText(s.femaleDefenseRallies)}`;
   }
 
   function updateOptimizedDetails(s) {
     const attackPanel = document.getElementById('optAttackEfficiency');
     const attackDetail = attackPanel?.querySelector('.opt-detail-line');
-    if (attackDetail) attackDetail.textContent = `女生封网成功 ${s.femaleNetYes} 次。`;
+    if (attackDetail) attackDetail.textContent = `女生封网成功 ${s.femaleNetTotal} 次，出现在 ${s.femaleNetRallies} 个回合。`;
 
     const defensePanel = document.getElementById('optDefenseTargets');
     const defenseDetail = defensePanel?.querySelector('.opt-detail-line');
     if (defenseDetail) {
-      defenseDetail.textContent = `女生被攻击 ${s.femaleTarget} 次；防守成功 ${s.femaleDefenseYes} 次；防守未成功 ${s.femaleDefenseNo} 次。轮转错误 ${s.rotations} 次，其中直接丢分 ${s.rotationLosses} 次。女生是否形成明显突破口，由这些数据综合判断，不再单独记录“女生被突破”。`;
+      const rate = s.femaleTargetTotal ? Math.round(s.femaleDefenseTotal / s.femaleTargetTotal * 100) : 0;
+      defenseDetail.textContent = `女生受攻 ${s.femaleTargetTotal} 次；防守成功 ${s.femaleDefenseTotal} 次；未防住 ${s.femaleDefenseMiss} 次；${s.femaleTargetTotal ? `单次防守成功率 ${rate}%` : '暂无受攻样本'}。轮转错误 ${s.rotations} 次，其中直接丢分 ${s.rotationLosses} 次。`;
     }
   }
 
@@ -200,12 +214,13 @@
         `${ours}-${theirs}`,
         pct(serveYes, serve.length),
         pct(retYes, ret.length),
-        countText(s.femaleDefenseYes),
+        countText(s.femaleTargetTotal),
+        countText(s.femaleDefenseTotal),
         pct(attackWins, attacks.length),
         pct(chain4.length, chain1.length),
         criticalRate(rows),
-        countText(s.femaleNetYes),
-        countText(s.defenseToAttackYes),
+        countText(s.femaleNetTotal),
+        countText(s.defenseToAttackTotal),
         countText(s.rotations)
       ];
     });
@@ -214,7 +229,7 @@
   function updateGameCompare(state) {
     const table = document.getElementById('gameCompare');
     if (!table) return;
-    const headers = ['局', '比分', '发球前三拍', '接发前三拍', '女生防守成功', '男生进攻', '完整链', '关键分', '女生封网成功', '防守转攻成功', '轮转错误'];
+    const headers = ['局', '比分', '发球前三拍', '接发前三拍', '女生受攻', '女生防守成功', '男生进攻', '完整链', '关键分', '女生封网成功', '防守转攻成功', '轮转错误'];
     const rows = gameEventRows(state);
     table.innerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(row => `<tr>${row.map(v => `<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>`;
   }
@@ -230,7 +245,6 @@
   }
 
   function applyResults() {
-    removeFemaleBreakField();
     const resultsView = document.getElementById('resultsView');
     if (!resultsView?.classList.contains('active')) return;
     const state = loadState();
@@ -243,12 +257,8 @@
   }
 
   ensureStyle();
-  removeFemaleBreakField();
 
-  const rowObserver = new MutationObserver(() => {
-    removeFemaleBreakField();
-    scheduleLive();
-  });
+  const rowObserver = new MutationObserver(() => scheduleLive());
   rowObserver.observe(tbody, { childList: true });
 
   document.addEventListener('change', event => {
