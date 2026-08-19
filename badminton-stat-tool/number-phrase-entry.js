@@ -29,11 +29,28 @@
     const style = document.createElement('style');
     style.id = 'mergedStatButtonStyle';
     style.textContent = `
+      #rallyBody tr{
+        display:grid!important;
+        grid-template-columns:minmax(0,1fr)!important;
+        gap:8px!important;
+        margin:0 0 10px!important;
+        border:0!important;
+        border-radius:0!important;
+        overflow:visible!important;
+        background:transparent!important;
+        box-shadow:none!important;
+      }
+      #rallyBody td{
+        min-height:0!important;
+        padding:0!important;
+        border:0!important;
+        background:transparent!important;
+      }
+      #rallyBody td::before{display:none!important}
       #rallyBody td.merged-stat-cell{
         grid-template-columns:minmax(0,1fr)!important;
         gap:0!important;
       }
-      #rallyBody td.merged-stat-cell::before{display:none!important}
       #rallyBody td.merged-stat-cell .cycle-choice.merged-stat-choice{
         width:100%!important;
         min-width:0!important;
@@ -48,11 +65,51 @@
         grid-template-columns:minmax(0,1fr)!important;
         gap:0!important;
       }
-      #rallyBody td.note-inline-cell::before{display:none!important}
       #rallyBody td.note-inline-cell input.note{
         width:100%!important;
         min-width:0!important;
         min-height:40px;
+      }
+      #rallyBody td[data-field="delete"]{display:none!important}
+
+      .entry-title-actions{
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        align-items:stretch;
+        gap:8px;
+        margin:4px 0 10px;
+      }
+      .entry-title-actions .mobile-stats-toggle{
+        width:100%!important;
+        min-width:0!important;
+        max-width:none!important;
+        margin:0!important;
+      }
+      .delete-current-rally{
+        min-height:40px;
+        padding:8px 14px;
+        border:1px solid #efb6b6;
+        border-radius:9px;
+        background:#fff2f2;
+        color:#bd2d2d;
+        font-weight:800;
+        white-space:nowrap;
+      }
+      .delete-current-rally[hidden]{display:none!important}
+      body.dark .delete-current-rally{
+        border-color:#713a42;
+        background:#361d24;
+        color:#ff9ca7;
+      }
+
+      @media (min-width:700px){
+        #rallyBody tr{
+          grid-template-columns:repeat(2,minmax(0,1fr))!important;
+        }
+        .entry-title-actions{
+          width:min(100%,430px);
+          margin:2px 0 10px auto;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -122,9 +179,53 @@
     input.setAttribute('aria-label', '备注');
   }
 
+  function activeRow() {
+    const list = Array.from(tbody.querySelectorAll('tr'));
+    return tbody.querySelector('tr.rally-editor-row-active') || list[list.length - 1] || null;
+  }
+
+  function updateDeleteButton() {
+    const button = document.querySelector('.delete-current-rally');
+    if (!button) return;
+    button.hidden = !activeRow();
+  }
+
+  function installTitleDelete() {
+    if (document.querySelector('.delete-current-rally')) {
+      updateDeleteButton();
+      return;
+    }
+
+    const toggle = document.querySelector('.mobile-stats-toggle');
+    if (!toggle?.parentNode) return;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'entry-title-actions';
+    toggle.parentNode.insertBefore(wrap, toggle);
+    wrap.appendChild(toggle);
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'delete-current-rally';
+    button.textContent = '删除';
+    button.setAttribute('aria-label', '删除当前回合');
+    button.title = '删除当前回合';
+    wrap.appendChild(button);
+
+    button.addEventListener('click', () => {
+      const row = activeRow();
+      const original = row?.querySelector('[data-del]');
+      original?.click();
+    });
+
+    updateDeleteButton();
+  }
+
   function enhanceAll() {
     tbody.querySelectorAll('button.cycle-choice').forEach(applyButton);
     tbody.querySelectorAll('input.note').forEach(applyNoteInput);
+    installTitleDelete();
+    updateDeleteButton();
   }
 
   let queued = false;
@@ -139,6 +240,10 @@
 
   document.addEventListener('change', event => {
     if (tbody.contains(event.target)) schedule();
+  }, true);
+
+  document.addEventListener('click', event => {
+    if (event.target.closest('.rally-number')) requestAnimationFrame(updateDeleteButton);
   }, true);
 
   const observer = new MutationObserver(schedule);
