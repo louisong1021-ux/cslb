@@ -1,0 +1,25 @@
+.delete-current-rally{
+  width:36px!important;
+  min-width:36px!important;
+  min-height:40px!important;
+  padding:0 4px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:inherit!important;
+  font-size:21px!important;
+  line-height:1!important;
+  font-weight:400!important;
+  appearance:none!important;
+  -webkit-appearance:none!important;
+}
+.delete-current-rally:hover,
+.delete-current-rally:active,
+.delete-current-rally:focus,
+body.dark .delete-current-rally{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:inherit!important;
+}
