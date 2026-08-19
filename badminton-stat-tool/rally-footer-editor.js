@@ -121,11 +121,9 @@
     const gameChanged = game !== lastGame;
 
     if (gameChanged || count > lastCount) {
-      // New game or newly added rally: always keep the newest rally inline.
       activeIndex = count ? count - 1 : -1;
       floatingOld = false;
     } else if (count < lastCount) {
-      // After deletion, return to the newest remaining rally inline.
       activeIndex = count ? count - 1 : -1;
       floatingOld = false;
     } else if (count && (activeIndex < 0 || activeIndex >= count)) {
@@ -170,8 +168,12 @@
     if (event.key === 'Escape' && floatingOld) showLatestInline();
   });
 
+  // 页脚数字只依赖回合数量和得分方；其他统计字段变化不再整条重绘页脚。
   document.addEventListener('change', event => {
-    if (tbody.contains(event.target)) scheduleSync();
+    const target = event.target;
+    if (target instanceof HTMLSelectElement && target.classList.contains('scorer') && tbody.contains(target)) {
+      scheduleSync();
+    }
   }, true);
 
   addBtn.addEventListener('click', () => scheduleSync(), true);
@@ -189,7 +191,7 @@
   }, true);
 
   const observer = new MutationObserver(scheduleSync);
-  observer.observe(tbody, { childList: true, subtree: true });
+  observer.observe(tbody, { childList: true });
   observer.observe(games, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
 
   lastCount = rows().length;
