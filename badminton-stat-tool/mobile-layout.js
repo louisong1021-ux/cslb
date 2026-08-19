@@ -105,6 +105,7 @@
     const openStats = () => {
       statsPanel.classList.add('mobile-open');
       document.body.classList.add('mobile-stats-visible');
+      document.dispatchEvent(new CustomEvent('badminton:open-stats'));
       close.focus({preventScroll:true});
     };
     const closeStats = () => {
@@ -133,17 +134,24 @@
       toggle.setAttribute('aria-label', `打开${game}统计，当前${rounds}回合，我方${ours}分，对方${theirs}分`);
     }
 
-    const observer = new MutationObserver(() => {
-      normalizeRows(tbody);
-      updateToggleText();
-    });
-    observer.observe(tbody, {childList:true, subtree:true});
-    const liveStats = document.querySelector('#liveStats');
-    if (liveStats) observer.observe(liveStats, {childList:true, subtree:true, characterData:true});
+    let layoutQueued = false;
+    const scheduleLayoutUpdate = () => {
+      if (layoutQueued) return;
+      layoutQueued = true;
+      requestAnimationFrame(() => {
+        layoutQueued = false;
+        normalizeRows(tbody);
+        updateToggleText();
+      });
+    };
+
+    // 只监听回合行本身的增删；不再监听每个按钮/统计卡片的内部 DOM 变化。
+    const observer = new MutationObserver(scheduleLayoutUpdate);
+    observer.observe(tbody, {childList:true});
 
     document.addEventListener('change', event => {
       if (event.target instanceof HTMLSelectElement && event.target.classList.contains('scorer') && tbody.contains(event.target)) {
-        queueMicrotask(updateToggleText);
+        requestAnimationFrame(updateToggleText);
       }
     }, true);
 
