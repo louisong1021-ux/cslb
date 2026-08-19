@@ -1,4 +1,4 @@
-/* Touch-first match entry layout for phones and iPads. */
+/* Unified match entry layout: desktop uses the same UI as iPad. */
 .mobile-stats-toggle,.mobile-stats-close,.mobile-stats-backdrop{display:none}
 
 /* The utility actions are intentionally removed from the visible UI. */
@@ -6,7 +6,7 @@
 .topbar{justify-content:center!important}
 .brand{margin:0 auto;text-align:center}
 
-@media (max-width: 1180px), (hover: none) and (pointer: coarse){
+@media all{
   body.mobile-stats-visible{overflow:hidden}
   .page{padding:8px 8px 24px}
   .entry-grid{display:block}
@@ -165,7 +165,7 @@
   .reason-list{grid-template-columns:1fr}
 }
 
-@media (min-width: 700px) and (max-width: 1180px){
+@media (min-width:700px){
   .page{padding:10px 12px 28px}
   .record-panel{max-width:1060px;margin:0 auto;padding:12px}
 
@@ -210,12 +210,12 @@
   .results-grid{grid-template-columns:1fr}
 }
 
-@media (max-width: 699px){
+@media (max-width:699px){
   .topbar{height:50px;min-height:50px}
   .brand{font-size:16px}
 }
 
-@media (max-width: 430px){
+@media (max-width:430px){
   #rallyBody td{grid-template-columns:102px minmax(0,1fr);padding:8px}
   .live-score{width:100%;text-align:center;padding-top:2px}
   .under-table .add-btn{width:100%;flex-basis:100%}
