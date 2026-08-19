@@ -11,7 +11,7 @@
     const recordCount = document.querySelector('#recordCount');
     const pageHeader = document.querySelector('.topbar');
 
-    if (!recordPanel || !toolbar || !games || !addBtn || !resultsBtn || !clearBtn) {
+    if (!recordPanel || !toolbar || !games || !addBtn || !resultsBtn) {
       requestAnimationFrame(init);
       return;
     }
@@ -31,9 +31,11 @@
     games.classList.add('top-game-actions');
     addBtn.classList.add('top-primary-action', 'top-primary-add');
     resultsBtn.classList.add('top-primary-action', 'top-primary-results');
-    clearBtn.classList.add('top-primary-action', 'top-primary-clear');
 
-    actionRow.append(games, addBtn, resultsBtn, clearBtn, resetBtn);
+    // “清空本局”容易误触且与逐分删除/刷新清空功能重复，直接从录入界面移除。
+    clearBtn?.remove();
+
+    actionRow.append(games, addBtn, resultsBtn, resetBtn);
     toolbar.insertAdjacentElement('afterend', actionRow);
 
     resetBtn.addEventListener('click', () => {
