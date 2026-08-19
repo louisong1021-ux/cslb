@@ -87,11 +87,6 @@ html,body,button,input,select,textarea,[role="button"],.cycle-choice,.rally-numb
     text-align:left;
     line-height:1.25;
   }
-  #rallyBody td.number-choice-cell{
-    grid-template-columns:minmax(0,1fr)!important;
-    gap:0;
-  }
-  #rallyBody td.number-choice-cell::before{display:none!important}
   #rallyBody td:first-child{
     min-height:38px;
     background:#f5f8fd!important;
