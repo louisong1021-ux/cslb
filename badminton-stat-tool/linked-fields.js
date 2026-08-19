@@ -2,9 +2,9 @@
   const tbody = document.querySelector('#rallyBody');
   if (!tbody) return;
 
-  const WIN_REASONS = new Set(['男生杀球','女生封网','平抽挡得分','防守反击得分','对方主动失误','对方被迫失误','发接发抢攻','其他得分']);
-  const LOSS_REASONS = new Set(['男生失误','女生失误','防守被杀穿','轮转错误','发接发被抢','主动进攻丢分','判断失误','其他丢分']);
-  const LINKED_SELECTS = new Set(['scorer','server','serveActive','returnActive','first3','attacked','reason']);
+  const WIN_REASONS = new Set(['男生杀球','男生吊球/劈吊','女生封网','女生扑球','网前搓放得分','平抽挡得分','防守反击得分','发接发抢攻','对方主动失误','对方受压失误','其他得分']);
+  const LOSS_REASONS = new Set(['男生主动进攻失误','男生网前失误','女生网前失误','女生防守失误','发球失误','接发失误','发接发被抢','平抽挡被压死','防守被杀穿','网前被扑死','轮转错误','判断/让球失误','其他丢分']);
+  const LINKED_SELECTS = new Set(['scorer','server','first3','reason']);
 
   let scheduled = false;
   let lastChanged = null;
@@ -16,7 +16,7 @@
 
   function dispatchField(el, next) {
     if (!el || String(el.value) === String(next)) return false;
-    el.value = next;
+    el.value = String(next);
     const type = el.tagName === 'INPUT' ? 'input' : 'change';
     el.dispatchEvent(new Event(type, { bubbles: true }));
     if (el.tagName === 'INPUT') el.dispatchEvent(new Event('change', { bubbles: true }));
@@ -25,27 +25,6 @@
 
   function setField(row, cls, next) {
     return dispatchField(field(row, cls), next);
-  }
-
-  function setButtonText(button, text) {
-    if (button.textContent !== text) button.textContent = text;
-  }
-
-  function setDisabled(row, cls, disabled, textWhenDisabled = '—') {
-    const select = field(row, cls);
-    if (!select) return;
-    const button = select.nextElementSibling;
-    if (!button?.classList.contains('cycle-choice')) return;
-    button.disabled = !!disabled;
-    button.classList.toggle('linked-disabled', !!disabled);
-    if (disabled) {
-      setButtonText(button, textWhenDisabled);
-      button.setAttribute('aria-disabled', 'true');
-    } else {
-      button.removeAttribute('aria-disabled');
-      const option = select.options?.[select.selectedIndex];
-      setButtonText(button, option ? (option.value || '请选择') : (select.value || '请选择'));
-    }
   }
 
   function schedule(index = null, changed = null) {
@@ -72,39 +51,11 @@
     return false;
   }
 
-  function syncService(row, changed) {
-    const server = value(row, 'server');
-    const serve = field(row, 'serveActive');
-    const ret = field(row, 'returnActive');
-    const first3 = field(row, 'first3');
-    if (!serve || !ret || !first3) return false;
-
-    if (server === '我方') {
-      if (ret.value !== '不适用') return setField(row, 'returnActive', '不适用');
-      if (serve.value === '不适用') return setField(row, 'serveActive', first3.value === '我方' ? '是' : '否');
-    } else if (server === '对方') {
-      if (serve.value !== '不适用') return setField(row, 'serveActive', '不适用');
-      if (ret.value === '不适用') return setField(row, 'returnActive', first3.value === '我方' ? '是' : '否');
-    }
-
-    const activeCls = server === '我方' ? 'serveActive' : 'returnActive';
-    const active = field(row, activeCls);
-    if (changed === 'first3') {
-      const desired = first3.value === '我方' ? '是' : '否';
-      if (active && active.value !== desired) return setField(row, activeCls, desired);
-    }
-    if ((changed === 'serveActive' || changed === 'returnActive') && active?.value === '是' && first3.value !== '我方') {
-      return setField(row, 'first3', '我方');
-    }
-    return false;
-  }
-
-  function ensureCounterAtLeastOne(row, counterClass, legacyClass) {
-    const counter = field(row, counterClass) || field(row, legacyClass);
+  function ensureCounterAtLeastOne(row, counterClass) {
+    const counter = field(row, counterClass);
     if (!counter) return false;
-    const numeric = Number(counter.value);
-    if (Number.isFinite(numeric)) return numeric < 1 ? dispatchField(counter, 1) : false;
-    return counter.value !== '是' ? dispatchField(counter, '是') : false;
+    const numeric = Math.max(0, Number(counter.value) || 0);
+    return numeric < 1 ? dispatchField(counter, 1) : false;
   }
 
   function syncReason(row, changed) {
@@ -119,20 +70,13 @@
       const n = Number(value(row, 'maleAttack')) || 0;
       if (n < 1) return setField(row, 'maleAttack', 1);
     }
-    if (reason === '女生封网' && ensureCounterAtLeastOne(row, 'femaleNetCount', 'femaleNet')) return true;
-    if (reason === '防守反击得分' && ensureCounterAtLeastOne(row, 'defenseToAttackCount', 'defenseToAttack')) return true;
+    if (reason === '女生封网' && ensureCounterAtLeastOne(row, 'femaleNetCount')) return true;
+    if (reason === '防守反击得分' && ensureCounterAtLeastOne(row, 'defenseToAttackCount')) return true;
+    if (reason === '女生防守失误' && ensureCounterAtLeastOne(row, 'femaleTargetCount')) return true;
+    if (reason === '轮转错误' && ensureCounterAtLeastOne(row, 'rotationCount')) return true;
     if (reason === '发接发抢攻' && value(row, 'first3') !== '我方') return setField(row, 'first3', '我方');
-    if (reason === '轮转错误' && value(row, 'rotation') !== '是') return setField(row, 'rotation', '是');
     if (reason === '发接发被抢' && value(row, 'first3') !== '对方') return setField(row, 'first3', '对方');
     return false;
-  }
-
-  function refreshDisabledStates() {
-    rows().forEach(row => {
-      const server = value(row, 'server');
-      setDisabled(row, 'serveActive', server !== '我方');
-      setDisabled(row, 'returnActive', server !== '对方');
-    });
   }
 
   function stabilize(index, changed) {
@@ -142,14 +86,7 @@
       if (syncServerChain()) return;
       const rs = rows();
       const row = Number.isInteger(index) ? rs[index] : null;
-      if (row) {
-        if (syncReason(row, changed)) return;
-        if (syncService(row, changed)) return;
-      }
-      for (const r of rs) {
-        if (syncService(r, null)) return;
-      }
-      refreshDisabledStates();
+      if (row && syncReason(row, changed)) return;
     } finally {
       stabilizing = false;
     }
@@ -158,7 +95,7 @@
   document.addEventListener('change', event => {
     const el = event.target;
     if (!(el instanceof HTMLSelectElement) || !tbody.contains(el)) return;
-    const key = Array.from(el.classList).find(c => c !== 'native-cycle-select');
+    const key = Array.from(el.classList).find(c => !['native-cycle-select','event-number-select'].includes(c));
     if (!LINKED_SELECTS.has(key)) return;
     const idx = Number(el.dataset.i);
     schedule(Number.isInteger(idx) ? idx : null, key || null);
