@@ -12,7 +12,7 @@
 <body>
   <div class="loading">正在加载羽毛球统计工具<br><br><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
   <script>
-    const APP_VERSION='20260819-serverreceiverhint1';
+    const APP_VERSION='20260819-serverreceiverhint2';
     Promise.all(['parts/part0.html','parts/part1.html','parts/part2.html'].map(p=>fetch(`${p}?v=${APP_VERSION}`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(p);return r.text()})))
       .then(parts=>{
         document.open();document.write(parts.join(''));document.close();
