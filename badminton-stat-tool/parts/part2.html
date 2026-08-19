@@ -1,47 +1,55 @@
-    const returnYes=count(r=>r.server==='对方'&&r.returnActive==='是');
+    const returnYes=count(r=>r.server==='对方'&&r.first3==='我方');
     const first3Our=count(r=>r.first3==='我方');
     const maleAttacks=rallies.filter(r=>r.maleAttack>0); const avgAttack=maleAttacks.length?maleAttacks.reduce((s,r)=>s+r.maleAttack,0)/maleAttacks.length:0;
     const attackWins=maleAttacks.filter(r=>r.scorer==='我方').length;
-    const femaleNetApps=rallies.filter(r=>r.femaleNet!=='不适用'); const femaleNetYes=femaleNetApps.filter(r=>r.femaleNet==='是').length;
-    const femaleDefApps=rallies.filter(r=>r.femaleDefense!=='不适用'); const femaleDefYes=femaleDefApps.filter(r=>r.femaleDefense==='是').length;
-    const dtaApps=rallies.filter(r=>r.defenseToAttack!=='不适用'); const dtaYes=dtaApps.filter(r=>r.defenseToAttack==='是').length;
+    const femaleNetTotal=sum('femaleNetCount');
+    const femaleTargetTotal=sum('femaleTargetCount');
+    const femaleDefenseTotal=sum('femaleDefenseCount');
+    const femaleDefenseMiss=Math.max(0,femaleTargetTotal-femaleDefenseTotal);
+    const dtaTotal=sum('defenseToAttackCount');
+    const forcedMale=sum('forcedLiftMaleCount'), forcedFemale=sum('forcedLiftFemaleCount');
+    const rotations=sum('rotationCount');
     const ours=count(r=>r.scorer==='我方'), theirs=rallies.length-ours;
     return {
       n:rallies.length, ours,theirs,
       serveRate:ratio(serveYes,ourServe.length), serveYes,serveDen:ourServe.length,
       returnRate:ratio(returnYes,oppServe.length), returnYes,returnDen:oppServe.length,
       first3Rate:ratio(first3Our,rallies.length), first3Our,
-      femaleBreak:count(r=>r.femaleBreak==='是'),
+      femaleBreak:femaleDefenseMiss,
+      femaleTargetTotal,femaleDefenseTotal,femaleDefenseMiss,
       avgAttack, attackRate:ratio(attackWins,maleAttacks.length),attackWins,attackDen:maleAttacks.length,
-      femaleNetRate:ratio(femaleNetYes,femaleNetApps.length),femaleNetYes,femaleNetDen:femaleNetApps.length,
-      femaleDefRate:ratio(femaleDefYes,femaleDefApps.length),femaleDefYes,femaleDefDen:femaleDefApps.length,
-      dtaRate:ratio(dtaYes,dtaApps.length),dtaYes,dtaDen:dtaApps.length,
-      forcedMale:count(r=>r.forcedLift==='男'),forcedFemale:count(r=>r.forcedLift==='女'),
-      rotations:count(r=>r.rotation==='是'), attackedMale:count(r=>r.attacked==='男'),attackedFemale:count(r=>r.attacked==='女'),attackedMid:count(r=>r.attacked==='中间'),
-      maleErrors:count(r=>r.reason==='男生失误'), femaleErrors:count(r=>r.reason==='女生失误'),
+      femaleNetTotal,
+      femaleDefRate:ratio(femaleDefenseTotal,femaleTargetTotal),femaleDefYes:femaleDefenseTotal,femaleDefDen:femaleTargetTotal,
+      dtaTotal,
+      forcedMale,forcedFemale,
+      rotations, attackedMale:count(r=>r.attacked==='男'),attackedFemale:count(r=>r.attacked==='女'),attackedMid:count(r=>r.attacked==='中间'),
+      maleErrors:count(r=>['男生主动进攻失误','男生网前失误','男生失误'].includes(r.reason)), femaleErrors:count(r=>['女生网前失误','女生防守失误','女生失误'].includes(r.reason)),
       winReasons:reasonCount(rallies.filter(r=>r.scorer==='我方')), lossReasons:reasonCount(rallies.filter(r=>r.scorer==='对方'))
     };
   }
   function reasonCount(rows){const m={};rows.forEach(r=>{if(r.reason)m[r.reason]=(m[r.reason]||0)+1});return m}
-  function pct(v){return `${v.toFixed(0)}%`}
+  function pct(v){return `${(Number(v)||0).toFixed(0)}%`}
   function metric(label,value,sub=''){return `<div class="metric"><div class="metric-label">${label}</div><div class="metric-value">${value}</div><div class="metric-sub">${sub}</div></div>`}
   function renderSummaryOnly(){
     const g=currentGame(), s=aggregate(g.rallies), [a,b]=gameScore(g);
     els.recordCount.textContent=`本局已记录：${g.rallies.length} 分`; els.oursScore.textContent=a;els.theirsScore.textContent=b; els.sideScore.textContent=`${a} - ${b}`;
     els.liveStats.innerHTML = `
-      <div class="stat-card blue"><h3>发接发</h3><div class="metric-grid">${metric('发球后3拍主动率',pct(s.serveRate),`${s.serveYes} / ${s.serveDen}`)}${metric('接发后3拍主动率',pct(s.returnRate),`${s.returnYes} / ${s.returnDen}`)}${metric('前三拍主动权（我方占比）',pct(s.first3Rate),`${s.first3Our} / ${s.n}`)}${metric('发接发抢攻丢分',s.lossReasons['发接发被抢']||0,'次')}</div></div>
-      <div class="stat-card green"><h3>进攻</h3><div class="metric-grid">${metric('男生平均连续进攻拍数',s.avgAttack.toFixed(1),s.attackDen?`${s.attackDen} 次进攻`:'无进攻记录')}${metric('男生进攻转化率',pct(s.attackRate),`${s.attackWins} / ${s.attackDen}`)}${metric('女生封网成功率',pct(s.femaleNetRate),`${s.femaleNetYes} / ${s.femaleNetDen}`)}${metric('防守转攻成功率',pct(s.dtaRate),`${s.dtaYes} / ${s.dtaDen}`)}</div></div>
-      <div class="stat-card orange"><h3>防守</h3><div class="metric-grid">${metric('女生被突破次数',s.femaleBreak,'次')}${metric('女生防守成功率',pct(s.femaleDefRate),`${s.femaleDefYes} / ${s.femaleDefDen}`)}</div><div class="mini-list">被动挑球来源　男：${s.forcedMale}　女：${s.forcedFemale}</div></div>
-      <div class="stat-card purple"><h3>战术</h3><div class="metric-grid">${metric('轮转错误次数',s.rotations,'次')}${metric('主动进攻丢分',s.lossReasons['主动进攻丢分']||0,'次')}</div><div class="mini-list">被攻击对象　男：${s.attackedMale}　女：${s.attackedFemale}　中间：${s.attackedMid}</div></div>
-      <div class="stat-card cyan"><h3>得失分</h3><div class="metric-grid">${metric('男生直接失误',s.maleErrors,'次')}${metric('女生直接失误',s.femaleErrors,'次')}</div><div class="mini-list"><b>我方得分 TOP：</b>${topText(s.winReasons)}<br><b>我方丢分 TOP：</b>${topText(s.lossReasons)}</div></div>`;
+      <div class="stat-card blue"><h3>发接发</h3><div class="metric-grid">${metric('发球前三拍主动率',pct(s.serveRate),`${s.serveYes} / ${s.serveDen}`)}${metric('接发前三拍主动率',pct(s.returnRate),`${s.returnYes} / ${s.returnDen}`)}${metric('前三拍主动权（我方占比）',pct(s.first3Rate),`${s.first3Our} / ${s.n}`)}${metric('发接发直接/被抢丢分',(s.lossReasons['发球失误']||0)+(s.lossReasons['接发失误']||0)+(s.lossReasons['发接发被抢']||0),'次')}</div></div>
+      <div class="stat-card green"><h3>进攻</h3><div class="metric-grid">${metric('男生平均连续进攻拍数',s.avgAttack.toFixed(1),s.attackDen?`${s.attackDen} 次进攻`:'无进攻记录')}${metric('男生进攻转化率',pct(s.attackRate),`${s.attackWins} / ${s.attackDen}`)}${metric('女生封网成功次数',s.femaleNetTotal,'次')}${metric('防守转攻成功次数',s.dtaTotal,'次')}</div></div>
+      <div class="stat-card orange"><h3>防守</h3><div class="metric-grid">${metric('女生受攻次数',s.femaleTargetTotal,'次')}${metric('女生防守成功次数',s.femaleDefenseTotal,s.femaleTargetTotal?`成功率 ${pct(s.femaleDefRate)}`:'暂无受攻样本')}</div><div class="mini-list">被动挑球次数　男：${s.forcedMale} 次　女：${s.forcedFemale} 次</div></div>
+      <div class="stat-card purple"><h3>战术</h3><div class="metric-grid">${metric('轮转错误次数',s.rotations,'次')}${metric('判断/让球失误',s.lossReasons['判断/让球失误']||0,'次')}</div><div class="mini-list">被攻击对象　男：${s.attackedMale}　女：${s.attackedFemale}　中间：${s.attackedMid}</div></div>
+      <div class="stat-card cyan"><h3>得失分</h3><div class="metric-grid">${metric('男生失误',s.maleErrors,'次')}${metric('女生失误',s.femaleErrors,'次')}</div><div class="mini-list"><b>我方得分 TOP：</b>${topText(s.winReasons)}<br><b>我方丢分 TOP：</b>${topText(s.lossReasons)}</div></div>`;
   }
   function topText(map){const a=Object.entries(map).sort((x,y)=>y[1]-x[1]).slice(0,3);return a.length?a.map(([k,v])=>`${k} ${v}`).join(' · '):'暂无'}
 
   function addRally(){
     const g=currentGame(); let server='我方'; if(g.rallies.length){server=g.rallies[g.rallies.length-1].scorer;}
-    const r=defaultRally(server); if(server==='我方'){r.serveActive='否';r.returnActive='不适用'}else{r.serveActive='不适用';r.returnActive='否'}
+    const r=defaultRally(server);
+    const prev=g.rallies[g.rallies.length-1];
+    if(prev && prev.server===server && prev.scorer===server) r.serverPerson=prev.serverPerson||'';
+    syncDerived(r);
     g.rallies.push(r); saveState(); renderAll();
-    requestAnimationFrame(()=>{const wrap=document.querySelector('.table-wrap');wrap.scrollTop=wrap.scrollHeight;});
+    requestAnimationFrame(()=>{const wrap=document.querySelector('.table-wrap');if(wrap)wrap.scrollTop=wrap.scrollHeight;});
   }
   function clearGame(){ if(!confirm(`确定清空第${state.currentGame+1}局的所有记录吗？`))return; currentGame().rallies=[];saveState();renderAll(); }
 
@@ -50,14 +58,14 @@
     const s=aggregate(allRallies());
     let gwA=0,gwB=0,totalA=0,totalB=0; state.games.forEach(g=>{const [a,b]=gameScore(g);totalA+=a;totalB+=b;if(a>b)gwA++;else if(b>a)gwB++;});
     $('#matchScore').textContent=`${gwA} - ${gwB}　｜　${totalA} - ${totalB}`;
-    const kpis=[['接发前三拍主动率',pct(s.returnRate),`${s.returnYes}/${s.returnDen}`],['女生被突破',s.femaleBreak+' 次','越低越好'],['男生进攻转化率',pct(s.attackRate),`${s.attackWins}/${s.attackDen}`],['女生封网成功率',pct(s.femaleNetRate),`${s.femaleNetYes}/${s.femaleNetDen}`],['轮转错误',s.rotations+' 次','越低越好']];
+    const kpis=[['接发前三拍主动率',pct(s.returnRate),`${s.returnYes}/${s.returnDen}`],['女生防守成功',s.femaleDefenseTotal+' 次',`受攻 ${s.femaleTargetTotal} 次`],['男生进攻转化率',pct(s.attackRate),`${s.attackWins}/${s.attackDen}`],['女生封网成功',s.femaleNetTotal+' 次','实际发生次数'],['轮转错误',s.rotations+' 次','越低越好']];
     $('#kpiRow').innerHTML=kpis.map(([l,v,n])=>`<div class="kpi"><div class="label">${l}</div><div class="value">${v}</div><div class="note">${n}</div></div>`).join('');
-    const bars=[['发球前三拍主动率',s.serveRate],['接发前三拍主动率',s.returnRate],['前三拍主动权',s.first3Rate],['男生进攻转化率',s.attackRate],['女生封网成功率',s.femaleNetRate],['女生防守成功率',s.femaleDefRate],['防守转攻成功率',s.dtaRate]];
+    const bars=[['发球前三拍主动率',s.serveRate],['接发前三拍主动率',s.returnRate],['前三拍主动权',s.first3Rate],['男生进攻转化率',s.attackRate],['女生受攻防守率',s.femaleDefRate]];
     $('#performanceBars').innerHTML=bars.map(([l,v])=>`<div class="bar-row"><div>${l}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,v)}%"></div></div><b>${pct(v)}</b></div>`).join('');
     $('#recommendations').innerHTML=buildRecommendations(s).map(x=>`<div class="recommendation">${x}</div>`).join('');
     renderRank('#winRank',s.winReasons);renderRank('#lossRank',s.lossReasons);
-    const headers=['局','比分','发球主动率','接发主动率','女生被突破','男生进攻转化率','女生封网率','轮转错误'];
-    const rows=state.games.map((g,i)=>{const x=aggregate(g.rallies),[a,b]=gameScore(g);return [i+1,`${a}-${b}`,pct(x.serveRate),pct(x.returnRate),x.femaleBreak,pct(x.attackRate),pct(x.femaleNetRate),x.rotations]});
+    const headers=['局','比分','发球主动率','接发主动率','女生受攻','女生防守成功','男生进攻转化率','女生封网','轮转错误'];
+    const rows=state.games.map((g,i)=>{const x=aggregate(g.rallies),[a,b]=gameScore(g);return [i+1,`${a}-${b}`,pct(x.serveRate),pct(x.returnRate),x.femaleTargetTotal,x.femaleDefenseTotal,pct(x.attackRate),x.femaleNetTotal,x.rotations]});
     $('#gameCompare').innerHTML=`<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>`;
   }
   function renderRank(sel,map){const a=Object.entries(map).sort((x,y)=>y[1]-x[1]).slice(0,3);$(sel).innerHTML=a.length?a.map(([k,v],i)=>`<div class="rank-item"><span>${i+1}. ${k}</span><b>${v}</b></div>`).join(''):'<div style="color:#8794a6;font-size:13px">暂无数据</div>'}
@@ -65,30 +73,29 @@
     const arr=[];
     if(s.n<8) arr.push('目前样本较少。建议至少记录 15–20 分后再判断训练重点，避免被个别回合影响。');
     if(s.returnDen>=3 && s.returnRate<45) arr.push(`接发前三拍主动率只有 ${pct(s.returnRate)}。优先练接发落点、第二拍封压和第三拍衔接，目标先提高到 55% 以上。`);
-    if(s.serveDen>=3 && s.serveRate<50) arr.push(`发球后前三拍主动率 ${pct(s.serveRate)}。重点检查发球质量、发球后的第一步以及对第三拍的预判。`);
-    if(s.femaleBreak>=4) arr.push(`女生被突破 ${s.femaleBreak} 次偏多。专项训练女生反手防守、身体位防守和被压后回前场的恢复步。`);
-    if(s.femaleDefDen>=3 && s.femaleDefRate<60) arr.push(`女生防守成功率 ${pct(s.femaleDefRate)}。先把“防起并继续回合”的稳定性练到 65%–70%，再追求反击质量。`);
+    if(s.serveDen>=3 && s.serveRate<50) arr.push(`发球前三拍主动率 ${pct(s.serveRate)}。重点检查发球质量、发球后的第一步以及对第三拍的预判。`);
+    if(s.femaleTargetTotal>=4 && s.femaleDefRate<65) arr.push(`女生受攻 ${s.femaleTargetTotal} 次，成功防起 ${s.femaleDefenseTotal} 次，成功率 ${pct(s.femaleDefRate)}。优先练连续防守稳定性。`);
     if(s.attackDen>=3 && s.attackRate<55) arr.push(`男生进攻转化率 ${pct(s.attackRate)}。不要只加重杀，重点练第一拍制造弱回球、第二拍变线以及杀后跟进。`);
-    if(s.femaleNetDen>=3 && s.femaleNetRate<60) arr.push(`女生封网成功率 ${pct(s.femaleNetRate)}。加强网前启动、拍子举高、直线封压与中路拦截。`);
     if(s.rotations>=3) arr.push(`轮转错误 ${s.rotations} 次。建议用限制性 2 对 2 练“谁上谁退、杀后谁跟、挡网后怎么换位”，把轮转做成固定反应。`);
-    if((s.forcedFemale+s.forcedMale)>=4 && s.forcedFemale>s.forcedMale*1.5) arr.push(`被动挑球更多来自女生（女 ${s.forcedFemale} / 男 ${s.forcedMale}）。说明女生在中前场承压后容易把主动权交回去，应增加平抽、挡网和推腰处理。`);
+    if((s.forcedFemale+s.forcedMale)>=4 && s.forcedFemale>s.forcedMale*1.5) arr.push(`造成被动挑球更多来自女生（女 ${s.forcedFemale} / 男 ${s.forcedMale}）。说明女生在中前场制造起球的贡献更高，可继续强化这一优势。`);
     if(!arr.length) arr.push('目前各项指标比较均衡。下一阶段可以把训练重点放到比赛针对性：不同接发站位、不同防守对象，以及领先/落后时的战术选择。');
     return arr.slice(0,5);
   }
 
-  function renderAll(){renderTabs();renderTable();renderSummaryOnly();saveState();}
-  $('#addRallyBtn').onclick=addRally; $('#clearGameBtn').onclick=clearGame;
+  function renderAll(){state=normalizeState(state);renderTabs();renderTable();renderSummaryOnly();saveState();}
+  $('#addRallyBtn').onclick=addRally; const clearGameBtn=$('#clearGameBtn'); if(clearGameBtn)clearGameBtn.onclick=clearGame;
   $('#viewResultsBtn').onclick=()=>{renderResults();els.entryView.classList.add('hidden');els.resultsView.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})};
   $('#backBtn').onclick=()=>{els.resultsView.classList.remove('active');els.entryView.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})};
   $('#helpBtn').onclick=()=>$('#helpModal').classList.add('show'); $('#closeHelp').onclick=()=>$('#helpModal').classList.remove('show');
   $('#helpModal').onclick=e=>{if(e.target.id==='helpModal')e.currentTarget.classList.remove('show')};
   $('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');state.theme=document.body.classList.contains('dark')?'dark':'light';saveState()};
   if(state.theme==='dark')document.body.classList.add('dark');
-  $('#exportBtn').onclick=()=>{
+  const exportBtn=$('#exportBtn'), importBtn=$('#importBtn'), fileInput=$('#fileInput');
+  if(exportBtn)exportBtn.onclick=()=>{
     const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='badminton-match-stats.json';a.click();URL.revokeObjectURL(a.href);toast('数据已导出');
   };
-  $('#importBtn').onclick=()=>$('#fileInput').click();
-  $('#fileInput').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d.games)throw 0;state=d;saveState();renderAll();toast('数据已导入')}catch{alert('无法读取该数据文件')}};rd.readAsText(f);e.target.value=''};
+  if(importBtn&&fileInput)importBtn.onclick=()=>fileInput.click();
+  if(fileInput)fileInput.onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d.games)throw 0;state=normalizeState(d);saveState();renderAll();toast('数据已导入')}catch{alert('无法读取该数据文件')}};rd.readAsText(f);e.target.value=''};
 
   renderReasons();renderAll();
 })();
