@@ -87,12 +87,16 @@
         margin:0!important;
       }
       .delete-current-rally{
+        width:42px;
+        min-width:42px;
         min-height:40px;
-        padding:8px 14px;
+        padding:6px;
         border:1px solid #efb6b6;
         border-radius:9px;
         background:#fff2f2;
         color:#bd2d2d;
+        font-size:19px;
+        line-height:1;
         font-weight:800;
         white-space:nowrap;
       }
@@ -207,7 +211,7 @@
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'delete-current-rally';
-    button.textContent = '删除';
+    button.textContent = '🗑';
     button.setAttribute('aria-label', '删除当前回合');
     button.title = '删除当前回合';
     wrap.appendChild(button);
