@@ -81,7 +81,7 @@
     const style = document.createElement('style');
     style.id = 'countEventStatsStyle';
     style.textContent = `
-      #optimizedLiveCard{display:none!important}
+      #optimizedLiveCard .opt-live-grid>div:nth-child(2){display:none!important}
       #eventCountPanel .opt-card-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
       #eventCountPanel .opt-mini-card b{font-size:24px}
       @media(max-width:700px){#eventCountPanel .opt-card-grid{grid-template-columns:1fr 1fr}}
@@ -163,6 +163,21 @@
     }
   }
 
+  function criticalRate(rows) {
+    let ours = 0, theirs = 0, count = 0, wins = 0;
+    rows.forEach(r => {
+      const high = Math.max(ours, theirs);
+      const critical = (high >= 15 && Math.abs(ours - theirs) <= 2) || high >= 18;
+      if (critical) {
+        count++;
+        if (r.scorer === '我方') wins++;
+      }
+      if (r.scorer === '我方') ours++;
+      else theirs++;
+    });
+    return count ? `${Math.round(wins / count * 100)}%` : '—';
+  }
+
   function gameEventRows(state) {
     return state.games.map((g, i) => {
       const rows = g.rallies || [];
@@ -173,14 +188,23 @@
       const ret = rows.filter(r => r.server === '对方');
       const serveYes = serve.filter(r => r.serveActive === '是').length;
       const retYes = ret.filter(r => r.returnActive === '是').length;
+      const attacks = rows.filter(r => Number(r.maleAttack) > 0);
+      const attackWins = attacks.filter(r => r.scorer === '我方').length;
+      const chain1 = rows.filter(r => r.first3 === '我方');
+      const chain2 = chain1.filter(r => r.forcedLift === '男' || r.forcedLift === '女');
+      const chain3 = chain2.filter(r => Number(r.maleAttack) > 0);
+      const chain4 = chain3.filter(r => r.scorer === '我方');
       const pct = (n, d) => d ? `${Math.round(n / d * 100)}%` : '—';
       return [
         i + 1,
         `${ours}-${theirs}`,
         pct(serveYes, serve.length),
         pct(retYes, ret.length),
-        countText(s.femaleNetYes),
         countText(s.femaleDefenseYes),
+        pct(attackWins, attacks.length),
+        pct(chain4.length, chain1.length),
+        criticalRate(rows),
+        countText(s.femaleNetYes),
         countText(s.defenseToAttackYes),
         countText(s.rotations)
       ];
@@ -190,7 +214,7 @@
   function updateGameCompare(state) {
     const table = document.getElementById('gameCompare');
     if (!table) return;
-    const headers = ['局', '比分', '发球前三拍', '接发前三拍', '女生封网成功', '女生防守成功', '防守转攻成功', '轮转错误'];
+    const headers = ['局', '比分', '发球前三拍', '接发前三拍', '女生防守成功', '男生进攻', '完整链', '关键分', '女生封网成功', '防守转攻成功', '轮转错误'];
     const rows = gameEventRows(state);
     table.innerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(row => `<tr>${row.map(v => `<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>`;
   }
