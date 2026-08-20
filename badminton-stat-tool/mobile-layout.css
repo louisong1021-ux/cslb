@@ -6,7 +6,11 @@ html,body,button,input,select,textarea,[role="button"],.cycle-choice,.rally-numb
 
 /* The utility actions are intentionally removed from the visible UI. */
 .top-actions{display:none!important}
-.topbar{justify-content:center!important}
+.topbar{
+  justify-content:center!important;
+  position:static!important;
+  top:auto!important;
+}
 .brand{margin:0 auto;text-align:center}
 
 @media all{
@@ -100,13 +104,13 @@ html,body,button,input,select,textarea,[role="button"],.cycle-choice,.rally-numb
   #rallyBody .delete-row{justify-self:end;padding:5px 10px}
 
   .under-table{
-    position:sticky;
-    bottom:0;
-    z-index:12;
+    position:static;
+    bottom:auto;
+    z-index:auto;
     margin:0 -4px;
     padding:9px 4px 8px;
-    background:color-mix(in srgb,var(--panel) 94%,transparent);
-    backdrop-filter:blur(8px);
+    background:var(--panel);
+    backdrop-filter:none;
     border-top:1px solid var(--line);
   }
   .add-btn{flex:1;min-height:42px;font-size:14px}
