@@ -1,10 +1,10 @@
-name: Deploy badminton stats tool to GitHub Pages
+name: Deploy player database to GitHub Pages
 
 on:
   push:
     branches: ["main"]
     paths:
-      - "badminton-stat-tool/**"
+      - "player-database/**"
       - ".github/workflows/deploy-badminton-pages.yml"
   workflow_dispatch:
 
@@ -30,10 +30,15 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
+      - name: Build Pages artifact
+        run: |
+          mkdir -p _site/player-database
+          cp player-database/index.html _site/player-database/index.html
+          touch _site/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: badminton-stat-tool
+          path: _site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
