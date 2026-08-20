@@ -2,7 +2,7 @@
 html,body,button,input,select,textarea,[role="button"],.cycle-choice,.rally-number{
   touch-action:manipulation;
 }
-.mobile-stats-toggle,.mobile-stats-close,.mobile-stats-backdrop{display:none}
+.mobile-stats-toggle,.stats-page-back{display:none}
 
 /* The utility actions are intentionally removed from the visible UI. */
 .top-actions{display:none!important}
@@ -10,10 +10,10 @@ html,body,button,input,select,textarea,[role="button"],.cycle-choice,.rally-numb
 .brand{margin:0 auto;text-align:center}
 
 @media all{
-  body.mobile-stats-visible{overflow:hidden}
   .page{padding:8px 8px 24px}
   .entry-grid{display:block}
   .record-panel{padding:10px;border-radius:10px}
+  .record-panel.stats-page-hidden{display:none!important}
 
   .topbar{
     min-height:52px;
@@ -115,45 +115,60 @@ html,body,button,input,select,textarea,[role="button"],.cycle-choice,.rally-numb
   .result-selector{display:none}
   .view-results{width:100%;margin:14px 0 4px;min-height:46px}
 
+  /* 实时统计和“查看统计结果”一样，作为独立页面显示，不再使用浮层。 */
   .stats-panel{display:none!important}
   .stats-panel.mobile-open{
     display:block!important;
-    position:fixed!important;
-    left:8px;
-    right:8px;
-    bottom:8px;
-    top:auto!important;
-    z-index:101;
-    max-height:82vh;
-    overflow:auto;
-    padding:14px 12px 16px;
-    border-radius:16px;
-    box-shadow:0 24px 60px rgba(5,20,41,.34);
+    position:static!important;
+    width:min(100%,1060px);
+    max-height:none!important;
+    overflow:visible!important;
+    margin:0 auto;
+    padding:12px;
+    border-radius:10px;
+    box-shadow:var(--shadow);
   }
-  .mobile-stats-close{
-    display:block;
-    position:sticky;
-    top:0;
-    z-index:2;
-    float:right;
-    border:1px solid var(--line);
-    background:var(--panel);
-    color:var(--text);
-    border-radius:999px;
-    width:34px;
-    height:34px;
-    margin:-3px -2px 3px 8px;
+  .stats-page-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+  .stats-page-top h1{
+    margin:0;
     font-size:20px;
-    line-height:1;
+    color:var(--text);
   }
-  .mobile-stats-backdrop{
-    position:fixed;
-    inset:0;
-    z-index:100;
-    background:rgba(5,20,41,.48);
-    backdrop-filter:blur(2px);
+  .stats-panel.mobile-open .stats-page-back{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:40px;
   }
-  body.mobile-stats-visible .mobile-stats-backdrop{display:block}
+  .stats-panel.mobile-open>.section-title{
+    margin:0 0 12px!important;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    background:color-mix(in srgb,var(--panel) 92%,#eef5ff);
+  }
+  .stats-panel.mobile-open #liveStats{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  .stats-panel.mobile-open #liveStats>.stat-card{
+    margin:0;
+  }
+  .stats-panel.mobile-open .score-footer{
+    margin-top:12px;
+    min-height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
 
   .privacy{font-size:11px;margin-top:8px}
 
@@ -209,6 +224,15 @@ html,body,button,input,select,textarea,[role="button"],.cycle-choice,.rally-numb
   .add-btn{max-width:360px}
   .live-score{font-size:15px}
 
+  .stats-panel.mobile-open #liveStats{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .stats-panel.mobile-open #liveStats>.stat-card:first-child,
+  .stats-panel.mobile-open #liveStats>#optimizedLiveCard,
+  .stats-panel.mobile-open #liveStats>#ourServerLiveCard{
+    grid-column:1 / -1;
+  }
+
   .kpi-row{grid-template-columns:repeat(3,1fr)}
   .results-grid{grid-template-columns:1fr}
 }
@@ -216,6 +240,9 @@ html,body,button,input,select,textarea,[role="button"],.cycle-choice,.rally-numb
 @media (max-width:699px){
   .topbar{height:50px;min-height:50px}
   .brand{font-size:16px}
+  .stats-page-top{align-items:stretch}
+  .stats-page-top h1{width:100%;order:-1}
+  .stats-page-back{width:100%}
 }
 
 @media (max-width:430px){
