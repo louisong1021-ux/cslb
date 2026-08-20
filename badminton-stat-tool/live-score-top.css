@@ -1,0 +1,11 @@
+.stats-panel.mobile-open{
+  display:flex!important;
+  flex-direction:column;
+}
+.stats-panel.mobile-open>.stats-page-top{order:1}
+.stats-panel.mobile-open>.section-title{order:2}
+.stats-panel.mobile-open>.score-footer{
+  order:3;
+  margin:0 0 12px!important;
+}
+.stats-panel.mobile-open>#liveStats{order:4}
