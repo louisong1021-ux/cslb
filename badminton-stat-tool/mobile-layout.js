@@ -87,7 +87,7 @@
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = 'mobile-stats-toggle';
-    toggle.innerHTML = '📊 <span>第1局 · 回合 0 · 我方 0 - 对方 0</span>';
+    toggle.innerHTML = '📊 <span>第1局 · 回合 0 · 我方 0 - 0 对方</span>';
     const tableWrap = recordPanel.querySelector('.table-wrap');
     recordPanel.insertBefore(toggle, tableWrap);
 
@@ -136,8 +136,8 @@
         else if (scorer === '对方') theirs += 1;
       });
       const rounds = rows.length;
-      toggle.querySelector('span').textContent = `${game} · 回合 ${rounds} · 我方 ${ours} - 对方 ${theirs}`;
-      toggle.setAttribute('aria-label', `查看${game}实时统计，当前${rounds}回合，我方${ours}分，对方${theirs}分`);
+      toggle.querySelector('span').textContent = `${game} · 回合 ${rounds} · 我方 ${ours} - ${theirs} 对方`;
+      toggle.setAttribute('aria-label', `查看${game}实时统计，当前${rounds}回合，我方${ours}分，${theirs}分对方`);
     }
 
     let layoutQueued = false;
