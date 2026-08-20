@@ -1,10 +1,11 @@
-name: Deploy player database to GitHub Pages
+name: Deploy CSLB tools to GitHub Pages
 
 on:
   push:
     branches: ["main"]
     paths:
       - "player-database/**"
+      - "badminton-stat-tool/**"
       - ".github/workflows/deploy-badminton-pages.yml"
   workflow_dispatch:
 
@@ -32,8 +33,9 @@ jobs:
           enablement: true
       - name: Build Pages artifact
         run: |
-          mkdir -p _site/player-database
-          cp player-database/index.html _site/player-database/index.html
+          mkdir -p _site/player-database _site/badminton-stat-tool
+          cp -R player-database/. _site/player-database/
+          cp -R badminton-stat-tool/. _site/badminton-stat-tool/
           touch _site/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
