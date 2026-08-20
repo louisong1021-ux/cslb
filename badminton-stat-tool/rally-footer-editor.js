@@ -75,6 +75,15 @@
     applyMode();
   }
 
+  function suspendFooter() {
+    footer.classList.add('rally-footer-suspended');
+  }
+
+  function resumeFooter() {
+    footer.classList.remove('rally-footer-suspended');
+    queueMicrotask(showLatestInline);
+  }
+
   function sync() {
     scheduled = false;
     const list = rows();
@@ -127,13 +136,13 @@
 
   addBtn.addEventListener('click', () => scheduleSync(), true);
 
-  viewResultsBtn?.addEventListener('click', () => {
-    footer.classList.add('rally-footer-suspended');
-  }, true);
+  viewResultsBtn?.addEventListener('click', suspendFooter, true);
+  backBtn?.addEventListener('click', resumeFooter, true);
 
-  backBtn?.addEventListener('click', () => {
-    footer.classList.remove('rally-footer-suspended');
-    queueMicrotask(showLatestInline);
+  // 实时统计是独立页面，进入时隐藏回合页脚；返回录入时恢复。
+  document.addEventListener('badminton:open-stats', suspendFooter);
+  document.addEventListener('click', event => {
+    if (event.target.closest('.stats-page-back')) resumeFooter();
   }, true);
 
   const observer = new MutationObserver(scheduleSync);
