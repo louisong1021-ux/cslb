@@ -91,32 +91,38 @@
     const tableWrap = recordPanel.querySelector('.table-wrap');
     recordPanel.insertBefore(toggle, tableWrap);
 
-    const close = document.createElement('button');
-    close.type = 'button';
-    close.className = 'mobile-stats-close';
-    close.setAttribute('aria-label', '关闭统计');
-    close.textContent = '×';
-    statsPanel.prepend(close);
+    const statsTop = document.createElement('div');
+    statsTop.className = 'stats-page-top';
 
-    const backdrop = document.createElement('div');
-    backdrop.className = 'mobile-stats-backdrop';
-    document.body.appendChild(backdrop);
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'stats-page-back back-btn';
+    back.textContent = '← 返回录入';
+    back.setAttribute('aria-label', '返回比赛录入');
+
+    const heading = document.createElement('h1');
+    heading.textContent = '实时统计';
+    statsTop.append(back, heading);
+    statsPanel.prepend(statsTop);
 
     const openStats = () => {
+      recordPanel.classList.add('stats-page-hidden');
       statsPanel.classList.add('mobile-open');
-      document.body.classList.add('mobile-stats-visible');
+      document.body.classList.add('stats-page-visible');
       document.dispatchEvent(new CustomEvent('badminton:open-stats'));
-      close.focus({preventScroll:true});
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      requestAnimationFrame(() => back.focus({ preventScroll: true }));
     };
     const closeStats = () => {
       statsPanel.classList.remove('mobile-open');
-      document.body.classList.remove('mobile-stats-visible');
+      recordPanel.classList.remove('stats-page-hidden');
+      document.body.classList.remove('stats-page-visible');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      requestAnimationFrame(() => toggle.focus({ preventScroll: true }));
     };
 
     toggle.addEventListener('click', openStats);
-    close.addEventListener('click', closeStats);
-    backdrop.addEventListener('click', closeStats);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeStats(); });
+    back.addEventListener('click', closeStats);
 
     function updateToggleText() {
       const rawGame = document.querySelector('#statsGameLabel')?.textContent?.trim() || '第1局';
@@ -131,7 +137,7 @@
       });
       const rounds = rows.length;
       toggle.querySelector('span').textContent = `${game} · 回合 ${rounds} · 我方 ${ours} - 对方 ${theirs}`;
-      toggle.setAttribute('aria-label', `打开${game}统计，当前${rounds}回合，我方${ours}分，对方${theirs}分`);
+      toggle.setAttribute('aria-label', `查看${game}实时统计，当前${rounds}回合，我方${ours}分，对方${theirs}分`);
     }
 
     let layoutQueued = false;
