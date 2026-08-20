@@ -78,14 +78,14 @@
 
 @media all{
   .top-primary-actions{
-    position:sticky;
-    top:0;
-    z-index:15;
+    position:static;
+    top:auto;
+    z-index:auto;
     margin:0 -2px 8px;
     padding:7px 2px;
     gap:6px;
-    background:color-mix(in srgb,var(--panel) 94%,transparent);
-    backdrop-filter:blur(8px);
+    background:var(--panel);
+    backdrop-filter:none;
     border-bottom:1px solid var(--line);
   }
   .top-primary-actions .game-tab,
