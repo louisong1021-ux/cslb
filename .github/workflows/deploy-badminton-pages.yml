@@ -6,6 +6,7 @@ on:
     paths:
       - "player-database/**"
       - "badminton-stat-tool/**"
+      - "badminton-tactics-board/**"
       - ".github/workflows/deploy-badminton-pages.yml"
   workflow_dispatch:
 
@@ -33,9 +34,10 @@ jobs:
           enablement: true
       - name: Build Pages artifact
         run: |
-          mkdir -p _site/player-database _site/badminton-stat-tool
+          mkdir -p _site/player-database _site/badminton-stat-tool _site/badminton-tactics-board
           cp -R player-database/. _site/player-database/
           cp -R badminton-stat-tool/. _site/badminton-stat-tool/
+          cp -R badminton-tactics-board/. _site/badminton-tactics-board/
           touch _site/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
