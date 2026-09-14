@@ -2,32 +2,31 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="light" />
-<title>2650 Monterey Rd｜收入与结算总览</title>
+<title>2650 Monterey Rd｜收入汇总及结算过程</title>
 <style>
-:root{--navy:#173b67;--navy2:#244f7f;--text:#162033;--muted:#687386;--line:#d9e1ea;--blue:#eaf3ff;--green:#edf9f0;--gold:#fff6df;--red:#fff0f0;--purple:#f3efff;--surface:#fff;--bg:#f5f8fc;--shadow:0 12px 30px rgba(29,54,88,.09);--radius:16px}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;line-height:1.5}.page{max-width:1180px;margin:0 auto;padding:26px 18px 46px}header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:20px;padding:26px 30px;box-shadow:var(--shadow);display:flex;justify-content:space-between;gap:24px;align-items:flex-start}header h1{margin:0;font-size:32px;line-height:1.18}header p{margin:8px 0 0;color:#d9e7f6;font-size:15px}.stamp{font-size:13px;color:#d9e7f6;text-align:right;white-space:nowrap}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}.card{border-radius:var(--radius);padding:18px 18px 16px;border:1px solid var(--line);background:#fff;box-shadow:0 4px 12px rgba(32,54,84,.04)}.card.blue{background:var(--blue);border-color:#b8d6ff}.card.green{background:var(--green);border-color:#bee5c8}.card.gold{background:var(--gold);border-color:#f1d991}.card.red{background:var(--red);border-color:#f4c2c2}.card .label{font-size:13px;color:var(--muted);font-weight:700}.card .value{font-size:27px;font-weight:800;margin-top:8px}.card .note{font-size:12px;color:var(--muted);margin-top:5px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}section{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 5px 15px rgba(32,54,84,.04);overflow:hidden}section h2{margin:0;padding:14px 16px;background:#f3f7fb;border-bottom:1px solid var(--line);font-size:18px}section.green h2{background:#eff8f1}.section-body{padding:0}.wide{grid-column:1/-1}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 12px;border-bottom:1px solid #e7ecf2;text-align:left;vertical-align:top}th{background:#fafbfd;font-weight:700;color:#405069}td.amount,th.amount{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.strong{font-weight:800}.subtotal{background:#f8fafc}.profit{background:#eef8ef}.final{background:#f2efff;font-weight:800}.negative{color:#b01f24}.positive{color:#0a6b38}.recon{background:#fff9ea;border:1px solid #efd58a;border-radius:14px;padding:14px 16px;margin:14px 16px;color:#5e4a12}.recon strong{color:#3e3008}.recon .delta{color:#a05a00;font-weight:800}.chip{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#eef3f8;color:#41536a;font-size:12px;font-weight:700;margin:0 6px 6px 0}.callout{margin:16px 0 0;background:#edf9f0;border:1px solid #b7e0c3;border-radius:16px;padding:17px 20px;text-align:center;font-size:21px;font-weight:800;color:#155b30}.foot{margin-top:14px;color:var(--muted);font-size:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px}@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.wide{grid-column:auto}header{flex-direction:column}.stamp{text-align:left}header h1{font-size:27px}}@media(max-width:520px){.page{padding:12px 10px 30px}.cards{grid-template-columns:1fr}.card .value{font-size:25px}table{font-size:12px}th,td{padding:8px 7px}header{padding:20px}.callout{font-size:18px}}
+:root{--navy:#173b67;--navy2:#244f7f;--text:#162033;--muted:#687386;--line:#d9e1ea;--blue:#eaf3ff;--green:#edf9f0;--gold:#fff6df;--red:#fff0f0;--surface:#fff;--bg:#f5f8fc;--shadow:0 12px 30px rgba(29,54,88,.09);--radius:16px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;line-height:1.45}.page{max-width:1180px;margin:0 auto;padding:26px 18px 46px}header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:20px;padding:26px 30px;box-shadow:var(--shadow);display:flex;justify-content:space-between;gap:24px;align-items:flex-start}header h1{margin:0;font-size:32px;line-height:1.18}header p{margin:8px 0 0;color:#d9e7f6;font-size:15px}.stamp{font-size:13px;color:#d9e7f6;text-align:right;white-space:nowrap}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}.card{border-radius:var(--radius);padding:18px 18px 16px;border:1px solid var(--line);background:#fff;box-shadow:0 4px 12px rgba(32,54,84,.04)}.card.blue{background:var(--blue);border-color:#b8d6ff}.card.green{background:var(--green);border-color:#bee5c8}.card.gold{background:var(--gold);border-color:#f1d991}.card.red{background:var(--red);border-color:#f4c2c2}.card .label{font-size:13px;color:var(--muted);font-weight:700}.card .value{font-size:27px;font-weight:800;margin-top:8px}.card .note{font-size:12px;color:var(--muted);margin-top:5px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}section{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 5px 15px rgba(32,54,84,.04);overflow:hidden}.wide{grid-column:1/-1}section h2{margin:0;padding:14px 16px;background:#f3f7fb;border-bottom:1px solid var(--line);font-size:18px}section.green h2{background:#eff8f1}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 12px;border-bottom:1px solid #e7ecf2;text-align:left;vertical-align:top}th{background:#fafbfd;font-weight:700;color:#405069}td.amount,th.amount{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.strong{font-weight:800}.subtotal{background:#f8fafc}.profit{background:#eef8ef}.final{background:#f2efff;font-weight:800}.negative{color:#b01f24}.positive{color:#0a6b38}.recon{background:#fff9ea;border:1px solid #efd58a;border-radius:14px;padding:14px 16px;margin:14px 16px;color:#5e4a12}.recon strong{color:#3e3008}.recon .delta{color:#a05a00;font-weight:800}.chip{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#eef3f8;color:#41536a;font-size:12px;font-weight:700;margin:0 6px 6px 0}.callout{margin:16px 0 0;background:#edf9f0;border:1px solid #b7e0c3;border-radius:16px;padding:17px 20px;text-align:center;font-size:21px;font-weight:800;color:#155b30}.foot{margin-top:14px;color:var(--muted);font-size:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px}
+.fold{border-top:1px solid var(--line);background:#fff}.fold:first-of-type{border-top:0}.fold summary{list-style:none;cursor:pointer;padding:17px 18px;display:flex;justify-content:space-between;align-items:center;gap:16px;font-weight:800;background:#fbfcfe;min-height:58px}.fold summary::-webkit-details-marker{display:none}.fold summary .left{display:flex;align-items:center;gap:10px}.fold summary .chev{width:24px;height:24px;border-radius:50%;background:#eaf1f8;display:inline-grid;place-items:center;font-size:14px;transition:transform .18s ease}.fold[open] summary .chev{transform:rotate(90deg)}.fold summary .sum{font-variant-numeric:tabular-nums;color:#173b67;white-space:nowrap}.fold summary:hover{background:#f4f8fc}.fold summary:focus-visible{outline:3px solid #8bbcff;outline-offset:-3px}.fold-content{border-top:1px solid var(--line)}.fold-note{padding:11px 14px 14px;color:var(--muted);font-size:12px;background:#fafbfd}.cashbox{padding:14px 16px;background:#f8fafc;border-top:1px solid var(--line);font-size:13px}.cashbox strong{font-size:15px}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.wide{grid-column:auto}header{flex-direction:column}.stamp{text-align:left}header h1{font-size:27px}}@media(max-width:520px){.page{padding:12px 10px 30px}.cards{grid-template-columns:1fr}.card .value{font-size:25px}table{font-size:12px}th,td{padding:8px 7px}header{padding:20px}.callout{font-size:18px}.fold summary{padding:14px 12px;align-items:flex-start}.fold summary .sum{white-space:normal;text-align:right}}
 </style>
 </head>
 <body>
 <main class="page">
-<header>
-  <div><h1>2650 Monterey Rd 项目<br>收入、支出与结算总览</h1><p>Income · Expense · Settlement Summary</p></div>
-  <div class="stamp">当前结算口径<br>仅供内部核对</div>
-</header>
+<header><div><h1>2650 Monterey Rd 项目<br>收入汇总及结算过程</h1><p>Income Summary & Settlement Calculation</p></div><div class="stamp">当前结算口径<br>仅供内部核对</div></header>
 
 <div class="cards">
-  <div class="card blue"><div class="label">项目总应收（毛收入）</div><div class="value">$150,252.03</div><div class="note">按 U&amp;P 完整记录计算</div></div>
-  <div class="card green"><div class="label">U&amp;P / 你已收</div><div class="value">$71,500.00</div><div class="note">Invoice 1 + Invoice 2 + 合同外已付</div></div>
-  <div class="card gold"><div class="label">你的项目成本</div><div class="value">$18,200.00</div><div class="note">施工相关 $13,200 + 律师费 $5,000</div></div>
-  <div class="card red"><div class="label">你的全部现金流出</div><div class="value">$42,800.00</div><div class="note">项目成本 $18,200 + 客户退款 $24,600</div></div>
+<div class="card blue"><div class="label">项目总应收（毛收入）</div><div class="value">$150,252.03</div><div class="note">按 U&amp;P 完整记录计算</div></div>
+<div class="card green"><div class="label">U&amp;P / 你已收</div><div class="value">$71,500.00</div><div class="note">点击下方“你的收入明细”查看</div></div>
+<div class="card gold"><div class="label">本次结算 Kevin 新收</div><div class="value">$8,152.03</div><div class="note">按 U&amp;P 合同外记录；其中 $800 待确认</div></div>
+<div class="card red"><div class="label">Kevin 后续待收</div><div class="value">$21,900.00</div><div class="note">全部由 Kevin 收：水电 $16,500 + 空调 $5,400</div></div>
 </div>
 
 <div class="grid">
 <section>
 <h2>一、项目收入汇总</h2>
-<div class="section-body"><table>
+<table>
 <thead><tr><th>收入项目</th><th class="amount">金额</th><th>收款方 / 状态</th></tr></thead>
 <tbody>
 <tr><td>U&amp;P 已收</td><td class="amount">$71,500.00</td><td>已收</td></tr>
@@ -39,12 +38,16 @@
 <tr class="subtotal"><td class="strong">Kevin 本次结算后累计收到</td><td class="amount strong">$56,852.03</td><td>$48,700 + $8,152.03</td></tr>
 <tr class="subtotal"><td class="strong">Kevin 后续待收合计</td><td class="amount strong">$21,900.00</td><td>水电 + 空调，全部进入 Kevin 账户</td></tr>
 <tr class="subtotal"><td class="strong">项目总应收</td><td class="amount strong">$150,252.03</td><td>当前按 U&amp;P 记录</td></tr>
-</tbody></table></div>
+</tbody></table>
+<div class="recon"><strong>合同外对账差异：</strong>U&amp;P 记录合同外总额 <strong>$19,152.03</strong>；房东记录 <strong>$18,352.03</strong>，相差 <span class="delta">$800.00</span>。差异为 <strong>铝合金窗拆除费 $600</strong> + <strong>滞纳金 $200</strong>。双方均确认合同外已支付 <strong>$11,000</strong>。因此按 U&amp;P 记录本次尚付 <strong>$8,152.03</strong>；按房东记录本次尚付 <strong>$7,352.03</strong>。当前主结算暂按 U&amp;P 完整记录计算，$800 待确认。</div>
 </section>
 
 <section class="green">
-<h2>二、你的收入明细（U&amp;P 已收 $71,500）</h2>
-<div class="section-body"><table>
+<h2>二、你的收入 / 支出明细（点击展开）</h2>
+<details class="fold">
+<summary><span class="left"><span class="chev">›</span><span>你的收入明细</span></span><span class="sum">已收 $71,500</span></summary>
+<div class="fold-content">
+<table>
 <thead><tr><th>来源</th><th>项目</th><th class="amount">金额</th></tr></thead>
 <tbody>
 <tr><td>Invoice 1</td><td>拆除 / 清理</td><td class="amount">$8,000.00</td></tr>
@@ -57,48 +60,37 @@
 <tr><td>合同外</td><td>已支付合同外款</td><td class="amount">$11,000.00</td></tr>
 <tr class="profit"><td></td><td class="strong">U&amp;P / 你已收合计</td><td class="amount strong">$71,500.00</td></tr>
 </tbody></table>
-<div class="recon"><strong>说明：</strong>合同外已支付的 <strong>$11,000</strong> 已确认计入你的已收款，但目前没有可靠资料能把这 $11,000 精确对应到合同外清单中的具体项目，因此按“合同外已支付合计”列示，不人为拆分。</div>
+<div class="fold-note">合同外已支付的 $11,000 已确认计入你的已收款，但目前没有可靠资料能把这 $11,000 精确对应到合同外清单中的具体项目，因此按总额列示，不人为拆分。</div>
 </div>
-</section>
+</details>
 
-<section class="green">
-<h2>三、你的支出明细</h2>
-<div class="section-body"><table>
+<details class="fold">
+<summary><span class="left"><span class="chev">›</span><span>你的支出明细</span></span><span class="sum">项目成本 $18,200</span></summary>
+<div class="fold-content">
+<table>
 <thead><tr><th>支出项目</th><th class="amount">金额</th><th>性质</th></tr></thead>
 <tbody>
-<tr><td>第一次垃圾清运</td><td class="amount negative">$3,600.00</td><td>项目成本</td></tr>
-<tr><td>第二次垃圾清运</td><td class="amount negative">$5,000.00</td><td>项目成本</td></tr>
-<tr><td>封窗</td><td class="amount negative">$1,200.00</td><td>项目成本</td></tr>
-<tr><td>第一次围栏</td><td class="amount negative">$800.00</td><td>项目成本</td></tr>
-<tr><td>第二次围栏</td><td class="amount negative">$600.00</td><td>项目成本</td></tr>
-<tr><td>院墙 / 墙体拆除</td><td class="amount negative">$1,500.00</td><td>项目成本</td></tr>
-<tr><td>围栏 Permit</td><td class="amount negative">$500.00</td><td>项目成本</td></tr>
+<tr><td>第一次垃圾清运</td><td class="amount">$3,600.00</td><td>项目成本</td></tr>
+<tr><td>第二次垃圾清运</td><td class="amount">$5,000.00</td><td>项目成本</td></tr>
+<tr><td>封窗</td><td class="amount">$1,200.00</td><td>项目成本</td></tr>
+<tr><td>第一次围栏</td><td class="amount">$800.00</td><td>项目成本</td></tr>
+<tr><td>第二次围栏</td><td class="amount">$600.00</td><td>项目成本</td></tr>
+<tr><td>院墙 / 墙体拆除</td><td class="amount">$1,500.00</td><td>项目成本</td></tr>
+<tr><td>围栏 Permit</td><td class="amount">$500.00</td><td>项目成本</td></tr>
 <tr class="subtotal"><td class="strong">施工相关支出小计</td><td class="amount strong">$13,200.00</td><td></td></tr>
-<tr><td>律师费</td><td class="amount negative">$5,000.00</td><td>项目成本</td></tr>
-<tr class="profit"><td class="strong">你的项目成本合计</td><td class="amount strong">$18,200.00</td><td>$13,200 + $5,000</td></tr>
-<tr><td>退还客户预付款</td><td class="amount negative">$24,600.00</td><td>客户退款，单独列示，不并入项目成本</td></tr>
+<tr><td>律师费</td><td class="amount">$5,000.00</td><td>项目成本</td></tr>
+<tr class="profit"><td class="strong">你的项目成本合计</td><td class="amount strong">$18,200.00</td><td></td></tr>
+<tr><td>客户退款</td><td class="amount">$24,600.00</td><td>单独现金流出，不计入项目成本</td></tr>
 <tr class="final"><td class="strong">你的全部现金流出</td><td class="amount strong">$42,800.00</td><td>$18,200 + $24,600</td></tr>
 </tbody></table>
-<div class="recon"><strong>另列：</strong>电箱维修 <strong>$600</strong> 是你另外替 Kevin 做的项目，属于 <strong>Kevin 欠你的应收款</strong>，不是 2650 项目支出，因此只在最终双方结算时抵扣。</div>
+<div class="cashbox"><strong>当前资金：</strong> $71,500 − $18,200 − $24,600 = <strong>$28,700</strong><br><span style="color:var(--muted)">另：Kevin 欠你的电箱维修 $600，属于单独应收，不计入 2650 项目成本。</span></div>
 </div>
-</section>
-
-<section>
-<h2>四、合同外款对账差异</h2>
-<div class="section-body"><table>
-<thead><tr><th>口径</th><th class="amount">合同外总额</th><th class="amount">已支付</th><th class="amount">本次尚付</th></tr></thead>
-<tbody>
-<tr><td>U&amp;P 记录</td><td class="amount">$19,152.03</td><td class="amount">$11,000.00</td><td class="amount strong">$8,152.03</td></tr>
-<tr><td>房东记录</td><td class="amount">$18,352.03</td><td class="amount">$11,000.00</td><td class="amount strong">$7,352.03</td></tr>
-<tr class="subtotal"><td class="strong">差异</td><td class="amount strong">$800.00</td><td class="amount"></td><td class="amount strong">$800.00</td></tr>
-</tbody></table>
-<div class="recon"><strong>差异来源：</strong><span class="delta">$800.00</span> = <strong>铝合金窗拆除费 $600</strong> + <strong>滞纳金 $200</strong>。当前主结算暂按 U&amp;P 完整记录，本次合同外尚付采用 <strong>$8,152.03</strong>，其中 $800 待双方确认。</div>
-</div>
+</details>
 </section>
 
 <section class="wide green">
-<h2>五、结算计算过程（当前口径）</h2>
-<div class="section-body"><table>
+<h2>三、结算计算过程（当前口径）</h2>
+<table>
 <thead><tr><th>步骤</th><th>项目</th><th class="amount">金额</th></tr></thead>
 <tbody>
 <tr><td>1</td><td>项目总应收（按 U&amp;P 记录）</td><td class="amount">$150,252.03</td></tr>
@@ -110,48 +102,33 @@
 <tr class="profit"><td></td><td class="strong">本次可分利润</td><td class="amount strong positive">$34,715.03</td></tr>
 <tr><td>7</td><td>利润 50/50：每人应得</td><td class="amount strong">$17,357.515</td></tr>
 </tbody></table>
-<div class="recon"><strong>差异影响：</strong>如果最终房东只认可其合同外记录，本次参与结算收入将少 $800，可分利润少 $800，每人利润少 $400；对应最终你净支付 Kevin 将从 <strong>$10,742.49</strong> 调整为 <strong>$11,142.49</strong>。当前主结算仍按 U&amp;P 记录计算。</div>
-</div>
+<div class="recon"><strong>差异影响：</strong>如果最终房东只认可其合同外记录，合同外本次尚付从 $8,152.03 降为 $7,352.03，本次参与结算收入少 $800、可分利润少 $800、每人利润少 $400。对应最终你净支付 Kevin 将从 <strong>$10,742.49</strong> 调整为 <strong>$11,142.49</strong>。当前主结算仍按 U&amp;P 记录计算。</div>
 </section>
 
 <section>
-<h2>六、你的当前资金情况</h2>
-<div class="section-body"><table>
-<thead><tr><th>项目</th><th class="amount">金额</th></tr></thead>
-<tbody>
-<tr><td>你已收款</td><td class="amount">$71,500.00</td></tr>
-<tr><td>减：你的项目成本</td><td class="amount negative">−$18,200.00</td></tr>
+<h2>四、你的当前资金情况</h2>
+<table><thead><tr><th>项目</th><th class="amount">金额</th></tr></thead><tbody>
+<tr><td>已收款（U&amp;P）</td><td class="amount">$71,500.00</td></tr>
 <tr><td>减：客户退款</td><td class="amount negative">−$24,600.00</td></tr>
+<tr><td>减：你的项目成本（含律师费）</td><td class="amount negative">−$18,200.00</td></tr>
 <tr class="subtotal"><td class="strong">你目前实际剩余</td><td class="amount strong">$28,700.00</td></tr>
 <tr><td>你应保留的利润</td><td class="amount">$17,357.515</td></tr>
 <tr class="final"><td>你应补给 Kevin（2650 项目）</td><td class="amount">$11,342.485</td></tr>
-</tbody></table></div>
+</tbody></table>
 </section>
 
 <section>
-<h2>七、最终结算结果</h2>
-<div class="section-body"><table>
-<thead><tr><th>项目</th><th class="amount">金额</th></tr></thead>
-<tbody>
+<h2>五、最终结算结果</h2>
+<table><thead><tr><th>项目</th><th class="amount">金额</th></tr></thead><tbody>
 <tr><td>你应补给 Kevin（2650 项目）</td><td class="amount">$11,342.485</td></tr>
 <tr><td>减：Kevin 另欠你的电箱维修</td><td class="amount negative">−$600.00</td></tr>
 <tr class="final"><td class="strong">最终你净支付 Kevin</td><td class="amount strong">$10,742.49</td></tr>
-</tbody></table></div>
+</tbody></table>
 </section>
 
 <section class="wide">
-<h2>八、口径说明</h2>
-<div style="padding:14px 16px">
-<span class="chip">利润 50/50</span>
-<span class="chip">退款由 U&amp;P/Rui 支付</span>
-<span class="chip">你的项目成本 $18,200</span>
-<span class="chip">客户退款 $24,600 单独列示</span>
-<span class="chip">合同外已付 $11,000</span>
-<span class="chip">合同外差异 $800 待确认</span>
-<span class="chip">Kevin 后续 $21,900 全部由 Kevin 收</span>
-<span class="chip">暂不计 Kevin 后续支出 $13,115</span>
-<p style="margin:10px 0 0;font-size:13px;color:var(--muted)">本页面按当前确认的临时结算口径展示。后续若双方确认合同外 $800 差异、把 Kevin 后续水电/空调收入 $21,900 或 Kevin 后续预计支出 $13,115 纳入结算，应重新计算最终金额。</p>
-</div>
+<h2>六、口径说明</h2>
+<div style="padding:14px 16px"><span class="chip">利润 50/50</span><span class="chip">退款由 U&amp;P/Rui 支付</span><span class="chip">合同外已付 $11,000</span><span class="chip">合同外差异 $800 待确认</span><span class="chip">当前按 U&amp;P 尚付 $8,152.03</span><span class="chip">Kevin 后续 $21,900 全部由 Kevin 收</span><span class="chip">暂不计 Kevin 后续支出 $13,115</span><p style="margin:8px 0 0;font-size:13px;color:var(--muted)">“你的收入明细”和“你的支出明细”已改为可点击展开 / 收起的折叠区，默认收起，点击标题即可查看完整项目。</p></div>
 </section>
 </div>
 
