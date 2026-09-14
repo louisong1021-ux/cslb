@@ -31,6 +31,8 @@
     .wide{grid-column:1/-1}.callout{margin:16px 0 0;background:#edf9f0;border:1px solid #b7e0c3;border-radius:16px;padding:17px 20px;text-align:center;font-size:21px;font-weight:800;color:#155b30}
     .foot{margin-top:14px;color:var(--muted);font-size:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px}
     .chip{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#eef3f8;color:#41536a;font-size:12px;font-weight:700;margin-right:6px}
+    .recon{background:#fff9ea;border:1px solid #efd58a;border-radius:14px;padding:14px 16px;margin:14px 16px;color:#5e4a12}
+    .recon strong{color:#3e3008}.recon .delta{color:#a05a00;font-weight:800}
     @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.wide{grid-column:auto}header{flex-direction:column}.stamp{text-align:left}header h1{font-size:27px}}
     @media(max-width:520px){.page{padding:12px 10px 30px}.cards{grid-template-columns:1fr}.card .value{font-size:25px}table{font-size:12px}th,td{padding:8px 7px}header{padding:20px}.callout{font-size:18px}}
     @media print{body{background:#fff}.page{max-width:none;padding:0}header,section,.card,.foot{box-shadow:none}.cards{gap:8px}.grid{gap:8px}.callout{break-inside:avoid}}
@@ -47,9 +49,9 @@
     </header>
 
     <div class="cards">
-      <div class="card blue"><div class="label">项目总应收（毛收入）</div><div class="value">$150,252.03</div><div class="note">所有已收 + 待收</div></div>
+      <div class="card blue"><div class="label">项目总应收（毛收入）</div><div class="value">$150,252.03</div><div class="note">按 U&amp;P 完整记录计算</div></div>
       <div class="card green"><div class="label">本次结算前已收</div><div class="value">$120,200.00</div><div class="note">U&amp;P + Kevin 已实际收到</div></div>
-      <div class="card gold"><div class="label">本次结算 Kevin 新收</div><div class="value">$8,152.03</div><div class="note">合同外已完成未支付，由房东本次支付</div></div>
+      <div class="card gold"><div class="label">本次结算 Kevin 新收</div><div class="value">$8,152.03</div><div class="note">按 U&amp;P 合同外记录；其中 $800 与房东记录有差异</div></div>
       <div class="card red"><div class="label">Kevin 后续待收</div><div class="value">$21,900.00</div><div class="note">全部由 Kevin 收：水电 $16,500 + 空调 $5,400</div></div>
     </div>
 
@@ -64,14 +66,18 @@
               <tr><td>Kevin 已收</td><td class="amount">$48,700.00</td><td>已收</td></tr>
               <tr><td>水电尾款</td><td class="amount">$16,500.00</td><td>Kevin 后续收</td></tr>
               <tr><td>空调尾款</td><td class="amount">$5,400.00</td><td>Kevin 后续收</td></tr>
-              <tr><td>合同外已完成未支付</td><td class="amount">$8,152.03</td><td>本次结算时由房东支付给 Kevin</td></tr>
+              <tr><td>合同外已完成未支付</td><td class="amount">$8,152.03</td><td>按 U&amp;P 记录，本次结算时由房东支付给 Kevin</td></tr>
               <tr class="subtotal"><td class="strong">本次结算前已收合计</td><td class="amount strong">$120,200.00</td><td></td></tr>
-              <tr class="subtotal"><td class="strong">本次结算 Kevin 新收</td><td class="amount strong">$8,152.03</td><td>合同外款</td></tr>
+              <tr class="subtotal"><td class="strong">本次结算 Kevin 新收</td><td class="amount strong">$8,152.03</td><td>合同外款（含待确认差异 $800）</td></tr>
               <tr class="subtotal"><td class="strong">Kevin 本次结算后累计收到</td><td class="amount strong">$56,852.03</td><td>$48,700 + $8,152.03</td></tr>
               <tr class="subtotal"><td class="strong">Kevin 后续待收合计</td><td class="amount strong">$21,900.00</td><td>水电 + 空调，全部进入 Kevin 账户</td></tr>
-              <tr class="subtotal"><td class="strong">项目总应收</td><td class="amount strong">$150,252.03</td><td></td></tr>
+              <tr class="subtotal"><td class="strong">项目总应收</td><td class="amount strong">$150,252.03</td><td>当前按 U&amp;P 记录</td></tr>
             </tbody>
           </table>
+
+          <div class="recon">
+            <strong>合同外对账差异：</strong>U&amp;P 记录合同外总额为 <strong>$19,152.03</strong>；房东记录总额为 <strong>$18,352.03</strong>，两边相差 <span class="delta">$800.00</span>。差异对应 U&amp;P 记录中的 <strong>铝合金窗拆除费 $600</strong> + <strong>滞纳金 $200</strong>。双方均确认合同外已支付 <strong>$11,000</strong>。因此按 U&amp;P 记录，本次尚付 <strong>$8,152.03</strong>；按房东记录，本次尚付 <strong>$7,352.03</strong>。当前结算计算暂按 U&amp;P 完整记录 $8,152.03 处理，$800 待双方确认。
+          </div>
         </div>
       </section>
 
@@ -81,7 +87,7 @@
           <table>
             <thead><tr><th>步骤</th><th>项目</th><th class="amount">金额</th></tr></thead>
             <tbody>
-              <tr><td>1</td><td>项目总应收</td><td class="amount">$150,252.03</td></tr>
+              <tr><td>1</td><td>项目总应收（按 U&amp;P 记录）</td><td class="amount">$150,252.03</td></tr>
               <tr><td>2</td><td>减：暂不计算 Kevin 后续水电 + 空调待收</td><td class="amount negative">−$21,900.00</td></tr>
               <tr><td>3</td><td class="strong">本次参与结算收入</td><td class="amount strong">$128,352.03</td></tr>
               <tr><td>4</td><td>减：客户退款</td><td class="amount negative">−$24,600.00</td></tr>
@@ -91,6 +97,9 @@
               <tr><td>7</td><td>利润 50/50：每人应得</td><td class="amount strong">$17,357.515</td></tr>
             </tbody>
           </table>
+          <div class="recon">
+            <strong>差异影响：</strong>如果最终房东只认可其记录，合同外本次尚付将从 $8,152.03 降为 $7,352.03，本次参与结算收入少 $800、可分利润少 $800、每人利润少 $400。对应最终你净支付 Kevin 将从 <strong>$10,742.49</strong> 调整为 <strong>$11,142.49</strong>。此处仅作对账敏感性说明，当前主结算仍按 U&amp;P 记录计算。
+          </div>
         </div>
       </section>
 
@@ -130,15 +139,17 @@
         <div style="padding:14px 16px">
           <span class="chip">利润 50/50</span>
           <span class="chip">退款由 U&amp;P/Rui 支付</span>
-          <span class="chip">合同外 $8,152.03 本次房东付 Kevin</span>
+          <span class="chip">合同外已付 $11,000</span>
+          <span class="chip">合同外对账差异 $800 待确认</span>
+          <span class="chip">当前按 U&amp;P 合同外尚付 $8,152.03</span>
           <span class="chip">Kevin 后续水电+空调 $21,900 全部由 Kevin 收</span>
           <span class="chip">暂不计 Kevin 后续支出 $13,115</span>
-          <p style="margin:12px 0 0;font-size:13px;color:var(--muted)">本页面按当前确认的临时结算口径展示。合同外已完成未支付 $8,152.03 在本次结算时由房东直接支付给 Kevin，因此已计入本次参与结算收入；真正留到后续再收的仅为水电/空调 $21,900，且全部由 Kevin 收取。若以后把该 $21,900 或 Kevin 后续预计支出 $13,115 加回，最终结算金额需要重新计算。</p>
+          <p style="margin:12px 0 0;font-size:13px;color:var(--muted)">本页面按当前确认的临时结算口径展示。U&amp;P 合同外记录总额 $19,152.03，房东记录总额 $18,352.03，差异 $800 为铝合金窗拆除费 $600 与滞纳金 $200。双方均确认合同外已支付 $11,000。当前主结算暂按 U&amp;P 完整记录计算；若 $800 最终不被房东认可，则需要按房东记录重新调整结算结果。</p>
         </div>
       </section>
     </div>
 
-    <div class="callout">最终结论：你应净支付 Kevin $10,742.49</div>
+    <div class="callout">当前结论（按 U&amp;P 完整记录）：你应净支付 Kevin $10,742.49</div>
     <div class="foot">仅供内部账目核对，不构成最终法律、税务或会计意见。金额及项目性质应以双方最终书面确认、付款凭证及相关文件为准。</div>
   </main>
 </body>
