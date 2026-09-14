@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>2650 Monterey Rd｜收入汇总及结算过程</title>
+  <style>
+    :root{
+      --navy:#173b67; --navy2:#244f7f; --text:#162033; --muted:#687386; --line:#d9e1ea;
+      --blue:#eaf3ff; --green:#edf9f0; --gold:#fff6df; --red:#fff0f0; --purple:#f3efff;
+      --surface:#ffffff; --bg:#f5f8fc; --shadow:0 12px 30px rgba(29,54,88,.09);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;line-height:1.45}
+    .page{max-width:1180px;margin:0 auto;padding:26px 18px 46px}
+    header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:20px;padding:26px 30px;box-shadow:var(--shadow);display:flex;justify-content:space-between;gap:24px;align-items:flex-start}
+    header h1{margin:0;font-size:32px;line-height:1.18;letter-spacing:-.02em}
+    header p{margin:8px 0 0;color:#d9e7f6;font-size:15px}
+    .stamp{font-size:13px;color:#d9e7f6;text-align:right;white-space:nowrap}
+    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+    .card{border-radius:var(--radius);padding:18px 18px 16px;border:1px solid var(--line);background:#fff;box-shadow:0 4px 12px rgba(32,54,84,.04)}
+    .card.blue{background:var(--blue);border-color:#b8d6ff}.card.green{background:var(--green);border-color:#bee5c8}.card.gold{background:var(--gold);border-color:#f1d991}.card.red{background:var(--red);border-color:#f4c2c2}
+    .card .label{font-size:13px;color:var(--muted);font-weight:700}.card .value{font-size:27px;font-weight:800;margin-top:8px;letter-spacing:-.02em}.card .note{font-size:12px;color:var(--muted);margin-top:5px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+    section{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 5px 15px rgba(32,54,84,.04);overflow:hidden}
+    section h2{margin:0;padding:14px 16px;background:#f3f7fb;border-bottom:1px solid var(--line);font-size:18px}
+    section.green h2{background:#eff8f1}.section-body{padding:0}
+    table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 12px;border-bottom:1px solid #e7ecf2;text-align:left;vertical-align:top}th{background:#fafbfd;font-weight:700;color:#405069}td.amount,th.amount{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.strong{font-weight:800}.subtotal{background:#f8fafc}.profit{background:#eef8ef}.final{background:#f2efff;font-weight:800}.negative{color:#b01f24}.positive{color:#0a6b38}
+    .wide{grid-column:1/-1}.callout{margin:16px 0 0;background:#edf9f0;border:1px solid #b7e0c3;border-radius:16px;padding:17px 20px;text-align:center;font-size:21px;font-weight:800;color:#155b30}
+    .foot{margin-top:14px;color:var(--muted);font-size:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px}
+    .chip{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#eef3f8;color:#41536a;font-size:12px;font-weight:700;margin-right:6px}
+    @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.wide{grid-column:auto}header{flex-direction:column}.stamp{text-align:left}header h1{font-size:27px}}
+    @media(max-width:520px){.page{padding:12px 10px 30px}.cards{grid-template-columns:1fr}.card .value{font-size:25px}table{font-size:12px}th,td{padding:8px 7px}header{padding:20px}.callout{font-size:18px}}
+    @media print{body{background:#fff}.page{max-width:none;padding:0}header,section,.card,.foot{box-shadow:none}.cards{gap:8px}.grid{gap:8px}.callout{break-inside:avoid}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <h1>2650 Monterey Rd 项目<br>收入汇总及结算过程</h1>
+        <p>Income Summary & Settlement Calculation</p>
+      </div>
+      <div class="stamp">当前结算口径<br>仅供内部核对</div>
+    </header>
+
+    <div class="cards">
+      <div class="card blue"><div class="label">项目总应收（毛收入）</div><div class="value">$150,252.03</div><div class="note">所有已收 + 待收</div></div>
+      <div class="card green"><div class="label">目前已收合计</div><div class="value">$120,200.00</div><div class="note">U&amp;P + Kevin 已收</div></div>
+      <div class="card gold"><div class="label">后续待收合计</div><div class="value">$30,052.03</div><div class="note">水电 + 空调 + 合同外</div></div>
+      <div class="card red"><div class="label">退款后有效收入</div><div class="value">$125,652.03</div><div class="note">总应收 − 客户退款</div></div>
+    </div>
+
+    <div class="grid">
+      <section>
+        <h2>一、收入汇总</h2>
+        <div class="section-body">
+          <table>
+            <thead><tr><th>收入项目</th><th class="amount">金额</th><th>收款方 / 状态</th></tr></thead>
+            <tbody>
+              <tr><td>U&amp;P 已收</td><td class="amount">$71,500.00</td><td>已收</td></tr>
+              <tr><td>Kevin 已收</td><td class="amount">$48,700.00</td><td>已收</td></tr>
+              <tr><td>水电尾款</td><td class="amount">$16,500.00</td><td>Kevin 后续收</td></tr>
+              <tr><td>空调尾款</td><td class="amount">$5,400.00</td><td>Kevin 后续收</td></tr>
+              <tr><td>合同外已完成未支付</td><td class="amount">$8,152.03</td><td>Kevin 后续收</td></tr>
+              <tr class="subtotal"><td class="strong">目前已收合计</td><td class="amount strong">$120,200.00</td><td></td></tr>
+              <tr class="subtotal"><td class="strong">后续待收合计</td><td class="amount strong">$30,052.03</td><td></td></tr>
+              <tr class="subtotal"><td class="strong">项目总应收</td><td class="amount strong">$150,252.03</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="green">
+        <h2>二、结算计算过程（当前口径）</h2>
+        <div class="section-body">
+          <table>
+            <thead><tr><th>步骤</th><th>项目</th><th class="amount">金额</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>项目总应收</td><td class="amount">$150,252.03</td></tr>
+              <tr><td>2</td><td>减：暂不计算水电 + 空调待收</td><td class="amount negative">−$21,900.00</td></tr>
+              <tr><td>3</td><td class="strong">本次参与结算收入</td><td class="amount strong">$128,352.03</td></tr>
+              <tr><td>4</td><td>减：客户退款</td><td class="amount negative">−$24,600.00</td></tr>
+              <tr><td>5</td><td>减：你的项目成本（含律师费）</td><td class="amount negative">−$18,200.00</td></tr>
+              <tr><td>6</td><td>减：Kevin 当前支出</td><td class="amount negative">−$50,837.00</td></tr>
+              <tr class="profit"><td></td><td class="strong">本次可分利润</td><td class="amount strong positive">$34,715.03</td></tr>
+              <tr><td>7</td><td>利润 50/50：每人应得</td><td class="amount strong">$17,357.515</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>三、你的当前资金情况</h2>
+        <div class="section-body">
+          <table>
+            <thead><tr><th>项目</th><th class="amount">金额</th></tr></thead>
+            <tbody>
+              <tr><td>已收款（U&amp;P）</td><td class="amount">$71,500.00</td></tr>
+              <tr><td>减：客户退款</td><td class="amount negative">−$24,600.00</td></tr>
+              <tr><td>减：你的项目成本（含律师费）</td><td class="amount negative">−$18,200.00</td></tr>
+              <tr class="subtotal"><td class="strong">你目前实际剩余</td><td class="amount strong">$28,700.00</td></tr>
+              <tr><td>你应保留的利润</td><td class="amount">$17,357.515</td></tr>
+              <tr class="final"><td>你应补给 Kevin（2650 项目）</td><td class="amount">$11,342.485</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>四、最终结算结果</h2>
+        <div class="section-body">
+          <table>
+            <thead><tr><th>项目</th><th class="amount">金额</th></tr></thead>
+            <tbody>
+              <tr><td>你应补给 Kevin（2650 项目）</td><td class="amount">$11,342.485</td></tr>
+              <tr><td>减：Kevin 另欠你的电箱维修</td><td class="amount negative">−$600.00</td></tr>
+              <tr class="final"><td class="strong">最终你净支付 Kevin</td><td class="amount strong">$10,742.49</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="wide">
+        <h2>五、口径说明</h2>
+        <div style="padding:14px 16px">
+          <span class="chip">利润 50/50</span>
+          <span class="chip">退款由 U&amp;P/Rui 支付</span>
+          <span class="chip">合同外 $8,152.03 仍计入</span>
+          <span class="chip">暂不计水电+空调 $21,900</span>
+          <span class="chip">暂不计 Kevin 后续支出 $13,115</span>
+          <p style="margin:12px 0 0;font-size:13px;color:var(--muted)">本页面按当前确认的临时结算口径展示。以后若把水电/空调待收 $21,900 或 Kevin 后续预计支出 $13,115 加回，最终结算金额需要重新计算。</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="callout">最终结论：你应净支付 Kevin $10,742.49</div>
+    <div class="foot">仅供内部账目核对，不构成最终法律、税务或会计意见。金额及项目性质应以双方最终书面确认、付款凭证及相关文件为准。</div>
+  </main>
+</body>
+</html>
