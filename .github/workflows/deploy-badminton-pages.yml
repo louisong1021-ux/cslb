@@ -8,6 +8,7 @@ on:
       - "badminton-stat-tool/**"
       - "badminton-tactics-board/**"
       - "2650-monterey-settlement/**"
+      - "ai-receptionist/**"
       - ".github/workflows/deploy-badminton-pages.yml"
   workflow_dispatch:
 
@@ -35,11 +36,12 @@ jobs:
           enablement: true
       - name: Build Pages artifact
         run: |
-          mkdir -p _site/player-database _site/badminton-stat-tool _site/badminton-tactics-board _site/2650-monterey-settlement
+          mkdir -p _site/player-database _site/badminton-stat-tool _site/badminton-tactics-board _site/2650-monterey-settlement _site/ai-receptionist
           cp -R player-database/. _site/player-database/
           cp -R badminton-stat-tool/. _site/badminton-stat-tool/
           cp -R badminton-tactics-board/. _site/badminton-tactics-board/
           cp -R 2650-monterey-settlement/. _site/2650-monterey-settlement/
+          cp -R ai-receptionist/. _site/ai-receptionist/
           touch _site/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
