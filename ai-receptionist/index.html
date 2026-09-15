@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AI智能客服与AI电话前台，24/7接听来电、回复咨询、收集客户信息、预约安排与转人工。" />
+  <title>AI 智能客服｜AI 客服与 AI 电话前台</title>
+  <style>
+    :root{
+      --bg:#f7f9fc;--surface:#ffffff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;
+      --blue:#2563eb;--blue2:#1d4ed8;--green:#16a34a;--navy:#0b1f3a;--soft:#eef5ff;
+      --shadow:0 18px 45px rgba(15,23,42,.08);--radius:24px;--max:1180px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    a{text-decoration:none;color:inherit}
+    .wrap{width:min(var(--max),calc(100% - 40px));margin:0 auto}
+    header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(226,232,240,.8)}
+    .nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:20px;letter-spacing:-.02em}
+    .brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#60a5fa);display:grid;place-items:center;color:#fff;font-size:18px;box-shadow:0 8px 20px rgba(37,99,235,.25)}
+    .nav-links{display:flex;gap:28px;font-size:14px;color:#334155}
+    .nav-actions{display:flex;gap:10px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:12px;border:1px solid transparent;font-weight:700;font-size:14px;transition:.2s;cursor:pointer}
+    .btn.primary{background:var(--blue);color:#fff}.btn.primary:hover{background:var(--blue2);transform:translateY(-1px)}
+    .btn.secondary{background:#fff;border-color:#cbd5e1;color:#0f172a}.btn.secondary:hover{border-color:#94a3b8}
+    .hero{padding:72px 0 54px;background:radial-gradient(circle at 75% 20%,#dbeafe 0,rgba(219,234,254,.15) 32%,transparent 55%)}
+    .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:54px;align-items:center}
+    h1{font-size:clamp(42px,6vw,72px);line-height:1.04;margin:0 0 22px;letter-spacing:-.055em}
+    .accent{color:var(--blue)}
+    .lead{font-size:19px;color:#475569;max-width:680px;margin:0 0 28px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:26px}
+    .proof{display:flex;gap:22px;flex-wrap:wrap;color:#475569;font-size:14px}
+    .proof span::before{content:"✓";color:var(--green);font-weight:900;margin-right:8px}
+    .phone-stage{position:relative;min-height:490px;display:flex;align-items:center;justify-content:center}
+    .phone{width:270px;height:535px;border-radius:42px;background:#0f172a;padding:12px;box-shadow:0 30px 65px rgba(15,23,42,.28);border:6px solid #1e293b;position:relative;z-index:2}
+    .phone-screen{height:100%;border-radius:30px;background:linear-gradient(#132238,#07111f);color:#fff;padding:42px 20px 24px;text-align:center;position:relative;overflow:hidden}
+    .status{font-size:12px;color:#cbd5e1;margin-bottom:32px}
+    .caller{font-size:28px;font-weight:800;margin-bottom:6px}.number{color:#cbd5e1}.wave{margin:60px auto 52px;width:160px;height:48px;display:flex;align-items:center;justify-content:center;gap:5px}.wave i{display:block;width:4px;border-radius:4px;background:#60a5fa;animation:pulse 1.2s ease-in-out infinite}.wave i:nth-child(2n){animation-delay:.15s}.wave i:nth-child(3n){animation-delay:.3s}@keyframes pulse{0%,100%{height:12px;opacity:.5}50%{height:42px;opacity:1}}
+    .call-controls{display:flex;justify-content:center;gap:38px}.call-btn{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:25px;background:#ef4444}.call-btn.good{background:#22c55e}
+    .bubble{position:absolute;background:#fff;border:1px solid #dbeafe;border-radius:18px;padding:16px 18px;width:255px;box-shadow:var(--shadow);z-index:3;font-size:14px}.bubble.one{right:-18px;top:75px}.bubble.two{left:-40px;bottom:72px}.bubble b{display:block;margin-bottom:4px}.bubble small{color:#64748b}
+    section{padding:76px 0}.section-head{max-width:760px;margin-bottom:34px}.section-head h2{font-size:38px;line-height:1.15;margin:0 0 12px;letter-spacing:-.035em}.section-head p{margin:0;color:#64748b;font-size:17px}
+    .products{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+    .product{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:32px;box-shadow:0 8px 30px rgba(15,23,42,.045)}
+    .product.sms{background:linear-gradient(180deg,#fff 0,#f4f8ff 100%)}.product.voice{background:linear-gradient(180deg,#fff 0,#f2fbf5 100%)}
+    .icon{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:#dbeafe;color:var(--blue);margin-bottom:20px}.voice .icon{background:#dcfce7;color:var(--green)}
+    .product h3{font-size:27px;margin:0 0 8px}.product p{color:#64748b;margin-top:0}.checks{display:grid;gap:11px;margin:22px 0}.checks div{display:flex;gap:10px;align-items:flex-start}.checks div:before{content:"✓";width:20px;height:20px;flex:0 0 20px;border-radius:50%;background:#dbeafe;color:var(--blue);display:grid;place-items:center;font-size:12px;font-weight:900;margin-top:2px}.voice .checks div:before{background:#dcfce7;color:var(--green)}
+    .workflow{background:#0b1f3a;color:#fff}.workflow .section-head p{color:#cbd5e1}.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}.step{padding:22px;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(255,255,255,.05)}.step-num{width:32px;height:32px;border-radius:50%;background:#2563eb;display:grid;place-items:center;font-weight:800;margin-bottom:20px}.step h4{margin:0 0 8px;font-size:17px}.step p{margin:0;color:#cbd5e1;font-size:14px}
+    .industries{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}.industry{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;text-align:center;font-weight:700}.industry small{display:block;color:#64748b;font-weight:500;margin-top:4px}
+    .benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.benefit{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px}.benefit strong{font-size:18px;display:block;margin:8px 0}.benefit p{color:#64748b;margin:0}.mini-icon{font-size:26px}
+    .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.plan{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;position:relative}.plan.featured{border:2px solid var(--blue);box-shadow:0 16px 45px rgba(37,99,235,.12)}.badge{position:absolute;right:20px;top:18px;background:#dbeafe;color:var(--blue);font-size:12px;font-weight:800;padding:5px 9px;border-radius:999px}.price{font-size:42px;font-weight:900;letter-spacing:-.04em;margin:14px 0 0}.price span{font-size:14px;color:#64748b;font-weight:500}.plan ul{padding:0;margin:22px 0 26px;list-style:none;display:grid;gap:10px;color:#475569}.plan li:before{content:"✓";color:var(--green);font-weight:900;margin-right:8px}
+    .faq{display:grid;grid-template-columns:.75fr 1.25fr;gap:42px}.faq-list{display:grid;gap:12px}.faq-item{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}.faq-q{padding:18px 20px;font-weight:800;display:flex;justify-content:space-between;cursor:pointer}.faq-a{display:none;padding:0 20px 18px;color:#64748b}.faq-item.open .faq-a{display:block}.faq-item.open .plus{transform:rotate(45deg)}.plus{transition:.2s}
+    .cta{background:linear-gradient(135deg,#0b1f3a,#12386a);color:#fff;border-radius:30px;padding:50px;text-align:center}.cta h2{font-size:38px;margin:0 0 12px}.cta p{color:#cbd5e1;margin:0 0 24px}
+    footer{padding:34px 0;color:#64748b;font-size:14px}.footer-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    .mobile-menu{display:none}
+    @media(max-width:900px){.nav-links{display:none}.hero-grid{grid-template-columns:1fr}.phone-stage{min-height:430px}.products,.pricing{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.industries{grid-template-columns:repeat(2,1fr)}.benefits{grid-template-columns:1fr 1fr}.faq{grid-template-columns:1fr}.bubble.one{right:0}.bubble.two{left:0}}
+    @media(max-width:600px){.wrap{width:min(100% - 24px,var(--max))}.nav-actions .secondary{display:none}.hero{padding-top:46px}h1{font-size:46px}.lead{font-size:17px}.phone{width:230px;height:455px}.bubble{width:210px;font-size:12px}.steps,.benefits,.industries{grid-template-columns:1fr}.section-head h2{font-size:31px}.cta{padding:34px 22px}.cta h2{font-size:30px}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top"><span class="brand-mark">AI</span><span>AI 智能客服</span></a>
+    <nav class="nav-links">
+      <a href="#products">产品</a><a href="#how">工作方式</a><a href="#industries">适用行业</a><a href="#pricing">价格</a><a href="#faq">常见问题</a>
+    </nav>
+    <div class="nav-actions"><a class="btn secondary" href="#contact">联系我们</a><a class="btn primary" href="#contact">预约演示</a></div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>让每一个来电和咨询，<br>都变成<span class="accent">新的机会</span></h1>
+        <p class="lead">AI 客服与 AI 电话前台，7×24 小时帮助企业接听来电、回复咨询、收集客户信息、安排预约并及时转接真人。</p>
+        <div class="hero-actions"><a class="btn primary" href="#contact">免费预约演示</a><a class="btn secondary" href="#products">查看产品</a></div>
+        <div class="proof"><span>24/7 不休息</span><span>中英文等多语言</span><span>自动整理客户信息</span><span>快速部署</span></div>
+      </div>
+      <div class="phone-stage">
+        <div class="bubble one"><b>AI 电话前台</b><small>“您好，我是 AI 客服，请问有什么可以帮助您？”</small></div>
+        <div class="phone"><div class="phone-screen"><div class="status">AI Receptionist · 00:24</div><div class="caller">新客户来电</div><div class="number">(626) 123-4567</div><div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="call-controls"><div class="call-btn">✕</div><div class="call-btn good">✓</div></div></div></div>
+        <div class="bubble two"><b>通话结束后自动整理</b><small>姓名 · 需求 · 预算 · 时间 · 回拨偏好</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="products">
+    <div class="wrap">
+      <div class="section-head"><h2>两种产品，覆盖客户服务的关键入口</h2><p>可以单独使用，也可以组合成完整的 AI 客户服务系统。</p></div>
+      <div class="products">
+        <article class="product sms"><div class="icon">💬</div><h3>AI 智能短信 / 在线客服</h3><p>当您没能及时回复客户时，AI 自动接手对话，收集关键信息并把重要客户及时推给您。</p><div class="checks"><div>漏接电话后自动发送跟进短信</div><div>网站聊天、短信等渠道自动回复</div><div>收集姓名、需求、地点、预算、时间等信息</div><div>自动判断客户意向与优先级</div><div>支持中英文等多语言</div><div>可同步到 CRM / Notion / Email</div></div><a class="btn secondary" href="#contact">了解短信客服</a></article>
+        <article class="product voice"><div class="icon">☎</div><h3>AI 智能电话前台</h3><p>7×24 小时自动接听来电，像真人前台一样自然沟通、回答常见问题、筛选客户并安排下一步。</p><div class="checks"><div>全天候自动接听客户来电</div><div>自然语音交流，可中英文切换</div><div>根据行业自定义提问与话术</div><div>自动预约、转接真人或安排回拨</div><div>通话结束自动生成摘要和客户记录</div><div>可保留客户原来的业务号码</div></div><a class="btn primary" href="#contact">了解 AI 电话前台</a></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="workflow">
+    <div class="wrap">
+      <div class="section-head"><h2>从客户来电到销售跟进，自动完成</h2><p>让 AI 负责重复工作，把真正需要人工判断的客户交给您的团队。</p></div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><h4>客户联系您</h4><p>电话、短信或网页咨询进入系统。</p></div>
+        <div class="step"><div class="step-num">2</div><h4>AI 自动接待</h4><p>回答问题并按照您的业务流程进行沟通。</p></div>
+        <div class="step"><div class="step-num">3</div><h4>收集关键信息</h4><p>姓名、需求、地点、预算、时间与联系方式。</p></div>
+        <div class="step"><div class="step-num">4</div><h4>自动筛选与整理</h4><p>形成摘要，区分高意向与普通咨询。</p></div>
+        <div class="step"><div class="step-num">5</div><h4>通知与预约</h4><p>推送给负责人、转人工或直接安排预约。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="industries">
+    <div class="wrap">
+      <div class="section-head"><h2>适用于各种需要“接待客户”的业务</h2><p>产品不限定行业，AI 的提问、知识库和流程可以根据不同企业定制。</p></div>
+      <div class="industries">
+        <div class="industry">🏥 医疗诊所<small>预约、常见问题、回拨</small></div><div class="industry">🛠 本地服务<small>维修、安装、装修</small></div><div class="industry">🏠 房地产<small>买卖、租赁、线索筛选</small></div><div class="industry">🎓 教育培训<small>课程咨询、试听预约</small></div><div class="industry">⚖️ 法律服务<small>初步咨询、信息采集</small></div><div class="industry">💄 美容美业<small>预约、价格与项目咨询</small></div><div class="industry">🍽 餐饮酒店<small>订位、营业信息、活动</small></div><div class="industry">🛒 电商零售<small>订单与售前售后咨询</small></div><div class="industry">🚗 汽车服务<small>维修预约、车型与问题</small></div><div class="industry">⋯ 更多行业<small>按业务流程定制</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head"><h2>为什么企业需要 AI 前台</h2><p>不是为了取代所有员工，而是减少重复接待、漏接和低效率跟进。</p></div>
+      <div class="benefits"><div class="benefit"><div class="mini-icon">⚡</div><strong>减少漏单</strong><p>客户来电和咨询有人及时接待，不再因为忙、下班或周末而错过机会。</p></div><div class="benefit"><div class="mini-icon">📈</div><strong>提高线索质量</strong><p>AI 先收集关键信息，把真正值得回电的客户交给销售或老板。</p></div><div class="benefit"><div class="mini-icon">🕒</div><strong>节省人工时间</strong><p>常见问题、信息登记、预约和初步筛选自动完成。</p></div><div class="benefit"><div class="mini-icon">🌐</div><strong>多语言服务</strong><p>服务中文、英文等不同语言客户，降低沟通门槛。</p></div><div class="benefit"><div class="mini-icon">🧩</div><strong>接入现有系统</strong><p>可与 CRM、Notion、Google Calendar、Email 等工具连接。</p></div><div class="benefit"><div class="mini-icon">🔒</div><strong>按业务规则运行</strong><p>哪些问题能回答、什么时候转人工、收集哪些信息都可以设置。</p></div></div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <div class="section-head"><h2>简单清晰的起步方案</h2><p>正式价格可以根据电话量、短信量、功能与集成需求调整。</p></div>
+      <div class="pricing">
+        <div class="plan"><h3>基础版</h3><p>适合小型企业先体验 AI 客服</p><div class="price">$99<span>/月起</span></div><ul><li>AI 短信 / 在线客服</li><li>自动回复常见问题</li><li>基础客户信息收集</li><li>基础通知与摘要</li></ul><a class="btn secondary" href="#contact">咨询方案</a></div>
+        <div class="plan featured"><span class="badge">推荐</span><h3>专业版</h3><p>适合希望同时使用 AI 电话前台的企业</p><div class="price">$299<span>/月起</span></div><ul><li>包含基础版功能</li><li>AI 自动接听电话</li><li>客户筛选与通话摘要</li><li>预约与转人工</li><li>CRM / Calendar 集成</li></ul><a class="btn primary" href="#contact">预约演示</a></div>
+        <div class="plan"><h3>定制版</h3><p>适合多号码、多门店或复杂业务流程</p><div class="price">定制<span> / 按需求报价</span></div><ul><li>多号码 / 多门店</li><li>企业知识库</li><li>定制工作流与系统集成</li><li>更高通话与消息容量</li><li>专属支持</li></ul><a class="btn secondary" href="#contact">联系我们</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap faq">
+      <div class="section-head"><h2>常见问题</h2><p>正式部署前，我们会根据您的号码、行业和现有系统确定最合适的方案。</p></div>
+      <div class="faq-list">
+        <div class="faq-item open"><div class="faq-q">需要更换现在的电话号码吗？<span class="plus">+</span></div><div class="faq-a">通常不需要。可以通过呼叫转移、号码接入或后续号码迁移等方式保留现有业务号码，具体取决于运营商和您希望启用的功能。</div></div>
+        <div class="faq-item"><div class="faq-q">AI 可以说中文和英文吗？<span class="plus">+</span></div><div class="faq-a">可以。系统可根据客户语言自动切换，也可以针对不同业务设置固定语言与话术。</div></div>
+        <div class="faq-item"><div class="faq-q">客户想找真人怎么办？<span class="plus">+</span></div><div class="faq-a">可以按规则直接转接指定员工、安排回拨，或将客户信息即时推送给负责人。</div></div>
+        <div class="faq-item"><div class="faq-q">能自动预约吗？<span class="plus">+</span></div><div class="faq-a">可以。系统可以接入 Google Calendar 等日历，根据空闲时间安排电话、面谈或服务预约。</div></div>
+        <div class="faq-item"><div class="faq-q">多久可以上线？<span class="plus">+</span></div><div class="faq-a">简单业务通常可以快速完成 Demo 和基础部署；正式上线时间取决于号码接入、短信合规、知识库和集成复杂度。</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap"><div class="cta"><h2>想看看 AI 如何替您接待客户？</h2><p>预约一个短演示，我们可以直接用您的实际业务场景展示电话或短信客服流程。</p><div class="hero-actions" style="justify-content:center;margin:0"><a class="btn primary" href="mailto:hello@example.com">预约免费演示</a><a class="btn secondary" href="tel:+16261234567">电话联系</a></div></div></div>
+  </section>
+</main>
+
+<footer><div class="wrap footer-row"><div><strong style="color:#0f172a">AI 智能客服</strong><br>AI 客服 · AI 电话前台</div><div>© 2026 AI 智能客服 · Demo Website</div></div></footer>
+<script>
+  document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.parentElement.classList.toggle('open')));
+</script>
+</body>
+</html>
