@@ -53,9 +53,20 @@
     .pricing{background:#eef5ff}.offer{display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center;background:#fff;border:1px solid #cfe0ff;border-radius:26px;padding:34px;box-shadow:0 14px 40px rgba(37,99,235,.08)}.offer h3{font-size:28px;margin:0 0 8px}.offer p{margin:0;color:#64748b}.offer-note{margin-top:14px;font-size:14px;color:#475569}
     .faq{display:grid;grid-template-columns:.75fr 1.25fr;gap:42px}.faq-list{display:grid;gap:12px}.faq-item{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}.faq-q{padding:18px 20px;font-weight:850;display:flex;justify-content:space-between;cursor:pointer}.faq-a{display:none;padding:0 20px 18px;color:#64748b}.faq-item.open .faq-a{display:block}.plus{transition:.2s}.faq-item.open .plus{transform:rotate(45deg)}
     .cta{background:linear-gradient(135deg,#0b1f3a,#12386a);color:#fff;border-radius:30px;padding:52px;text-align:center}.cta h2{font-size:40px;margin:0 0 12px}.cta p{color:#cbd5e1;margin:0 auto 24px;max-width:720px}
+    .risk-note{margin-top:14px;color:#64748b;font-size:13px}
+    .value-strip{padding:22px 0;background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .value-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .value-item{text-align:center;padding:10px 14px}.value-item strong{display:block;font-size:18px;margin-bottom:2px}.value-item span{font-size:13px;color:#64748b}
+    .roi-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:24px;align-items:stretch}
+    .roi-copy,.calculator{background:#fff;border:1px solid var(--line);border-radius:24px;padding:30px}
+    .roi-copy h3,.calculator h3{font-size:25px;margin:0 0 10px}.roi-copy p,.calculator p{color:#64748b;margin:0}
+    .roi-points{display:grid;gap:12px;margin-top:22px}.roi-point{display:flex;gap:11px;align-items:flex-start}.roi-point:before{content:"✓";color:var(--green);font-weight:900}
+    .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.field label{display:block;font-size:12px;color:#64748b;font-weight:800;margin-bottom:6px}.field input{width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;background:#fff}
+    .calc-result{margin-top:16px;padding:18px;border-radius:16px;background:#eef5ff}.calc-result small{display:block;color:#64748b}.calc-result strong{display:block;font-size:30px;color:#1d4ed8;letter-spacing:-.03em;margin:3px 0}.calc-disclaimer{font-size:12px;color:#94a3b8;margin-top:8px}
+    .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.trust-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px}.trust-card b{display:block;margin:8px 0 5px}.trust-card p{margin:0;color:#64748b;font-size:14px}
     footer{padding:34px 0;color:#64748b;font-size:14px}.footer-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.footer-links{display:flex;gap:18px;flex-wrap:wrap}.footer-links a:hover{color:#1d4ed8}
-    @media(max-width:920px){.nav-links{display:none}.hero-grid,.chat-grid,.faq{grid-template-columns:1fr}.visual{min-height:560px}.phone{right:8%}.summary-card{left:8%}.flow{grid-template-columns:1fr}.features{grid-template-columns:1fr 1fr}.industries{grid-template-columns:repeat(2,1fr)}.offer{grid-template-columns:1fr}}
-    @media(max-width:620px){.wrap{width:min(var(--max),calc(100% - 24px))}.hero{padding-top:52px}h1{font-size:46px}.lead{font-size:17px}.visual{min-height:530px}.phone{width:230px;height:445px;right:0}.summary-card{width:260px;left:0}.features,.industries{grid-template-columns:1fr}.section-head h2{font-size:32px}.cta{padding:34px 22px}.cta h2{font-size:31px}.nav .btn.secondary{display:none}}
+    @media(max-width:920px){.nav-links{display:none}.hero-grid,.chat-grid,.faq,.roi-grid{grid-template-columns:1fr}.visual{min-height:560px}.phone{right:8%}.summary-card{left:8%}.flow{grid-template-columns:1fr}.features,.trust{grid-template-columns:1fr 1fr}.industries{grid-template-columns:repeat(2,1fr)}.offer{grid-template-columns:1fr}}
+    @media(max-width:620px){.wrap{width:min(var(--max),calc(100% - 24px))}.hero{padding-top:52px}h1{font-size:46px}.lead{font-size:17px}.visual{min-height:530px}.phone{width:230px;height:445px;right:0}.summary-card{width:260px;left:0}.features,.trust,.industries,.value-row,.calc-grid{grid-template-columns:1fr}.section-head h2{font-size:32px}.cta{padding:34px 22px}.cta h2{font-size:31px}.nav .btn.secondary{display:none}}
   </style>
 </head>
 <body>
@@ -77,10 +88,10 @@
         <h1>没空接电话？<br><span class="accent">让 AI 帮你接。</span></h1>
         <p class="lead">保留你现在的业务号码。你有空就自己接；忙的时候把电话交给 AI。AI 会自然了解客户需求、收集关键信息，并在通话结束后整理成摘要给你。</p>
         <div class="hero-actions">
-          <a class="btn primary" href="#contact">预约 AI 电话演示</a>
-          <a class="btn secondary" href="#how">看看怎么工作</a>
+          <a class="btn primary" href="#contact">免费体验一次 AI 接听</a>
+          <a class="btn secondary" href="#how">先看 60 秒流程</a>
         </div>
-        <div class="proof"><span>无需更换原号码</span><span>中英文自然对话</span><span>通话后自动摘要</span><span>按业务流程定制</span></div>
+        <div class="proof"><span>无需更换原号码</span><span>中英文自然对话</span><span>通话后自动摘要</span><span>先从一个号码试起</span></div><div class="risk-note">先体验，再决定是否上线。尽量不改变你现有的接电话习惯。</div>
       </div>
       <div class="visual">
         <div class="phone">
@@ -106,6 +117,15 @@
       </div>
     </div>
   </section>
+
+  <div class="value-strip">
+    <div class="wrap value-row">
+      <div class="value-item"><strong>原号码继续用</strong><span>减少客户重新适应的成本</span></div>
+      <div class="value-item"><strong>AI 只在需要时接</strong><span>你有空时仍然自己处理</span></div>
+      <div class="value-item"><strong>挂断就有摘要</strong><span>不用重新听整段电话</span></div>
+      <div class="value-item"><strong>先试 1 个号码</strong><span>低风险验证是否真的有用</span></div>
+    </div>
+  </div>
 
   <section id="how">
     <div class="wrap">
@@ -163,6 +183,37 @@
     </div>
   </section>
 
+  <section id="roi">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>漏掉的不是一通电话，而可能是一笔生意</h2>
+        <p>对本地服务行业来说，客户通常不会一直等。先算一算：如果每个月漏掉几通有效咨询，可能对应多少潜在机会。</p>
+      </div>
+      <div class="roi-grid">
+        <div class="roi-copy">
+          <h3>AI 电话助理的价值，不是“更智能”，而是少漏客户</h3>
+          <p>你不需要让 AI 处理所有事情。只要它能把你原本接不到的电话先接住、问清楚、留下重点，就已经有价值。</p>
+          <div class="roi-points">
+            <div class="roi-point">客户来电时有人回应，而不是直接进入无人接听</div>
+            <div class="roi-point">先收集地点、需求、预算和时间，再决定是否回拨</div>
+            <div class="roi-point">把重复的前台工作交给 AI，把判断留给你</div>
+          </div>
+        </div>
+        <div class="calculator">
+          <h3>简单算一下漏接机会</h3>
+          <p>下面只是估算，方便判断这个产品是否值得测试。</p>
+          <div class="calc-grid">
+            <div class="field"><label for="jobValue">平均一笔业务价值（$）</label><input id="jobValue" type="number" min="0" value="1500"></div>
+            <div class="field"><label for="missedLeads">每月可能漏掉的有效来电</label><input id="missedLeads" type="number" min="0" value="5"></div>
+            <div class="field"><label for="closeRate">这些来电的成交率（%）</label><input id="closeRate" type="number" min="0" max="100" value="20"></div>
+          </div>
+          <div class="calc-result"><small>估算的月度潜在业务价值</small><strong id="roiValue">$1,500</strong><span>如果 AI 只帮你挽回其中一部分，也可能值得测试。</span></div>
+          <div class="calc-disclaimer">仅为场景估算，不代表或保证实际收入、成交率或投资回报。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="industries">
     <div class="wrap">
       <div class="section-head"><h2>尤其适合“一个电话就可能是一笔生意”的行业</h2><p>老板和员工经常在现场、开车、见客户时，这类 AI 兜底最有价值。</p></div>
@@ -181,16 +232,28 @@
     </div>
   </section>
 
+  <section id="trust">
+    <div class="wrap">
+      <div class="section-head"><h2>为什么更容易开始</h2><p>尽量减少换系统、学新工具和一次性投入，让你先验证它是不是对你的业务真的有帮助。</p></div>
+      <div class="trust">
+        <div class="trust-card"><div>📞</div><b>不强迫换原号码</b><p>优先通过现有号码和呼叫转移接入，降低客户和员工的适应成本。</p></div>
+        <div class="trust-card"><div>🎛️</div><b>你决定什么时候交给 AI</b><p>可以按忙线、无人接听或其他规则设置，不一定让 AI 接所有电话。</p></div>
+        <div class="trust-card"><div>📝</div><b>只保留你真正需要的信息</b><p>可以配置成不保存录音，只整理客户重点与后续动作。</p></div>
+        <div class="trust-card"><div>🧪</div><b>先从一个号码试</b><p>先验证实际来电体验和摘要质量，满意后再增加短信、预约或 CRM。</p></div>
+      </div>
+    </div>
+  </section>
+
   <section class="pricing">
     <div class="wrap">
       <div class="section-head"><h2>先从一个号码开始</h2><p>当前提供小型企业试用部署。价格根据 AI 接听分钟数、号码接入方式和需要的自动化功能确定。</p></div>
       <div class="offer">
         <div>
-          <h3>AI 电话助理试用方案</h3>
-          <p>适合先验证“没接到的电话，AI 能不能帮你留住客户”。</p>
+          <h3>免费体验一次 AI 接听</h3>
+          <p>先用一个真实业务场景测试 AI 的接听、提问和摘要效果，再决定是否继续部署。</p>
           <div class="offer-note">包含：单号码接入 · 中英文 AI 接待 · 客户信息收集 · 通话摘要 · 基础话术定制</div>
         </div>
-        <a class="btn primary" href="#contact">咨询试用</a>
+        <a class="btn primary" href="#contact">查看体验方式</a>
       </div>
     </div>
   </section>
@@ -211,10 +274,10 @@
   <section id="contact">
     <div class="wrap">
       <div class="cta">
-        <h2>先用一个号码，看看 AI 能不能帮你少漏几个客户</h2>
-        <p>用你的实际业务场景做一个短演示：客户打进来，AI 接待、了解需求，挂断后生成摘要。</p>
+        <h2>先体验一次，再决定要不要用</h2>
+        <p>不需要先换电话系统。先看一次完整流程：客户来电 → AI 接待 → 收集需求 → 挂断后生成摘要。</p>
         <div class="hero-actions" style="justify-content:center">
-          <a class="btn primary" href="#how">查看工作方式</a>
+          <a class="btn primary" href="#conversation">查看实际对话</a>
           <a class="btn secondary" href="#faq">查看常见问题</a>
         </div>
       </div>
@@ -238,6 +301,19 @@
   document.querySelectorAll('.faq-q').forEach(q=>{
     q.addEventListener('click',()=>q.parentElement.classList.toggle('open'));
   });
+  const jobValue=document.getElementById('jobValue');
+  const missedLeads=document.getElementById('missedLeads');
+  const closeRate=document.getElementById('closeRate');
+  const roiValue=document.getElementById('roiValue');
+  function updateROI(){
+    const value=Math.max(0,Number(jobValue?.value||0));
+    const leads=Math.max(0,Number(missedLeads?.value||0));
+    const rate=Math.min(100,Math.max(0,Number(closeRate?.value||0)))/100;
+    const total=value*leads*rate;
+    if(roiValue) roiValue.textContent=total.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  }
+  [jobValue,missedLeads,closeRate].forEach(el=>el&&el.addEventListener('input',updateROI));
+  updateROI();
 </script>
 </body>
 </html>
