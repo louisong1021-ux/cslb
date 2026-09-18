@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AI 电话助理：您有空就自己接，没空时让 AI 接听客户来电、自然对话、收集需求，并在通话结束后生成摘要。" />
-  <title>AI 电话助理｜没空接电话？让 AI 帮你接</title>
+  <meta name="description" content="睿联智能 RelayCraft AI：提供睿接 RelayCall AI 电话助理、睿信 RelayText AI 短信客服，以及睿构 RelayBuild 企业 AI 定制与自动化服务。" />
+  <title>睿联智能 RelayCraft AI｜标准 AI 服务 + 企业定制</title>
   <style>
     :root{
       --bg:#f7f9fc;--surface:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;
@@ -50,6 +50,15 @@
     .result h3{margin-top:0}.result-list{display:grid;gap:10px}.result-item{display:flex;justify-content:space-between;gap:20px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:14px}.result-item span{color:#cbd5e1;text-align:right}
     .features{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.feature{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px}.feature .icon{font-size:26px}.feature h3{margin:10px 0 6px;font-size:18px}.feature p{margin:0;color:#64748b;font-size:14px}
     .industries{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}.industry{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;text-align:center;font-weight:800}.industry small{display:block;color:#64748b;font-weight:500;margin-top:4px}
+    .service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .service-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:28px;position:relative;box-shadow:0 8px 28px rgba(15,23,42,.04)}
+    .service-card.featured{border:2px solid #2563eb;background:linear-gradient(180deg,#fff,#f5f8ff)}
+    .service-badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#eef5ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:14px}
+    .service-card h3{font-size:25px;margin:0 0 4px}.service-en{color:#64748b;font-weight:800;font-size:14px;margin-bottom:14px}
+    .service-card p{color:#64748b;margin:0 0 18px}.service-list{display:grid;gap:9px;font-size:14px;color:#475569}
+    .service-list div:before{content:"✓";color:var(--green);font-weight:900;margin-right:8px}
+    .model-band{margin-top:20px;padding:20px 22px;border-radius:18px;background:#0b1f3a;color:#fff;display:flex;justify-content:space-between;gap:20px;align-items:center}
+    .model-band strong{font-size:18px}.model-band span{color:#cbd5e1;font-size:14px}
     .pricing{background:#eef5ff}.offer{display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center;background:#fff;border:1px solid #cfe0ff;border-radius:26px;padding:34px;box-shadow:0 14px 40px rgba(37,99,235,.08)}.offer h3{font-size:28px;margin:0 0 8px}.offer p{margin:0;color:#64748b}.offer-note{margin-top:14px;font-size:14px;color:#475569}
     .faq{display:grid;grid-template-columns:.75fr 1.25fr;gap:42px}.faq-list{display:grid;gap:12px}.faq-item{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}.faq-q{padding:18px 20px;font-weight:850;display:flex;justify-content:space-between;cursor:pointer}.faq-a{display:none;padding:0 20px 18px;color:#64748b}.faq-item.open .faq-a{display:block}.plus{transition:.2s}.faq-item.open .plus{transform:rotate(45deg)}
     .cta{background:linear-gradient(135deg,#0b1f3a,#12386a);color:#fff;border-radius:30px;padding:52px;text-align:center}.cta h2{font-size:40px;margin:0 0 12px}.cta p{color:#cbd5e1;margin:0 auto 24px;max-width:720px}
@@ -65,16 +74,16 @@
     .calc-result{margin-top:16px;padding:18px;border-radius:16px;background:#eef5ff}.calc-result small{display:block;color:#64748b}.calc-result strong{display:block;font-size:30px;color:#1d4ed8;letter-spacing:-.03em;margin:3px 0}.calc-disclaimer{font-size:12px;color:#94a3b8;margin-top:8px}
     .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.trust-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px}.trust-card b{display:block;margin:8px 0 5px}.trust-card p{margin:0;color:#64748b;font-size:14px}
     footer{padding:34px 0;color:#64748b;font-size:14px}.footer-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.footer-links{display:flex;gap:18px;flex-wrap:wrap}.footer-links a:hover{color:#1d4ed8}
-    @media(max-width:920px){.nav-links{display:none}.hero-grid,.chat-grid,.faq,.roi-grid{grid-template-columns:1fr}.visual{min-height:560px}.phone{right:8%}.summary-card{left:8%}.flow{grid-template-columns:1fr}.features,.trust{grid-template-columns:1fr 1fr}.industries{grid-template-columns:repeat(2,1fr)}.offer{grid-template-columns:1fr}}
-    @media(max-width:620px){.wrap{width:min(var(--max),calc(100% - 24px))}.hero{padding-top:52px}h1{font-size:46px}.lead{font-size:17px}.visual{min-height:530px}.phone{width:230px;height:445px;right:0}.summary-card{width:260px;left:0}.features,.trust,.industries,.value-row,.calc-grid{grid-template-columns:1fr}.section-head h2{font-size:32px}.cta{padding:34px 22px}.cta h2{font-size:31px}.nav .btn.secondary{display:none}}
+    @media(max-width:920px){.nav-links{display:none}.hero-grid,.chat-grid,.faq,.roi-grid{grid-template-columns:1fr}.visual{min-height:560px}.phone{right:8%}.summary-card{left:8%}.flow{grid-template-columns:1fr}.features,.trust,.service-grid{grid-template-columns:1fr 1fr}.industries{grid-template-columns:repeat(2,1fr)}.offer{grid-template-columns:1fr}}
+    @media(max-width:620px){.wrap{width:min(var(--max),calc(100% - 24px))}.hero{padding-top:52px}h1{font-size:46px}.lead{font-size:17px}.visual{min-height:530px}.phone{width:230px;height:445px;right:0}.summary-card{width:260px;left:0}.features,.trust,.service-grid,.industries,.value-row,.calc-grid{grid-template-columns:1fr}.section-head h2{font-size:32px}.cta{padding:34px 22px}.cta h2{font-size:31px}.nav .btn.secondary{display:none}}
   </style>
 </head>
 <body>
 <header>
   <div class="wrap nav">
-    <a class="brand" href="#top"><span class="brand-mark">AI</span><span>AI 电话助理</span></a>
+    <a class="brand" href="#top"><span class="brand-mark">RC</span><span>睿联智能 <small style="font-weight:650;color:#64748b">RelayCraft AI</small></span></a>
     <nav class="nav-links">
-      <a href="#how">工作方式</a><a href="#conversation">实际效果</a><a href="#features">功能</a><a href="#industries">适用行业</a><a href="#faq">常见问题</a>
+      <a href="#services">产品与服务</a><a href="#how">工作方式</a><a href="#conversation">睿接演示</a><a href="#industries">适用行业</a><a href="#faq">常见问题</a>
     </nav>
     <div><a class="btn primary" href="#contact">预约演示</a></div>
   </div>
@@ -84,9 +93,9 @@
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
-        <div class="eyebrow">AI Missed-Call Receptionist</div>
-        <h1>没空接电话？<br><span class="accent">让 AI 帮你接。</span></h1>
-        <p class="lead">保留你现在的业务号码。你有空就自己接；忙的时候把电话交给 AI。AI 会自然了解客户需求、收集关键信息，并在通话结束后整理成摘要给你。</p>
+        <div class="eyebrow">睿接 RelayCall · by 睿联智能 RelayCraft AI</div>
+        <h1>没空接电话？<br><span class="accent">睿接帮你接。</span></h1>
+        <p class="lead">睿接 RelayCall 是睿联智能的标准 AI 电话助理。你有空就自己接；忙的时候把电话交给睿接。它会自然了解客户需求、收集关键信息，并在通话结束后整理成摘要给你。</p>
         <div class="hero-actions">
           <a class="btn primary" href="#contact">免费体验一次 AI 接听</a>
           <a class="btn secondary" href="#how">先看 60 秒流程</a>
@@ -96,11 +105,11 @@
       <div class="visual">
         <div class="phone">
           <div class="screen">
-            <div class="mini">AI Receptionist · 00:38</div>
+            <div class="mini">RelayCall · 睿接 · 00:38</div>
             <h3>客户来电</h3>
-            <div class="number">AI Demo Line</div>
+            <div class="number">AI 电话助理 Demo</div>
             <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            <div class="ai-label">● AI 正在与客户沟通</div>
+            <div class="ai-label">● 睿接正在与客户沟通</div>
           </div>
         </div>
         <div class="summary-card">
@@ -127,10 +136,46 @@
     </div>
   </div>
 
+  <section id="services">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>标准服务 + 定制服务，一套品牌体系</h2>
+        <p>睿联智能 RelayCraft AI 先提供可以快速部署的标准 AI 服务；当现成产品不够时，再通过睿构为企业定制工作流和系统连接。</p>
+      </div>
+      <div class="service-grid">
+        <article class="service-card featured">
+          <span class="service-badge">当前主推</span>
+          <h3>睿接</h3>
+          <div class="service-en">RelayCall · AI 电话助理</div>
+          <p>当你忙、没接到或不方便接听时，由 AI 先接住客户，并把通话重点整理给你。</p>
+          <div class="service-list"><div>AI 电话接待</div><div>中英文自然对话</div><div>客户需求与预算收集</div><div>通话结束自动摘要</div></div>
+        </article>
+        <article class="service-card">
+          <span class="service-badge">标准服务</span>
+          <h3>睿信</h3>
+          <div class="service-en">RelayText · AI 短信客服</div>
+          <p>自动处理客户短信咨询与后续跟进，让客户在你没空回复时也能及时得到回应。</p>
+          <div class="service-list"><div>AI 短信回复</div><div>多轮上下文沟通</div><div>客户信息采集</div><div>后续可接 CRM / Notion</div></div>
+        </article>
+        <article class="service-card">
+          <span class="service-badge">定制服务</span>
+          <h3>睿构</h3>
+          <div class="service-en">RelayBuild · Custom AI Solutions</div>
+          <p>根据企业已有业务流程，搭建标准产品之外的 AI 自动化、系统集成与内部工具。</p>
+          <div class="service-list"><div>定制 AI 工作流</div><div>CRM / 日历 / 数据连接</div><div>业务流程自动化</div><div>企业专属功能开发</div></div>
+        </article>
+      </div>
+      <div class="model-band">
+        <strong>睿联智能 RelayCraft AI</strong>
+        <span>标准产品负责快速上线 · 睿构 RelayBuild 负责个性化需求</span>
+      </div>
+    </div>
+  </section>
+
   <section id="how">
     <div class="wrap">
       <div class="section-head">
-        <h2>不是替你接管电话，而是在你忙的时候兜底</h2>
+        <h2>睿接 RelayCall：不是替你接管电话，而是在你忙的时候兜底</h2>
         <p>客户继续拨打你熟悉的号码，工作流程尽量不改变。</p>
       </div>
       <div class="flow">
@@ -145,7 +190,7 @@
     <div class="wrap">
       <div class="section-head">
         <h2>客户听到的，不是传统电话菜单</h2>
-        <p>AI 根据客户刚刚说的话实时回答，一次问一个问题，尽量保持正常前台的对话节奏。</p>
+        <p>睿接根据客户刚刚说的话实时回答，一次问一个问题，尽量保持正常前台的对话节奏。</p>
       </div>
       <div class="chat-grid">
         <div class="chat">
@@ -173,7 +218,7 @@
 
   <section id="features">
     <div class="wrap">
-      <div class="section-head"><h2>核心功能只围绕一件事：别再因为没空接电话而丢客户</h2><p>先把最有价值的电话接待和信息整理做好，再根据业务需要增加短信、预约和 CRM。</p></div>
+      <div class="section-head"><h2>睿接的核心功能只围绕一件事：别再因为没空接电话而丢客户</h2><p>先把最有价值的电话接待和信息整理做好，再根据业务需要增加短信、预约和 CRM。</p></div>
       <div class="features">
         <div class="feature"><div class="icon">☎️</div><h3>AI 接听</h3><p>在你不方便接听时接管来电，避免客户直接流失。</p></div>
         <div class="feature"><div class="icon">🌐</div><h3>中英文沟通</h3><p>根据客户使用的语言自然切换，降低沟通门槛。</p></div>
@@ -191,7 +236,7 @@
       </div>
       <div class="roi-grid">
         <div class="roi-copy">
-          <h3>AI 电话助理的价值，不是“更智能”，而是少漏客户</h3>
+          <h3>睿接的价值，不是“更智能”，而是少漏客户</h3>
           <p>你不需要让 AI 处理所有事情。只要它能把你原本接不到的电话先接住、问清楚、留下重点，就已经有价值。</p>
           <div class="roi-points">
             <div class="roi-point">客户来电时有人回应，而不是直接进入无人接听</div>
@@ -207,7 +252,7 @@
             <div class="field"><label for="missedLeads">每月可能漏掉的有效来电</label><input id="missedLeads" type="number" min="0" value="5"></div>
             <div class="field"><label for="closeRate">这些来电的成交率（%）</label><input id="closeRate" type="number" min="0" max="100" value="20"></div>
           </div>
-          <div class="calc-result"><small>估算的月度潜在业务价值</small><strong id="roiValue">$1,500</strong><span>如果 AI 只帮你挽回其中一部分，也可能值得测试。</span></div>
+          <div class="calc-result"><small>估算的月度潜在业务价值</small><strong id="roiValue">$1,500</strong><span>如果睿接只帮你挽回其中一部分，也可能值得测试。</span></div>
           <div class="calc-disclaimer">仅为场景估算，不代表或保证实际收入、成交率或投资回报。</div>
         </div>
       </div>
@@ -262,7 +307,7 @@
     <div class="wrap faq">
       <div class="section-head"><h2>常见问题</h2><p>先解决最实际的问题，再决定是否增加更多自动化。</p></div>
       <div class="faq-list">
-        <div class="faq-item open"><div class="faq-q">需要更换现在的电话号码吗？<span class="plus">+</span></div><div class="faq-a">通常不需要。很多场景可以通过条件呼叫转移把忙时或指定情况的来电交给 AI，具体取决于你的运营商和希望采用的转接规则。</div></div>
+        <div class="faq-item"><div class="faq-q">睿接、睿信和睿构有什么区别？<span class="plus">+</span></div><div class="faq-a">睿接 RelayCall 是 AI 电话助理；睿信 RelayText 是 AI 短信客服；睿构 RelayBuild 是针对企业特殊流程提供的 AI 定制与自动化服务。三者都属于睿联智能 RelayCraft AI。</div></div><div class="faq-item open"><div class="faq-q">需要更换现在的电话号码吗？<span class="plus">+</span></div><div class="faq-a">通常不需要。很多场景可以通过条件呼叫转移把忙时或指定情况的来电交给 AI，具体取决于你的运营商和希望采用的转接规则。</div></div>
         <div class="faq-item"><div class="faq-q">AI 会不会像传统语音菜单一样很尴尬？<span class="plus">+</span></div><div class="faq-a">目标不是让客户按一堆数字，而是让 AI 根据客户的话自然回答，并且一次只问一个必要问题。</div></div>
         <div class="faq-item"><div class="faq-q">AI 能说中文和英文吗？<span class="plus">+</span></div><div class="faq-a">可以。可以根据客户使用的语言回复，也可以按业务场景固定主要语言和接待方式。</div></div>
         <div class="faq-item"><div class="faq-q">会保存电话录音吗？<span class="plus">+</span></div><div class="faq-a">可以设计成不保存录音，只在通话过程中处理文字内容，并在结束后保存结构化摘要。具体数据保留方式可按业务需求设置。</div></div>
@@ -274,8 +319,8 @@
   <section id="contact">
     <div class="wrap">
       <div class="cta">
-        <h2>先体验一次，再决定要不要用</h2>
-        <p>不需要先换电话系统。先看一次完整流程：客户来电 → AI 接待 → 收集需求 → 挂断后生成摘要。</p>
+        <h2>先体验睿接，再决定要不要部署</h2>
+        <p>先从睿接 RelayCall 的实际业务场景开始。如果以后需要短信、预约、CRM 或特殊流程，再接入睿信 RelayText 或睿构 RelayBuild。</p>
         <div class="hero-actions" style="justify-content:center">
           <a class="btn primary" href="#conversation">查看实际对话</a>
           <a class="btn secondary" href="#faq">查看常见问题</a>
@@ -287,13 +332,13 @@
 
 <footer>
   <div class="wrap footer-row">
-    <div><strong style="color:#0f172a">AI 电话助理</strong><br>AI Receptionist · Missed-Call Assistant</div>
+    <div><strong style="color:#0f172a">睿联智能 RelayCraft AI</strong><br>标准 AI 服务 · 企业 AI 定制服务<br><small>Founder: 宋瑞 Rui Song</small></div>
     <div class="footer-links">
       <a href="./privacy/">Privacy</a>
       <a href="./terms/">Terms</a>
       <a href="./sms-opt-in/">SMS Opt-In</a>
     </div>
-    <div>© 2026 AI 电话助理</div>
+    <div>© 2026 睿联智能 RelayCraft AI<br><small>睿接 RelayCall · 睿信 RelayText · 睿构 RelayBuild</small></div>
   </div>
 </footer>
 
