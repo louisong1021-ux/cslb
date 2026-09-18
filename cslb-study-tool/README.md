@@ -37,16 +37,18 @@ cslb-study-tool/
 GitHub Pages 部署后，本项目应通过下面地址访问：
 
 ```text
-https://louisong1021-ux.github.io/cslb/cslb-study-tool/
+https://louisong1021-ux.github.io/page/cslb-study-tool/
 ```
 
 招聘面试清单项目访问地址：
 
 ```text
-https://louisong1021-ux.github.io/cslb/manager-hiring-checklist/
+https://louisong1021-ux.github.io/page/manager-hiring-checklist/
 ```
 
-注意：仓库根地址 `https://louisong1021-ux.github.io/cslb/` 现在不再作为具体项目入口使用，因为根目录已按“只放文件夹”的方式整理。
+仓库首页：`https://louisong1021-ux.github.io/page/`。各项目通过各自子目录访问。
+
+发布方式统一为 GitHub Pages 的 **Deploy from a branch → main → / (root)**。更新 `main` 分支后，由 GitHub 自动构建并发布仓库网页。不要另建仅打包部分项目的 Pages 部署工作流，以免覆盖完整站点。
 
 ## 以后怎么管理
 
