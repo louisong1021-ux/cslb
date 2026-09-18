@@ -1,4 +1,19 @@
-# 学习工具与管理清单项目
+# page — 公开网页与发布仓库
+
+## 仓库用途（给后续使用的 Codex / AI 助手）
+
+本仓库用于存放网页项目，并通过 GitHub Pages 发布供公众访问。用户已确认：今后制作网页并需要发布时，默认放在本仓库，除非用户另有指定。
+
+- 仓库地址：https://github.com/louisong1021-ux/page
+- 用途标记：网页存放、公开访问、网页发布。
+- 后续新网页项目放在各自的独立子目录中，并在本 README 补充用途和访问链接。
+- 发布时检查当前 GitHub Pages 配置与部署结果，确认公开链接可访问后再交付。
+- 脚本备份使用另一个仓库：https://github.com/louisong1021-ux/code
+- 本仓库原名 `cslb`，现名为 `page`。
+
+用途确认日期：2026-09-18。
+
+## 学习工具与管理清单项目
 
 欢迎访问这个仓库。这里集中展示一些可以直接在网页中使用的学习工具、清单工具和管理辅助页面。
 
@@ -8,11 +23,11 @@
 
 | 项目 | 用途 | 完整访问地址 |
 |---|---|---|
-| CSLB C10 电工学习工具 | 电工考试学习、学习卡、自测复习 | `https://louisong1021-ux.github.io/cslb/cslb-study-tool/` |
-| 招聘面试必做清单 | 给新经理使用的招聘面试核对工具 | `https://louisong1021-ux.github.io/cslb/manager-hiring-checklist/` |
-| 羽毛球战术板 | 单打、双打与混双站位及跑位演示 | `https://louisong1021-ux.github.io/cslb/badminton-tactics-board/` |
-| 迁移记录与检查点 | 仓库整理记录，不是正式网页工具 | `https://github.com/louisong1021-ux/cslb/tree/main/move-checkpoint` |
-| 仓库首页 | 查看项目说明和源码结构 | `https://github.com/louisong1021-ux/cslb` |
+| CSLB C10 电工学习工具 | 电工考试学习、学习卡、自测复习 | `https://louisong1021-ux.github.io/page/cslb-study-tool/` |
+| 招聘面试必做清单 | 给新经理使用的招聘面试核对工具 | `https://louisong1021-ux.github.io/page/manager-hiring-checklist/` |
+| 羽毛球战术板 | 单打、双打与混双站位及跑位演示 | `https://louisong1021-ux.github.io/page/badminton-tactics-board/` |
+| 迁移记录与检查点 | 仓库整理记录，不是正式网页工具 | `https://github.com/louisong1021-ux/page/tree/main/move-checkpoint` |
+| 仓库首页 | 查看项目说明和源码结构 | `https://github.com/louisong1021-ux/page` |
 
 ## 正式项目介绍
 
@@ -29,13 +44,13 @@
 完整访问地址：
 
 ```text
-https://louisong1021-ux.github.io/cslb/cslb-study-tool/
+https://louisong1021-ux.github.io/page/cslb-study-tool/
 ```
 
 项目源码文件夹：
 
 ```text
-https://github.com/louisong1021-ux/cslb/tree/main/cslb-study-tool
+https://github.com/louisong1021-ux/page/tree/main/cslb-study-tool
 ```
 
 ### 2. 招聘面试必做清单
@@ -51,13 +66,13 @@ https://github.com/louisong1021-ux/cslb/tree/main/cslb-study-tool
 完整访问地址：
 
 ```text
-https://louisong1021-ux.github.io/cslb/manager-hiring-checklist/
+https://louisong1021-ux.github.io/page/manager-hiring-checklist/
 ```
 
 项目源码文件夹：
 
 ```text
-https://github.com/louisong1021-ux/cslb/tree/main/manager-hiring-checklist
+https://github.com/louisong1021-ux/page/tree/main/manager-hiring-checklist
 ```
 
 ### 3. 羽毛球战术板
@@ -67,13 +82,13 @@ https://github.com/louisong1021-ux/cslb/tree/main/manager-hiring-checklist
 完整访问地址：
 
 ```text
-https://louisong1021-ux.github.io/cslb/badminton-tactics-board/
+https://louisong1021-ux.github.io/page/badminton-tactics-board/
 ```
 
 项目源码文件夹：
 
 ```text
-https://github.com/louisong1021-ux/cslb/tree/main/badminton-tactics-board
+https://github.com/louisong1021-ux/page/tree/main/badminton-tactics-board
 ```
 
 ## 非正式网页项目
@@ -85,7 +100,7 @@ https://github.com/louisong1021-ux/cslb/tree/main/badminton-tactics-board
 完整访问地址：
 
 ```text
-https://github.com/louisong1021-ux/cslb/tree/main/move-checkpoint
+https://github.com/louisong1021-ux/page/tree/main/move-checkpoint
 ```
 
 ## 仓库内容
