@@ -7,7 +7,6 @@
 ```text
 /
 ├── cslb-study-tool/              CSLB C10 学习工具项目
-├── manager-hiring-checklist/     招聘面试必做清单网页项目
 └── move-checkpoint/              迁移记录、测试文件、整理检查点
 ```
 
@@ -40,12 +39,6 @@ GitHub Pages 部署后，本项目应通过下面地址访问：
 https://louisong1021-ux.github.io/page/cslb-study-tool/
 ```
 
-招聘面试清单项目访问地址：
-
-```text
-https://louisong1021-ux.github.io/page/manager-hiring-checklist/
-```
-
 仓库首页：`https://louisong1021-ux.github.io/page/`。各项目通过各自子目录访问。
 
 发布方式统一为 GitHub Pages 的 **Deploy from a branch → main → / (root)**。更新 `main` 分支后，由 GitHub 自动构建并发布仓库网页。不要另建仅打包部分项目的 Pages 部署工作流，以免覆盖完整站点。
@@ -55,9 +48,8 @@ https://louisong1021-ux.github.io/page/manager-hiring-checklist/
 以后新增或修改项目时，按这个规则放：
 
 1. CSLB 相关文件全部放进 `cslb-study-tool/`
-2. 招聘面试清单相关文件全部放进 `manager-hiring-checklist/`
-3. 测试文件、迁移记录、临时检查点放进 `move-checkpoint/`
-4. 不要把 `.html`、`.jsx`、`.ps1`、`.txt`、`.md` 等普通项目文件直接放在仓库根目录
+2. 测试文件、迁移记录、临时检查点放进 `move-checkpoint/`
+3. 不要把 `.html`、`.jsx`、`.ps1`、`.txt`、`.md` 等普通项目文件直接放在仓库根目录
 
 ## 修改 CSLB 项目的推荐流程
 
