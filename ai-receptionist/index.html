@@ -29,17 +29,22 @@
     .accent{color:var(--blue)}.lead{font-size:19px;color:#475569;max-width:690px;margin:0 0 28px}
     .hero-actions{display:flex;gap:12px;flex-wrap:wrap}.proof{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;color:#475569;font-size:14px}
     .proof span:before{content:"✓";color:var(--green);font-weight:900;margin-right:7px}
-    .visual{position:relative;min-height:500px}
-    .phone{position:absolute;right:16px;top:0;width:280px;height:510px;background:#0f172a;border:6px solid #1e293b;border-radius:42px;padding:11px;box-shadow:0 32px 70px rgba(15,23,42,.28)}
-    .screen{height:100%;border-radius:30px;background:linear-gradient(180deg,#162b47,#07111f);color:#fff;padding:38px 20px;text-align:center}
-    .screen .mini{font-size:12px;color:#cbd5e1}.screen h3{font-size:27px;margin:28px 0 4px}.screen .number{color:#cbd5e1}
-    .wave{height:52px;margin:62px auto 44px;display:flex;justify-content:center;align-items:center;gap:5px}
-    .wave i{width:4px;border-radius:4px;background:#60a5fa;animation:pulse 1.15s ease-in-out infinite}.wave i:nth-child(2n){animation-delay:.12s}.wave i:nth-child(3n){animation-delay:.24s}
-    @keyframes pulse{0%,100%{height:12px;opacity:.45}50%{height:44px;opacity:1}}
-    .ai-label{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.08);padding:10px 14px;border-radius:999px;font-size:13px;color:#dbeafe}
-    .summary-card{position:absolute;left:0;bottom:16px;width:340px;background:#fff;border:1px solid #dbeafe;border-radius:22px;padding:22px;box-shadow:var(--shadow)}
-    .summary-card .tag{font-size:12px;font-weight:900;color:#1d4ed8;background:#eef5ff;padding:5px 9px;border-radius:999px;display:inline-block;margin-bottom:12px}
-    .summary-card h4{margin:0 0 14px;font-size:19px}.summary-grid{display:grid;grid-template-columns:82px 1fr;gap:7px 10px;font-size:13px}.summary-grid b{color:#64748b}.summary-text{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:#475569}
+    .visual{position:relative;min-height:490px;display:flex;align-items:center;justify-content:center}
+    .phone{width:270px;height:535px;border-radius:42px;background:#0f172a;padding:12px;box-shadow:0 30px 65px rgba(15,23,42,.28);border:6px solid #1e293b;position:relative;z-index:2}
+    .screen{height:100%;border-radius:30px;background:linear-gradient(#132238,#07111f);color:#fff;padding:42px 20px 24px;text-align:center;position:relative;overflow:hidden}
+    .screen .mini{font-size:12px;color:#cbd5e1;margin-bottom:32px}
+    .screen h3{font-size:28px;font-weight:800;margin:0 0 6px}
+    .screen .number{color:#cbd5e1}
+    .wave{margin:60px auto 52px;width:160px;height:48px;display:flex;align-items:center;justify-content:center;gap:5px}
+    .wave i{display:block;width:4px;border-radius:4px;background:#60a5fa;animation:pulse 1.2s ease-in-out infinite}
+    .wave i:nth-child(2n){animation-delay:.15s}.wave i:nth-child(3n){animation-delay:.3s}
+    @keyframes pulse{0%,100%{height:12px;opacity:.5}50%{height:42px;opacity:1}}
+    .call-controls{display:flex;justify-content:center;gap:38px}
+    .call-btn{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:25px;background:#ef4444;color:#fff}
+    .call-btn.good{background:#22c55e}
+    .bubble{position:absolute;background:#fff;border:1px solid #dbeafe;border-radius:18px;padding:16px 18px;width:255px;box-shadow:var(--shadow);z-index:3;font-size:14px}
+    .bubble.one{right:-18px;top:75px}.bubble.two{left:-40px;bottom:72px}
+    .bubble b{display:block;margin-bottom:4px}.bubble small{color:#64748b}
     section{padding:76px 0}.section-head{max-width:760px;margin-bottom:34px}.section-head h2{font-size:40px;line-height:1.14;margin:0 0 12px;letter-spacing:-.04em}.section-head p{margin:0;color:#64748b;font-size:17px}
     .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.flow-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;position:relative}
     .num{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#dbeafe;color:#1d4ed8;font-weight:900;margin-bottom:18px}.flow-card h3{margin:0 0 8px;font-size:22px}.flow-card p{margin:0;color:#64748b}
@@ -74,8 +79,8 @@
     .calc-result{margin-top:16px;padding:18px;border-radius:16px;background:#eef5ff}.calc-result small{display:block;color:#64748b}.calc-result strong{display:block;font-size:30px;color:#1d4ed8;letter-spacing:-.03em;margin:3px 0}.calc-disclaimer{font-size:12px;color:#94a3b8;margin-top:8px}
     .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.trust-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px}.trust-card b{display:block;margin:8px 0 5px}.trust-card p{margin:0;color:#64748b;font-size:14px}
     footer{padding:34px 0;color:#64748b;font-size:14px}.footer-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.footer-links{display:flex;gap:18px;flex-wrap:wrap}.footer-links a:hover{color:#1d4ed8}
-    @media(max-width:920px){.nav-links{display:none}.hero-grid,.chat-grid,.faq,.roi-grid{grid-template-columns:1fr}.visual{min-height:560px}.phone{right:8%}.summary-card{left:8%}.flow{grid-template-columns:1fr}.features,.trust,.service-grid{grid-template-columns:1fr 1fr}.industries{grid-template-columns:repeat(2,1fr)}.offer{grid-template-columns:1fr}}
-    @media(max-width:620px){.wrap{width:min(var(--max),calc(100% - 24px))}.hero{padding-top:52px}h1{font-size:46px}.lead{font-size:17px}.visual{min-height:530px}.phone{width:230px;height:445px;right:0}.summary-card{width:260px;left:0}.features,.trust,.service-grid,.industries,.value-row,.calc-grid{grid-template-columns:1fr}.section-head h2{font-size:32px}.cta{padding:34px 22px}.cta h2{font-size:31px}.nav .btn.secondary{display:none}}
+    @media(max-width:920px){.nav-links{display:none}.hero-grid,.chat-grid,.faq,.roi-grid{grid-template-columns:1fr}.visual{min-height:540px}.bubble.one{right:0}.bubble.two{left:0}.flow{grid-template-columns:1fr}.features,.trust,.service-grid{grid-template-columns:1fr 1fr}.industries{grid-template-columns:repeat(2,1fr)}.offer{grid-template-columns:1fr}}
+    @media(max-width:620px){.wrap{width:min(var(--max),calc(100% - 24px))}.hero{padding-top:52px}h1{font-size:46px}.lead{font-size:17px}.visual{min-height:470px}.phone{width:230px;height:455px}.bubble{width:210px;font-size:12px}.bubble.one{right:0}.bubble.two{left:0}.features,.trust,.service-grid,.industries,.value-row,.calc-grid{grid-template-columns:1fr}.section-head h2{font-size:32px}.cta{padding:34px 22px}.cta h2{font-size:31px}.nav .btn.secondary{display:none}}
   </style>
 </head>
 <body>
@@ -103,26 +108,17 @@
         <div class="proof"><span>无需更换原号码</span><span>中英文自然对话</span><span>通话后自动摘要</span><span>先从一个号码试起</span></div><div class="risk-note">先体验，再决定是否上线。尽量不改变你现有的接电话习惯。</div>
       </div>
       <div class="visual">
+        <div class="bubble one"><b>睿接 RelayCall</b><small>“您好，我是 AI 助理，请问有什么可以帮助您？”</small></div>
         <div class="phone">
           <div class="screen">
-            <div class="mini">RelayCall · 睿接 · 00:38</div>
-            <h3>客户来电</h3>
-            <div class="number">AI 电话助理 Demo</div>
+            <div class="mini">睿接 RelayCall · 00:24</div>
+            <h3>新客户来电</h3>
+            <div class="number">AI 电话助理</div>
             <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            <div class="ai-label">● 睿接正在与客户沟通</div>
+            <div class="call-controls"><div class="call-btn">✕</div><div class="call-btn good">✓</div></div>
           </div>
         </div>
-        <div class="summary-card">
-          <span class="tag">通话摘要</span>
-          <h4>Kitchen Remodel Lead</h4>
-          <div class="summary-grid">
-            <b>地点</b><span>Chino Hills</span>
-            <b>需求</b><span>厨房整体翻新</span>
-            <b>预算</b><span>约 $25,000</span>
-            <b>时间</b><span>希望下个月开始</span>
-          </div>
-          <div class="summary-text">客户希望更换橱柜、台面和水槽，想安排现场报价。建议今天下午回电。</div>
-        </div>
+        <div class="bubble two"><b>通话结束后自动整理</b><small>姓名 · 需求 · 地点 · 预算 · 时间 · 回拨偏好</small></div>
       </div>
     </div>
   </section>
